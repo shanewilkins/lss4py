@@ -1,0 +1,43 @@
+[importlinter]
+root_package = lss4py
+
+[importlinter:contract:domain_independence]
+name = Domain must be independent
+type = forbidden
+source_modules =
+    lss4py.domain
+forbidden_modules =
+    lss4py.adapters
+    lss4py.analytics
+    lss4py.workflows
+    lss4py.reporting
+    lss4py.cli
+    lss4py.observability
+
+[importlinter:contract:analytics_isolation]
+name = Analytics cannot depend on orchestration or IO layers
+type = forbidden
+source_modules =
+    lss4py.analytics
+forbidden_modules =
+    lss4py.adapters
+    lss4py.workflows
+    lss4py.reporting
+    lss4py.cli
+
+[importlinter:contract:adapters_isolation]
+name = Adapters cannot depend on workflows
+type = forbidden
+source_modules =
+    lss4py.adapters
+forbidden_modules =
+    lss4py.workflows
+
+[importlinter:contract:reporting_isolation]
+name = Reporting cannot depend on IO or workflow layers
+type = forbidden
+source_modules =
+    lss4py.reporting
+forbidden_modules =
+    lss4py.adapters
+    lss4py.workflows

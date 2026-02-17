@@ -1,0 +1,83 @@
+[project]
+name = "lss4py"
+version = "0.1.0"
+description = "Python-first Lean Six Sigma analytics for telemetry-rich process improvement"
+readme = "readme.md"
+authors = [
+    { name = "shanewilkins", email = "shane@wilkinsadvisors.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.1.0",
+    "numpy>=2.2.0",
+    "opentelemetry-api>=1.31.0",
+    "opentelemetry-exporter-otlp>=1.31.0",
+    "opentelemetry-sdk>=1.31.0",
+    "pandas>=2.2.0",
+    "rich>=13.9.0",
+    "scipy>=1.15.0",
+    "statsmodels>=0.14.0",
+    "structlog>=24.4.0",
+]
+
+[project.optional-dependencies]
+process-mining = [
+    "pm4py>=2.7.0",
+]
+simulation = [
+    "simpy>=4.1.0",
+]
+optimization = [
+    "pulp>=2.9.0",
+    "pyomo>=6.8.0",
+]
+visualization = [
+    "matplotlib>=3.10.0",
+    "seaborn>=0.13.0",
+]
+storage = [
+    "duckdb>=1.2.0",
+    "pyarrow>=19.0.0",
+]
+
+[project.scripts]
+lss4py = "lss4py.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.0,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "import-linter>=2.1",
+    "pre-commit>=4.1.0",
+    "pyright>=1.1.390",
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.9.0",
+    "vulture>=2.13",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+include = ["src", "tests"]
+venvPath = "."
+venv = ".venv"
+reportMissingTypeStubs = false
+
+[tool.vulture]
+paths = ["src", "tests"]
+min_confidence = 80
+exclude = ["*/__init__.py"]
