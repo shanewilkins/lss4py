@@ -6,7 +6,7 @@ readme = "readme.md"
 authors = [
     { name = "shanewilkins", email = "shane@wilkinsadvisors.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "click>=8.1.0",
     "numpy>=2.2.0",
@@ -54,13 +54,14 @@ dev = [
     "pyright>=1.1.390",
     "pytest>=8.3.0",
     "pytest-cov>=6.0.0",
+    "roadmap-cli>=1.0.2",
     "ruff>=0.9.0",
     "vulture>=2.13",
 ]
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -70,7 +71,7 @@ testpaths = ["tests"]
 addopts = "-q"
 
 [tool.pyright]
-pythonVersion = "3.12"
+pythonVersion = "3.14"
 typeCheckingMode = "standard"
 include = ["src", "tests"]
 venvPath = "."

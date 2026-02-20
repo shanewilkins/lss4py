@@ -1,94 +1,340 @@
 # LSS4PY
 
-LSS4PY is a Python-first toolkit for modern Lean Six Sigma practice in complex, service-oriented, and telemetry-rich systems.
+**LSS4PY** is a Python-native toolbelt for modern Lean Six Sigma practice in service and knowledge-work environments.
 
-It focuses on mathematically honest process analysis, with percentiles and tail risk (p50/p90/p95/p99) treated as first-class signals for decision-making.
+It encodes Lean flow thinking, measurement discipline, statistical process control, and structured improvement artifacts into a reproducible, programmable library.
 
-## Why LSS4PY
+LSS4PY is not a dashboard.  
+It is not slideware.  
+It is Lean Six Sigma expressed in code.
 
-Classical process improvement often relies heavily on averages and normality assumptions. In real-world operations (healthcare, logistics, customer service, IT operations, financial services), rare but extreme outcomes can dominate customer pain and business cost.
+---
 
-LSS4PY is built to make those outcomes visible and actionable.
+# Why LSS4PY Exists
 
-## Vision
+Traditional Six Sigma literature evolved in manufacturing contexts:
 
-LSS4PY treats Lean Six Sigma as a computational discipline:
+- Stable measurement systems  
+- Normally distributed tolerances  
+- Physical defect definitions  
 
-- Python-first and reproducible by default
-- Explicit statistical assumptions and diagnostics
-- Percentile- and tail-aware analysis for prioritization
-- Workflow integration across operations, IT, and data teams
+Modern service systems operate differently:
 
-## Core Scope (Current Direction)
+- Variation is often temporal  
+- Defects are definitional  
+- Queueing effects dominate performance  
+- Rare but extreme outcomes drive customer pain  
 
-The package is being built to support end-to-end process improvement workflows:
+LSS4PY is built to make these realities visible, measurable, and reproducible.
 
-1. Ingest process data (tabular/event-log/telemetry exports)
-2. Compute cycle, lead, and wait-time distributions
-3. Run percentile-aware before/after comparisons
-4. Perform SPC and capability analysis with explicit assumptions
-5. Identify bottlenecks from event-log-style data
-6. Support simulation-informed redesign decisions
-7. Produce reproducible, code-backed project outputs
+It treats Lean Six Sigma as a computational discipline grounded in:
 
-## Design Principles
+- Explicit assumptions  
+- Structured outputs  
+- Reproducible analysis  
+- Service-first realism  
 
-- Thin integration layer over the scientific Python ecosystem
-- Process-centric abstractions over ad hoc scripting
-- Tail-risk-first summaries instead of average-only reporting
-- Reproducibility and inspectability by default
-- Enterprise realism without unnecessary platform complexity
+---
 
-## What LSS4PY Is Not
+# Design Philosophy
 
-- Not a BI dashboard platform
-- Not a GUI framework
-- Not a reimplementation of established stats libraries
-- Not a certification shortcut
+## 1. Domain-First API
 
-## Ecosystem Direction
+Functions reflect Lean Six Sigma vocabulary directly:
 
-This repository is the analytics core (`lss4py`). The broader planned ecosystem includes:
+```python
+from lss4py import lss
 
-- `lss4py` — Core analytics and process intelligence
-- `lss4py-deliverables` — Structured Lean Six Sigma artifacts and reports
-- `lss4py-labs` — Synthetic enterprise-style datasets and process generators
+lss.process.ProcessMap(...)
+lss.gage_rr_crossed(...)
+lss.imr(...)
+lss.capability_normal(...)
+```
 
-## Installation and Environment (uv)
+Users think in process terms, not statistical plumbing.
 
-This project uses `uv` for environment and dependency management.
+---
 
-### Requirements
+## 2. Tidy Data In, Structured Results Out
 
-- Python 3.12+
+All tools:
+
+- Accept tidy pandas DataFrames  
+- Return structured result objects  
+- Produce deterministic output tables  
+- Generate consistent visualizations  
+
+This enables:
+
+- Autograding  
+- CI validation  
+- Auditability  
+- Reproducibility  
+
+---
+
+## 3. Measurement Before Mathematics
+
+Capability claims without validated measurement are discouraged by design.
+
+Measurement System Analysis (MSA) is foundational.
+
+---
+
+## 4. Tail-Aware, Not Average-Blind
+
+Percentiles and tail behavior are treated as first-class signals:
+
+- p50 / p90 / p95 / p99  
+- Percentile-based capability (roadmap)  
+- Service risk interpretation  
+
+Averages alone do not define performance.
+
+---
+
+# Core Capabilities (v0.1 Target)
+
+## Lean Process Modeling
+
+- Define process steps and flows  
+- Attach cycle time and WIP  
+- Tag waste and value-add  
+- Compute Little’s Law metrics  
+- Render SVG process maps  
+
+## Seven Basic Quality Tools
+
+- Histogram  
+- Pareto  
+- Scatter  
+- Stratification  
+- Check sheets  
+- Fishbone diagrams  
+- Process maps  
+
+## Statistical Process Control
+
+- IMR charts  
+- p and u charts  
+- Signal detection  
+- Structured chart outputs  
+
+## Capability Analysis
+
+- Cp / Cpk  
+- Pp / Ppk  
+- Within vs overall variation  
+
+## Measurement System Analysis
+
+- Crossed Gage R&R  
+- %GRR  
+- ndc  
+- Variance components  
+
+## Structured Deliverables
+
+- A3  
+- PDCA  
+- DMAIC  
+- TOML-front-matter validation  
+- Quarto rendering integration  
+
+---
+
+# Scope and Boundaries
+
+LSS4PY occupies a specific space in the process-improvement ecosystem.
+
+## Not Process Mining
+
+Libraries such as `pm4py` discover process models from event logs.
+
+LSS4PY assumes the process is defined and focuses on measurement, stability, and improvement.
+
+Process mining answers:
+
+> “What process occurred?”
+
+LSS4PY answers:
+
+> “Given a defined process, how do we validate, improve, and control it?”
+
+Process mining can feed LSS4PY.  
+LSS4PY does not replace process mining.
+
+---
+
+## Not a Visualization Framework
+
+LSS4PY builds on matplotlib, seaborn, and graphviz.
+
+It does not replace general-purpose visualization libraries.  
+It provides Lean-aware, opinionated visual outputs—not arbitrary plotting APIs.
+
+---
+
+## Not a BPMN or Workflow Engine
+
+LSS4PY provides lightweight Lean process modeling for improvement analysis.
+
+It does not:
+
+- Execute workflows  
+- Orchestrate tasks  
+- Replace enterprise BPM systems  
+
+---
+
+## Not a Statistical Modeling Library
+
+LSS4PY integrates with numpy, scipy, and statsmodels.
+
+It does not reimplement foundational statistical methods.
+
+---
+
+## Relationship to R’s SixSigma Package
+
+R’s `SixSigma` package implements classical DMAIC statistical tools.
+
+LSS4PY shares that foundation but extends it with:
+
+- Python-native ecosystem integration  
+- Tidy DataFrame-first design  
+- Lean process modeling  
+- Structured deliverable validation  
+- Tail-risk-aware service analysis  
+- Reproducibility and CI integration  
+
+LSS4PY aims to be a structured improvement framework, not just a statistical toolkit.
+
+---
+
+# Architecture
+
+LSS4PY is a thin integration layer over the scientific Python ecosystem:
+
+- pandas  
+- numpy  
+- scipy  
+- statsmodels  
+- graphviz  
+
+It adds Lean semantics and structured outputs without hiding underlying assumptions.
+
+---
+
+# Example (Conceptual)
+
+```python
+from lss4py.process import ProcessMap
+
+p = ProcessMap("Client Onboarding")
+
+p.add_step("Request Received", cycle_time=2)
+p.add_step("Document Review", cycle_time=6)
+p.add_step("Approval", cycle_time=4)
+
+p.connect("Request Received", "Document Review")
+p.connect("Document Review", "Approval")
+
+p.calculate_metrics()
+p.render("process_map.svg")
+```
+
+---
+
+# Installation
+
+## Requirements
+
+- Python 3.14+
 - uv
+Note: development tooling expects `roadmap-cli` >= 1.0.2 (see dev dependencies).
 
-### Quick start
+## Quick Start
 
-```bash
-uv sync
-```
-
-This creates a local `.venv` and installs the package in editable mode.
-
-To run package commands in the managed environment:
+Rebuild a clean virtual environment (recommended):
 
 ```bash
-uv run python -c "import lss4py; print('lss4py ready')"
+python3.14 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip build
+pip install -e '.[dev]'
 ```
 
-## Project Status
+If you cannot use `python3.14` locally, install the updated dev tool directly into your active environment:
 
-Early-stage foundation work is in progress. API surface, modules, and workflows will evolve as core capabilities are implemented.
+```bash
+pip install 'roadmap-cli>=1.0.2'
+```
 
-## Contributing
+To verify installation:
 
-Contributions, issues, and ideas are welcome. Please open an issue describing:
+```bash
+PYTHONPATH=src python -c "import lss4py; print('lss4py ready')"
+```
 
-- the process-improvement use case,
-- the expected analytical behavior, and
-- any assumptions or data constraints.
+---
 
-## License
+# Roadmap
 
-MIT. See `license.md`.
+## v0.1
+- Process modeling  
+- Seven tools  
+- IMR / p / u charts  
+- Capability (normal)  
+- Crossed Gage R&R  
+- Deliverable schema validation  
+
+## v0.2
+- Non-normal capability  
+- Advanced SPC rules  
+- Parallel-path process modeling  
+
+## v0.3+
+- Rare event monitoring  
+- DOE helpers  
+- Process mining hooks  
+
+---
+
+# Relationship to the Book
+
+LSS4PY is the computational companion to:
+
+**Process Improvement with Python and lss4py**
+
+The book defines the mastery hierarchy (White → Yellow → Green → Black → MBB).  
+LSS4PY provides the programmable toolbelt for Green Belt and above.
+
+---
+
+# Project Status
+
+Active early-stage development.
+
+API surface and modules will evolve before v1.0.  
+Breaking changes are expected pre-1.0.
+
+---
+
+# Contributing
+
+Contributions are welcome.
+
+Please open an issue describing:
+
+- The process-improvement use case  
+- The expected analytical behavior  
+- Relevant assumptions and constraints  
+
+Proposals grounded in Lean and service-system realism are strongly preferred.
+
+---
+
+# License
+
+MIT. See `LICENSE.md`.
