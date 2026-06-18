@@ -1,5 +1,3 @@
-from .capability import capability_report
-from .descriptive import summarize_cycle_time
-from .spc import spc_report
+"""Experimental analytics modules live here until a stable Yellow Belt API is defined."""
 
-__all__ = ["capability_report", "spc_report", "summarize_cycle_time"]
+__all__: list[str] = []

@@ -1,340 +1,231 @@
 # LSS4PY
 
-**LSS4PY** is a Python-native toolbelt for modern Lean Six Sigma practice in service and knowledge-work environments.
+LSS4PY is a Python 3.14 Lean Six Sigma utility library for the current Yellow Belt slice.
 
-It encodes Lean flow thinking, measurement discipline, statistical process control, and structured improvement artifacts into a reproducible, programmable library.
+It is focused on repeatable process metrics and yield calculations.
 
-LSS4PY is not a dashboard.  
-It is not slideware.  
-It is Lean Six Sigma expressed in code.
+It is not yet a full SPC, capability, simulation, or deliverables platform.
 
----
+## Stable Today
 
-# Why LSS4PY Exists
+The current stable surface is intentionally small.
 
-Traditional Six Sigma literature evolved in manufacturing contexts:
+It includes these public functions:
 
-- Stable measurement systems  
-- Normally distributed tolerances  
-- Physical defect definitions  
+- `lead_time`
+- `wait_time`
+- `process_cycle_efficiency`
+- `takt_time`
+- `created_to_booked_yield`
+- `booked_to_completed_yield`
+- `rolled_yield`
 
-Modern service systems operate differently:
+It also includes a process-model IR for integrating FLO-derived process structure with observed tabular data:
 
-- Variation is often temporal  
-- Defects are definitional  
-- Queueing effects dominate performance  
-- Rare but extreme outcomes drive customer pain  
+- `ProcessModelIR`
+- `ProcessStepIR`
+- `ProcessEdgeIR`
+- `MetricBindingsIR`
+- `LeadTimeBindingIR`
+- `StageBindingsIR`
+- `MetricSemanticsIR`
 
-LSS4PY is built to make these realities visible, measurable, and reproducible.
+Topology-aware event-log calculations are also part of the current stable surface for:
 
-It treats Lean Six Sigma as a computational discipline grounded in:
+- `lead_time`
+- `wait_time`
+- `process_cycle_efficiency`
 
-- Explicit assumptions  
-- Structured outputs  
-- Reproducible analysis  
-- Service-first realism  
+## Contract
 
----
+LSS4PY works from two inputs.
 
-# Design Philosophy
+The FLO side supplies a normalized process model IR.
 
-## 1. Domain-First API
+The pandas side supplies observed process data.
 
-Functions reflect Lean Six Sigma vocabulary directly:
+LSS4PY calculates metrics from both.
 
-```python
-from lss4py import lss
+The IR defines process structure and semantic bindings.
 
-lss.process.ProcessMap(...)
-lss.gage_rr_crossed(...)
-lss.imr(...)
-lss.capability_normal(...)
-```
+The DataFrame provides timestamps, stage outcomes, and measured times.
 
-Users think in process terms, not statistical plumbing.
+Explicit per-call metric arguments override IR bindings.
 
----
+Parallel paths and rework loops are represented in the IR with explicit graph edges.
 
-## 2. Tidy Data In, Structured Results Out
+Event-log rows are the canonical observed data shape for process-model-aware metrics.
 
-All tools:
+The default elapsed-time interpretation for parallel paths is `critical_path` semantics.
 
-- Accept tidy pandas DataFrames  
-- Return structured result objects  
-- Produce deterministic output tables  
-- Generate consistent visualizations  
-
-This enables:
-
-- Autograding  
-- CI validation  
-- Auditability  
-- Reproducibility  
-
----
-
-## 3. Measurement Before Mathematics
-
-Capability claims without validated measurement are discouraged by design.
-
-Measurement System Analysis (MSA) is foundational.
-
----
-
-## 4. Tail-Aware, Not Average-Blind
-
-Percentiles and tail behavior are treated as first-class signals:
-
-- p50 / p90 / p95 / p99  
-- Percentile-based capability (roadmap)  
-- Service risk interpretation  
-
-Averages alone do not define performance.
-
----
-
-# Core Capabilities (v0.1 Target)
-
-## Lean Process Modeling
-
-- Define process steps and flows  
-- Attach cycle time and WIP  
-- Tag waste and value-add  
-- Compute Little’s Law metrics  
-- Render SVG process maps  
-
-## Seven Basic Quality Tools
-
-- Histogram  
-- Pareto  
-- Scatter  
-- Stratification  
-- Check sheets  
-- Fishbone diagrams  
-- Process maps  
-
-## Statistical Process Control
-
-- IMR charts  
-- p and u charts  
-- Signal detection  
-- Structured chart outputs  
-
-## Capability Analysis
-
-- Cp / Cpk  
-- Pp / Ppk  
-- Within vs overall variation  
-
-## Measurement System Analysis
-
-- Crossed Gage R&R  
-- %GRR  
-- ndc  
-- Variance components  
-
-## Structured Deliverables
-
-- A3  
-- PDCA  
-- DMAIC  
-- TOML-front-matter validation  
-- Quarto rendering integration  
-
----
-
-# Scope and Boundaries
-
-LSS4PY occupies a specific space in the process-improvement ecosystem.
-
-## Not Process Mining
-
-Libraries such as `pm4py` discover process models from event logs.
-
-LSS4PY assumes the process is defined and focuses on measurement, stability, and improvement.
-
-Process mining answers:
-
-> “What process occurred?”
-
-LSS4PY answers:
-
-> “Given a defined process, how do we validate, improve, and control it?”
-
-Process mining can feed LSS4PY.  
-LSS4PY does not replace process mining.
-
----
-
-## Not a Visualization Framework
-
-LSS4PY builds on matplotlib, seaborn, and graphviz.
-
-It does not replace general-purpose visualization libraries.  
-It provides Lean-aware, opinionated visual outputs—not arbitrary plotting APIs.
-
----
-
-## Not a BPMN or Workflow Engine
-
-LSS4PY provides lightweight Lean process modeling for improvement analysis.
-
-It does not:
-
-- Execute workflows  
-- Orchestrate tasks  
-- Replace enterprise BPM systems  
-
----
-
-## Not a Statistical Modeling Library
-
-LSS4PY integrates with numpy, scipy, and statsmodels.
-
-It does not reimplement foundational statistical methods.
-
----
-
-## Relationship to R’s SixSigma Package
-
-R’s `SixSigma` package implements classical DMAIC statistical tools.
-
-LSS4PY shares that foundation but extends it with:
-
-- Python-native ecosystem integration  
-- Tidy DataFrame-first design  
-- Lean process modeling  
-- Structured deliverable validation  
-- Tail-risk-aware service analysis  
-- Reproducibility and CI integration  
-
-LSS4PY aims to be a structured improvement framework, not just a statistical toolkit.
-
----
-
-# Architecture
-
-LSS4PY is a thin integration layer over the scientific Python ecosystem:
-
-- pandas  
-- numpy  
-- scipy  
-- statsmodels  
-- graphviz  
-
-It adds Lean semantics and structured outputs without hiding underlying assumptions.
-
----
-
-# Example (Conceptual)
-
-```python
-from lss4py.process import ProcessMap
-
-p = ProcessMap("Client Onboarding")
-
-p.add_step("Request Received", cycle_time=2)
-p.add_step("Document Review", cycle_time=6)
-p.add_step("Approval", cycle_time=4)
-
-p.connect("Request Received", "Document Review")
-p.connect("Document Review", "Approval")
-
-p.calculate_metrics()
-p.render("process_map.svg")
-```
-
----
-
-# Installation
-
-## Requirements
-
-- Python 3.14+
-- uv
-Note: development tooling expects `roadmap-cli` >= 1.0.2 (see dev dependencies).
+An alternate `sum_all_branches` interpretation is also supported for event-log-aware calculations.
 
 ## Quick Start
 
-Rebuild a clean virtual environment (recommended):
+### Requirements
+
+- Python 3.14
+- `uv`
+
+### Install
 
 ```bash
-python3.14 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip build
-pip install -e '.[dev]'
+uv sync
 ```
 
-If you cannot use `python3.14` locally, install the updated dev tool directly into your active environment:
+### Verify
 
 ```bash
-pip install 'roadmap-cli>=1.0.2'
+uv run python -c "import lss4py; print('lss4py ready')"
 ```
 
-To verify installation:
+## Example
 
-```bash
-PYTHONPATH=src python -c "import lss4py; print('lss4py ready')"
+```python
+import pandas as pd
+
+from lss4py import (
+	LeadTimeBindingIR,
+	MetricBindingsIR,
+	MetricSemanticsIR,
+	ProcessEdgeIR,
+	ProcessModelIR,
+	ProcessStepIR,
+	StageBindingsIR,
+	created_to_booked_yield,
+	lead_time,
+	process_cycle_efficiency,
+	rolled_yield,
+	wait_time,
+)
+
+process_model = ProcessModelIR(
+	name="Client intake",
+	steps=[
+		ProcessStepIR(
+			id="review",
+			name="Review",
+			cycle_time_column="review_hours",
+			value_classification="non_value_add",
+		),
+		ProcessStepIR(
+			id="approve",
+			name="Approve",
+			cycle_time_column="approval_hours",
+			value_classification="value_add",
+		),
+	],
+	edges=[
+		ProcessEdgeIR(source_step_id="review", target_step_id="approve", kind="sequence"),
+		ProcessEdgeIR(source_step_id="approve", target_step_id="review", kind="rework"),
+	],
+	bindings=MetricBindingsIR(
+		lead_time=LeadTimeBindingIR(
+			start_column="created_at",
+			end_column="completed_at",
+		),
+		stages=StageBindingsIR(
+			created="created",
+			booked="booked",
+			completed="completed",
+		),
+	),
+	metric_semantics=MetricSemanticsIR(parallel_timing="critical_path"),
+)
+
+data = pd.DataFrame(
+	{
+		"created_at": ["2026-01-01T08:00:00", "2026-01-02T09:00:00"],
+		"completed_at": ["2026-01-01T18:00:00", "2026-01-02T15:00:00"],
+		"review_hours": [2.0, 1.0],
+		"approval_hours": [1.0, 2.0],
+		"created": [1, 1],
+		"booked": [1, 1],
+		"completed": [1, 0],
+	}
+)
+
+lead = lead_time(data, process_model=process_model)
+wait = wait_time(data, process_model=process_model)
+pce = process_cycle_efficiency(data, process_model=process_model)
+created_booked = created_to_booked_yield(data, process_model=process_model)
+rolled = rolled_yield(data, process_model=process_model)
 ```
 
----
+## API Summary
 
-# Roadmap
+### Basic Process Metrics
 
-## v0.1
-- Process modeling  
-- Seven tools  
-- IMR / p / u charts  
-- Capability (normal)  
-- Crossed Gage R&R  
-- Deliverable schema validation  
+- `lead_time(data, ..., process_model=None)` returns per-row elapsed time from start to end timestamps.
+- `wait_time(data, ..., process_model=None)` returns per-row lead time minus active cycle time.
+- `process_cycle_efficiency(data, ..., process_model=None)` returns per-row value-add time divided by lead time.
+- `takt_time(available_time=..., customer_demand=...)` returns a scalar pace target.
 
-## v0.2
-- Non-normal capability  
-- Advanced SPC rules  
-- Parallel-path process modeling  
+### Yield Helpers
 
-## v0.3+
-- Rare event monitoring  
-- DOE helpers  
-- Process mining hooks  
+- `created_to_booked_yield(data, ..., process_model=None)` returns first-stage conversion yield.
+- `booked_to_completed_yield(data, ..., process_model=None)` returns second-stage conversion yield.
+- `rolled_yield(data, ..., process_model=None)` returns end-to-end rolled yield.
 
----
+### Process Model IR
 
-# Relationship to the Book
+- `ProcessModelIR` is the top-level FLO-compatible process model contract.
+- `ProcessStepIR` defines step ids, names, cycle-time columns, and value classification.
+- `ProcessEdgeIR` defines sequence, parallel split, parallel join, and rework edges.
+- `MetricBindingsIR` groups lead-time and stage-column bindings.
+- `MetricSemanticsIR` defines process-metric interpretation defaults such as parallel timing.
 
-LSS4PY is the computational companion to:
+### Topology-Aware Event-Log Metrics
 
-**Process Improvement with Python and lss4py**
+- event-log-aware `lead_time` uses per-case event boundaries from observed rows.
+- event-log-aware `wait_time` supports branch-aware elapsed work from explicit parallel edges.
+- event-log-aware `process_cycle_efficiency` supports value-add calculations across parallel and rework-aware event logs.
+- repeated step occurrences require explicit rework edges in the process model.
+- overlapping step intervals require explicit parallel edges in the process model.
 
-The book defines the mastery hierarchy (White → Yellow → Green → Black → MBB).  
-LSS4PY provides the programmable toolbelt for Green Belt and above.
+## What Is Not Stable Yet
 
----
+These areas are not part of the stable book-facing API today:
 
-# Project Status
+- capability analysis
+- SPC reporting
+- simulation workflows
+- bottleneck workflows
+- before/after comparison workflows
+- reporting bundles
+- automatic `.flo` parsing inside `lss4py`
 
-Active early-stage development.
+The IR and metric engine now support stable topology-aware event-log calculations for the current Yellow Belt slice.
 
-API surface and modules will evolve before v1.0.  
-Breaking changes are expected pre-1.0.
+Broader graph-driven semantics outside that slice are still future work.
 
----
+## Development Status
 
-# Contributing
+This repository is in active pre-1.0 development.
 
-Contributions are welcome.
+The Yellow Belt metric surface above is the current stable target.
 
-Please open an issue describing:
+Other modules and ideas in the repository should be treated as experimental, internal, or future work unless they are explicitly listed in the stable surface.
 
-- The process-improvement use case  
-- The expected analytical behavior  
-- Relevant assumptions and constraints  
+## Validation
 
-Proposals grounded in Lean and service-system realism are strongly preferred.
+The repository is currently validated with:
 
----
+- `uv sync`
+- `uv run pytest`
+- `uv run ruff check .`
+- `uv run pyright`
 
-# License
+## Roadmap
 
-MIT. See `LICENSE.md`.
+Near-term work is focused on:
+
+- README and example quality
+- FLO IR contract documentation
+- Yellow Belt worked examples and capstone support
+
+## License
+
+MIT.
+
+See `LICENSE.md`.
