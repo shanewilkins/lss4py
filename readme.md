@@ -231,7 +231,7 @@ Install both local hook stages with:
 uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push
 ```
 
-The `pre-commit` stage runs fast Ruff checks on changed files.
+The `pre-commit` stage runs Ruff on changed files and the locked test suite without coverage.
 
 The `pre-push` stage and CI run the full locked repository-wide gates.
 
