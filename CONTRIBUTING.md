@@ -46,6 +46,28 @@ uv run --locked vulture src tests --min-confidence 80
 CI additionally enforces 95% coverage on the current supported slice and runs a
 built-wheel smoke test outside the source tree.
 
+## Releases
+
+LSS4PY publishes to PyPI from GitHub Actions through trusted publishing.
+
+The release workflow lives in `.github/workflows/release.yml`.
+
+Publishing starts when a GitHub release is published for a version tag such as `v0.1.0`.
+
+The workflow builds distributions in one job and publishes them to PyPI from a separate `pypi` environment job with `id-token: write`.
+
+For a brand-new PyPI project, configure a pending publisher on PyPI before the first release.
+
+Use these values for the first `lss4py` publisher:
+
+- PyPI project name: `lss4py`
+- GitHub owner: `shanewilkins`
+- GitHub repository: `lss4py`
+- GitHub workflow name: `release.yml`
+- GitHub environment name: `pypi`
+
+After the pending publisher exists on PyPI, publish the GitHub release or rerun the failed release workflow.
+
 ## Contribution expectations
 
 - Keep changes focused and include tests for new or changed behavior.

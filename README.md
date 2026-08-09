@@ -29,6 +29,13 @@ It also includes a process-model IR for integrating FLO-derived process structur
 - `LeadTimeBindingIR`
 - `StageBindingsIR`
 - `MetricSemanticsIR`
+- `EventLogBindingsIR`
+
+It also includes stable event-log contracts and helpers:
+
+- `EventLog`
+- `validate_event_log`
+- `map_process`
 
 Topology-aware event-log calculations are also part of the current stable surface for:
 
@@ -179,6 +186,13 @@ rolled = rolled_yield(data, process_model=process_model)
 - `ProcessEdgeIR` defines sequence, parallel split, parallel join, and rework edges.
 - `MetricBindingsIR` groups lead-time and stage-column bindings.
 - `MetricSemanticsIR` defines process-metric interpretation defaults such as parallel timing.
+- `EventLogBindingsIR` defines the case, step, start, and end columns for event-log-aware metrics.
+
+### Event-Log Contracts And Helpers
+
+- `EventLog` represents the observed event-log contract used by stable event-log helpers.
+- `validate_event_log(event_log)` returns machine-readable warnings for empty logs or missing required event fields.
+- `map_process(event_log)` returns discovered activity nodes and transition counts from observed event order.
 
 ### Topology-Aware Event-Log Metrics
 

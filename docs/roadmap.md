@@ -38,9 +38,9 @@ Later releases inherit any earlier requirement that is still not satisfied.
 
 ### Technical requirements
 
-- **v0.1:** TR-001, TR-003, TR-004, TR-005, TR-008, TR-010, TR-011, TR-012, TR-018.
-- **v0.2:** TR-002, TR-007, TR-009, TR-014, TR-015, TR-016, TR-017, TR-019, TR-020, TR-021, TR-033, TR-037.
-- **v0.3:** TR-006, TR-013, TR-022, TR-023, TR-024, TR-026, TR-028, TR-030, TR-032, TR-035, TR-036.
+- **v0.1:** TR-001, TR-003, TR-004, TR-005, TR-008, TR-011.
+- **v0.2:** TR-002, TR-007, TR-009, TR-010, TR-014, TR-015, TR-016, TR-017, TR-018, TR-019, TR-020, TR-021, TR-033, TR-037.
+- **v0.3:** TR-006, TR-012, TR-013, TR-022, TR-023, TR-024, TR-026, TR-028, TR-030, TR-032, TR-035, TR-036.
 
 ## Release gates
 

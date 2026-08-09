@@ -247,6 +247,15 @@ def test_event_log_metrics_allow_rework_when_rework_edge_is_defined() -> None:
     assert wait_result.to_dict() == {"C2": 0.0}
 
 
+def test_event_log_metrics_reject_unknown_steps_not_in_process_model() -> None:
+    process_model = _sample_event_log_process_model_ir(parallel_timing="critical_path")
+    data = _sample_parallel_event_log().copy()
+    data.loc[0, "step_id"] = "unknown"
+
+    with pytest.raises(ValidationError, match="missing from process model"):
+        lead_time(data, process_model=process_model)
+
+
 def test_event_log_metrics_reject_overlap_without_parallel_edges() -> None:
     process_model = ProcessModelIR(
         name="Sequential only",
