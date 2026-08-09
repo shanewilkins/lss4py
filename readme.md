@@ -44,6 +44,11 @@ The FLO side supplies a normalized process model IR.
 
 The pandas side supplies observed process data.
 
+That is the current implementation contract. Proposed
+[ADR-0004](docs/adr/0004-support-dataframe-neutral-inputs-and-results.md) replaces
+the concrete pandas dependency with a tested dataframe-neutral boundary before the
+analytical surface expands.
+
 LSS4PY calculates metrics from both.
 
 The IR defines process structure and semantic bindings.
@@ -211,21 +216,41 @@ Other modules and ideas in the repository should be treated as experimental, int
 
 The repository is currently validated with:
 
+- `uv lock --check`
+- `uv run --locked lint-imports`
 - `uv sync`
-- `uv run pytest`
-- `uv run ruff check .`
-- `uv run pyright`
+- `uv run --locked ruff check .`
+- `uv run --locked pyright`
+- `uv run --locked xenon --max-absolute B --max-modules A --max-average A src/lss4py tests`
+- `uv run --locked pytest`
+- `uv run --locked vulture src tests --min-confidence 80`
+
+Install both local hook stages with:
+
+```bash
+uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push
+```
+
+The `pre-commit` stage runs fast Ruff checks on changed files.
+
+The `pre-push` stage and CI run the full locked repository-wide gates.
+
+CI additionally enforces 95% coverage on the current supported slice and runs a
+built-wheel smoke test outside the source tree.
 
 ## Roadmap
 
-Near-term work is focused on:
+The governed [roadmap](docs/roadmap.md) targets a complete Yellow Belt MVP at
+v0.3, Green Belt capability at v0.5, Black Belt capability at v0.7, and a
+feature-frozen polish phase at v0.9 before the stable 1.0 contract.
 
-- README and example quality
-- FLO IR contract documentation
-- Yellow Belt worked examples and capstone support
+See the [documentation index](docs/README.md) for user requirements, technical
+requirements, ADRs, and governance conventions. R `SixSigma` coverage is tracked
+separately in the [compatibility matrix](docs/sixsigma-compatibility.md).
 
 ## License
 
-MIT.
+LSS4PY is available under the [MIT License](LICENSE.md).
 
-See `LICENSE.md`.
+See [CONTRIBUTING.md](CONTRIBUTING.md) to contribute and
+[SECURITY.md](SECURITY.md) to report a vulnerability privately.

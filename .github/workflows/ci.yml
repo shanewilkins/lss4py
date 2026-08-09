@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Sync development dependencies
+        run: uv sync --locked --group dev
+
+      - name: Validate lockfile
+        run: uv lock --check
+
+      - name: Ruff
+        run: uv run --locked ruff check .
+
+      - name: Import Linter
+        run: uv run --locked lint-imports
+
+      - name: Vulture
+        run: uv run --locked vulture src tests --min-confidence 80
+
+      - name: Xenon
+        run: uv run --locked xenon --max-absolute B --max-modules A --max-average A src/lss4py tests
+
+  typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Sync development dependencies
+        run: uv sync --locked --group dev
+
+      - name: Pyright
+        run: uv run --locked pyright
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Sync development dependencies
+        run: uv sync --locked --group dev
+
+      - name: Pytest
+        run: uv run --locked pytest --cov=src/lss4py --cov-report=term-missing
+
+  smoke:
+    needs:
+      - lint
+      - typecheck
+      - test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Build distributions
+        run: uv build
+
+      - name: Smoke test built wheel
+        run: |
+          uv venv .smoke-venv
+          uv pip install --python .smoke-venv/bin/python dist/*.whl
+          python_bin="$GITHUB_WORKSPACE/.smoke-venv/bin/python"
+          cli_bin="$GITHUB_WORKSPACE/.smoke-venv/bin/lss4py"
+          smoke_dir="$(mktemp -d)"
+          cd "$smoke_dir"
+          "$python_bin" -c "import lss4py; from lss4py import lead_time, validate_event_log; print('lss4py smoke import ok')"
+          "$cli_bin" doctor

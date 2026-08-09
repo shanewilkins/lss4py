@@ -67,14 +67,12 @@ def _step_lookup(process_model: ProcessModelIR) -> dict[str, object]:
     return {step.id: step for step in process_model.steps}
 
 
-def _validate_event_log_rows(data: pd.DataFrame, process_model: ProcessModelIR) -> None:
-    bindings = process_model.bindings.event_log
-    case_id_column = cast(str, bindings.case_id_column)
-    step_id_column = cast(str, bindings.step_id_column)
-    started_at_column = cast(str, bindings.started_at_column)
-    completed_at_column = cast(str, bindings.completed_at_column)
-    _require_columns(data, case_id_column, step_id_column, started_at_column, completed_at_column)
-
+def _validate_known_event_log_step_ids(
+    data: pd.DataFrame,
+    *,
+    process_model: ProcessModelIR,
+    step_id_column: str,
+) -> None:
     known_step_ids = set(_step_lookup(process_model))
     observed_step_ids = set(data[step_id_column].astype(str).unique().tolist())
     unknown_step_ids = sorted(observed_step_ids - known_step_ids)
@@ -84,10 +82,88 @@ def _validate_event_log_rows(data: pd.DataFrame, process_model: ProcessModelIR) 
             f"'{process_model.name}': {', '.join(unknown_step_ids)}"
         )
 
+
+def _validate_event_log_durations(
+    data: pd.DataFrame,
+    *,
+    started_at_column: str,
+    completed_at_column: str,
+) -> tuple[pd.Series, pd.Series]:
     started_at = pd.to_datetime(data[started_at_column], errors="raise")
     completed_at = pd.to_datetime(data[completed_at_column], errors="raise")
     if (completed_at < started_at).any():
         raise ValidationError("Event-log rows cannot have negative durations.")
+
+    return started_at, completed_at
+
+
+def _case_repeated_steps(case_rows: pd.DataFrame) -> list[str]:
+    step_counts = case_rows.groupby("__step_id").size().to_dict()
+    return sorted(str(step_id) for step_id, count in step_counts.items() if count > 1)
+
+
+def _validate_event_log_case_rework(
+    case_rows: pd.DataFrame,
+    *,
+    process_model: ProcessModelIR,
+    rework_targets: set[str],
+) -> None:
+    for repeated_step in _case_repeated_steps(case_rows):
+        if repeated_step not in rework_targets:
+            raise ValidationError(
+                "Step "
+                f"'{repeated_step}' repeats in observed data but process model "
+                f"'{process_model.name}' does not define a rework edge to it."
+            )
+
+
+def _validate_event_log_case_overlaps(
+    case_rows: pd.DataFrame,
+    *,
+    parallel_edges_present: bool,
+) -> None:
+    ordered_rows = case_rows.sort_values("__started_at")
+    previous_end: pd.Timestamp | None = None
+    ordered_intervals = zip(
+        ordered_rows["__started_at"],
+        ordered_rows["__completed_at"],
+        strict=False,
+    )
+    for started_at_value, completed_at_value in ordered_intervals:
+        if (
+            previous_end is not None
+            and started_at_value < previous_end
+            and not parallel_edges_present
+        ):
+            raise ValidationError(
+                "Observed overlapping step intervals require explicit parallel "
+                "edges in the process model."
+            )
+        previous_end = (
+            max(previous_end, completed_at_value)
+            if previous_end is not None
+            else completed_at_value
+        )
+
+
+def _validate_event_log_rows(data: pd.DataFrame, process_model: ProcessModelIR) -> None:
+    bindings = process_model.bindings.event_log
+    case_id_column = cast(str, bindings.case_id_column)
+    step_id_column = cast(str, bindings.step_id_column)
+    started_at_column = cast(str, bindings.started_at_column)
+    completed_at_column = cast(str, bindings.completed_at_column)
+    _require_columns(data, case_id_column, step_id_column, started_at_column, completed_at_column)
+
+    _validate_known_event_log_step_ids(
+        data,
+        process_model=process_model,
+        step_id_column=step_id_column,
+    )
+    started_at, completed_at = _validate_event_log_durations(
+        data,
+        started_at_column=started_at_column,
+        completed_at_column=completed_at_column,
+    )
 
     rework_targets = {edge.target_step_id for edge in process_model.edges if edge.kind == "rework"}
     parallel_edges_present = any(
@@ -102,38 +178,15 @@ def _validate_event_log_rows(data: pd.DataFrame, process_model: ProcessModelIR) 
     )
 
     for _, case_rows in typed_data.groupby("__case_id", sort=False):
-        step_counts = case_rows.groupby("__step_id").size().to_dict()
-        repeated_steps = sorted(str(step_id) for step_id, count in step_counts.items() if count > 1)
-        for repeated_step in repeated_steps:
-            if repeated_step not in rework_targets:
-                raise ValidationError(
-                    "Step "
-                    f"'{repeated_step}' repeats in observed data but process model "
-                    f"'{process_model.name}' does not define a rework edge to it."
-                )
-
-        ordered_rows = case_rows.sort_values("__started_at")
-        previous_end: pd.Timestamp | None = None
-        ordered_intervals = zip(
-            ordered_rows["__started_at"],
-            ordered_rows["__completed_at"],
-            strict=False,
+        _validate_event_log_case_rework(
+            case_rows,
+            process_model=process_model,
+            rework_targets=rework_targets,
         )
-        for started_at_value, completed_at_value in ordered_intervals:
-            if (
-                previous_end is not None
-                and started_at_value < previous_end
-                and not parallel_edges_present
-            ):
-                raise ValidationError(
-                    "Observed overlapping step intervals require explicit parallel "
-                    "edges in the process model."
-                )
-            previous_end = (
-                max(previous_end, completed_at_value)
-                if previous_end is not None
-                else completed_at_value
-            )
+        _validate_event_log_case_overlaps(
+            case_rows,
+            parallel_edges_present=parallel_edges_present,
+        )
 
 
 def _event_log_case_series(

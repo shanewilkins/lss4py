@@ -2,7 +2,8 @@
 name = "lss4py"
 version = "0.1.0"
 description = "Python-first Lean Six Sigma analytics for telemetry-rich process improvement"
-readme = "readme.md"
+readme = "README.md"
+license = "MIT"
 authors = [
     { name = "shanewilkins", email = "shane@wilkinsadvisors.com" }
 ]
@@ -44,7 +45,7 @@ storage = [
 lss4py = "lss4py.cli:main"
 
 [build-system]
-requires = ["uv_build>=0.10.0,<0.11.0"]
+requires = ["uv_build>=0.10.0,<0.13.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
@@ -56,6 +57,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "ruff>=0.9.0",
     "vulture>=2.13",
+    "xenon>=0.9.3",
 ]
 
 [tool.ruff]
@@ -68,6 +70,24 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[tool.coverage.run]
+source = ["src/lss4py"]
+omit = [
+    "src/lss4py/adapters/*",
+    "src/lss4py/analytics/*",
+    "src/lss4py/cli.py",
+    "src/lss4py/observability/*",
+    "src/lss4py/reporting/*",
+    "src/lss4py/workflows/bottleneck.py",
+    "src/lss4py/workflows/comparison.py",
+    "src/lss4py/workflows/simulation.py",
+]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+skip_covered = true
 
 [tool.pyright]
 pythonVersion = "3.14"
