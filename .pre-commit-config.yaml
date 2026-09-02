@@ -30,17 +30,41 @@ repos:
         stages: [pre-push]
         always_run: true
 
-      - id: import-linter
-        name: import-linter
-        entry: uv run --locked lint-imports
+      - id: interrogate
+        name: interrogate (docstring coverage 80%)
+        entry: uv run --locked interrogate -vv src/lss4py
         language: system
         pass_filenames: false
         stages: [pre-push]
         always_run: true
 
-      - id: pyright
-        name: pyright
-        entry: uv run --locked pyright
+      - id: pydocstyle
+        name: pydocstyle (docstring format)
+        entry: uv run --locked pydocstyle src/lss4py/_event_log.py src/lss4py/kernels src/lss4py/domain
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        always_run: true
+
+      - id: coverage
+        name: coverage (90% minimum)
+        entry: uv run --locked pytest --cov=src/lss4py --cov-fail-under=90
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        always_run: true
+
+      - id: import-linter
+        name: import-linter
+        entry: uv run --locked import-linter lint --config lint_imports_config.ini
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        always_run: true
+
+      - id: ty
+        name: ty (type checker)
+        entry: uv run --locked ty check
         language: system
         pass_filenames: false
         stages: [pre-push]

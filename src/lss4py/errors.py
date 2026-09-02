@@ -1,3 +1,10 @@
+"""LSS4PY exception hierarchy.
+
+All exceptions raised by lss4py inherit from LSS4PyError.
+Specific error types indicate the layer where the failure occurred.
+"""
+
+
 class LSS4PyError(Exception):
     """Base exception for lss4py."""
 

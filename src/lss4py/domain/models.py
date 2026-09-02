@@ -1,3 +1,9 @@
+"""Domain models for LSS4PY.
+
+Core data structures representing process models, event logs, and analysis metadata.
+These models form the contract between adapters, kernels, and workflows.
+"""
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Literal

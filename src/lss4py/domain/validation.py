@@ -1,7 +1,20 @@
+"""Domain validation for LSS4PY models.
+
+Utilities for validating process models, event logs, and analytical inputs.
+"""
+
 from .models import AssumptionNote, AssumptionReport, EventLog
 
 
 def validate_event_log(event_log: EventLog) -> AssumptionReport:
+    """Validate event log structure and contents.
+
+    Args:
+        event_log: EventLog to validate.
+
+    Returns:
+        AssumptionReport with validation warnings.
+    """
     if not event_log.events:
         return AssumptionReport(
             warnings=[

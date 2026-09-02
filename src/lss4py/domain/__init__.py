@@ -15,12 +15,25 @@ from .models import (
     ProcessWindow,
     StageBindingsIR,
 )
+from .results import (
+    AnalysisBundle,
+    AnalyticalResult,
+    CapabilityResult,
+    DescriptiveResult,
+    Provenance,
+    TimingResult,
+    YieldResult,
+)
 from .validation import validate_event_log
 
 __all__ = [
+    "AnalysisBundle",
+    "AnalyticalResult",
     "AssumptionNote",
     "AssumptionReport",
+    "CapabilityResult",
     "ComparisonSlice",
+    "DescriptiveResult",
     "EventLogBindingsIR",
     "EventLog",
     "LeadTimeBindingIR",
@@ -32,6 +45,9 @@ __all__ = [
     "ProcessModelIR",
     "ProcessStepIR",
     "ProcessWindow",
+    "Provenance",
     "StageBindingsIR",
+    "TimingResult",
+    "YieldResult",
     "validate_event_log",
 ]
