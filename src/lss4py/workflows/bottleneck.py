@@ -1,6 +1,6 @@
-from lss4py.domain.models import EventLog
+from lss4py.domain import EventStream
 
 
-def bottleneck_report(event_log: EventLog) -> dict[str, object]:
+def bottleneck_report(event_log: EventStream) -> dict[str, object]:
     _ = event_log
     raise NotImplementedError("Bottleneck workflow is not implemented yet.")

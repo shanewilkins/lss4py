@@ -38,6 +38,10 @@ See [ARCHITECTURAL-DECISION-FRAMEWORK.md](ARCHITECTURAL-DECISION-FRAMEWORK.md) f
 | ADR | Decision | Status |
 |---|---|---|
 | [0015](0015-belt-level-governance.md) | Belt-level governance and practitioner progression | Proposed |
+| [0016](0016-private-kernel-architecture.md) | Keep numerical kernels private | Accepted |
+| [0017](0017-format-adapter-registry.md) | Route event-log formats through an adapter registry | Accepted |
+| [0018](0018-use-polars-as-the-canonical-ingestion-backend.md) | Use Polars as the canonical ingestion backend | Accepted |
+| [0019](0019-reconcile-package-boundaries-and-event-log-contracts.md) | Reconcile package boundaries and event-log contracts | Accepted |
 
 ## When to write an ADR
 

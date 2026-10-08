@@ -10,9 +10,8 @@ from typing import Any
 import narwhals as nw
 import numpy as np
 
-from lss4py.domain import ProcessModelIR, TimingResult
-from lss4py.errors import ValidationError
-from lss4py.kernels._helpers import (
+from lss4py._event_log import event_log_lead_time
+from lss4py._kernels._helpers import (
     TimeUnit,
     build_provenance,
     event_log_bindings_available,
@@ -22,6 +21,8 @@ from lss4py.kernels._helpers import (
     resolve_lead_time_series,
     resolve_value_add_time_series,
 )
+from lss4py.domain import IntervalEventLog, ProcessModelIR, TimingResult
+from lss4py.errors import ValidationError
 
 _SECONDS_PER_UNIT: dict[TimeUnit, float] = {
     "seconds": 1.0,
@@ -61,7 +62,8 @@ def lead_time(
         TimingResult with per-row lead times in requested unit, including full
         provenance, assumptions, and interpretation context.
     """
-    frame = nw.from_native(data, eager_only=True)
+    native_data = data.to_polars(copy=False) if isinstance(data, IntervalEventLog) else data
+    frame = nw.from_native(native_data, eager_only=True)
 
     if (
         start_column is None
@@ -69,10 +71,49 @@ def lead_time(
         and event_log_bindings_available(frame, process_model)
     ):
         assert process_model is not None
-        # Event-log path (v0.3 migration in progress)
-        raise NotImplementedError(
-            "Event-log lead_time calculation is being refactored for v0.3. "
-            "Use explicit start_column and end_column for now."
+        keys, result = event_log_lead_time(
+            native_data,
+            process_model=process_model,
+            seconds_per_unit=_SECONDS_PER_UNIT[unit],
+        )
+        provenance = build_provenance(
+            method_name="lead_time",
+            frame=frame,
+            parameters={
+                "unit": unit,
+                "process_model": True,
+                "data_shape": "interval_event_log",
+                "case_id_column": process_model.bindings.event_log.case_id_column,
+                "step_id_column": process_model.bindings.event_log.step_id_column,
+                "started_at_column": process_model.bindings.event_log.started_at_column,
+                "completed_at_column": process_model.bindings.event_log.completed_at_column,
+            },
+            assumptions=[
+                {
+                    "code": "CASE_BOUNDARIES",
+                    "message": (
+                        "Per-case lead time uses the earliest activity start and latest "
+                        "activity completion."
+                    ),
+                },
+                {
+                    "code": "INTERVAL_EVENT_LOG",
+                    "message": (
+                        "Each row represents one activity interval with explicit case and step IDs."
+                    ),
+                },
+            ],
+        )
+        return TimingResult(
+            name="Lead Time",
+            provenance=provenance,
+            values=result,
+            keys=keys,
+            unit=unit,
+            interpretation_context=(
+                "Lead time is the elapsed time from the first observed activity start to "
+                "the last observed activity completion for each case."
+            ),
         )
 
     resolved_start_column, resolved_end_column = resolve_lead_time_columns(

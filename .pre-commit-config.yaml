@@ -40,7 +40,7 @@ repos:
 
       - id: pydocstyle
         name: pydocstyle (docstring format)
-        entry: uv run --locked pydocstyle src/lss4py/_event_log.py src/lss4py/kernels src/lss4py/domain
+        entry: uv run --locked pydocstyle src/lss4py/_event_log.py src/lss4py/_kernels src/lss4py/domain
         language: system
         pass_filenames: false
         stages: [pre-push]

@@ -15,7 +15,7 @@ dependencies = [
     "opentelemetry-api>=1.31.0",
     "opentelemetry-exporter-otlp>=1.31.0",
     "opentelemetry-sdk>=1.31.0",
-    "pandas>=2.2.0",
+    "polars>=1.0.0",
     "rich>=13.9.0",
     "scipy>=1.15.0",
     "statsmodels>=0.14.0",
@@ -23,6 +23,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+pandas = [
+    "pandas>=2.2.0",
+]
 process-mining = [
     "pm4py>=2.7.0",
 ]
@@ -54,6 +57,7 @@ dev = [
     "bandit>=1.8.0",  # Security scanning
     "import-linter>=2.1",
     "interrogate>=1.5.0",  # Docstring coverage
+    "pandas>=2.2.0",  # Backend parity tests
     "pip-audit>=2.6.0",  # Dependency vulnerabilities
     "pre-commit>=4.1.0",
     "pydocstyle>=6.3.0",  # Docstring formatting
@@ -81,7 +85,6 @@ source = ["src/lss4py"]
 omit = [
     "src/lss4py/_event_log.py",  # v0.3 refactor
     "src/lss4py/adapters/*",
-    "src/lss4py/analytics/*",
     "src/lss4py/cli.py",
     "src/lss4py/observability/*",
     "src/lss4py/reporting/*",
@@ -107,7 +110,7 @@ ignore-semiprivate = false
 ignore-private = false
 fail-under = 80
 verbose = 2
-exclude = ["src/lss4py/adapters", "src/lss4py/analytics", "src/lss4py/observability", "src/lss4py/reporting", "src/lss4py/workflows", "tests"]
+exclude = ["src/lss4py/adapters", "src/lss4py/observability", "src/lss4py/reporting", "src/lss4py/workflows", "tests"]
 
 [tool.vulture]
 paths = ["src", "tests"]

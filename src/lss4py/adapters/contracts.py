@@ -34,6 +34,15 @@ class AdapterSchema:
     timestamp_columns: list[str] | None = None
     """Columns that represent timestamps (e.g., ["started_at", "completed_at"])."""
 
+    source_format: str | None = None
+    """Source format read by the adapter (for example, ``csv``)."""
+
+    backend: str = "polars"
+    """Native dataframe backend returned by the adapter."""
+
+    transformations: tuple[str, ...] = ()
+    """Ordered, user-visible normalization steps applied while loading."""
+
     def validate_required_fields(self, required: list[str]) -> list[str]:
         """
         Check which required fields are missing.
@@ -63,10 +72,10 @@ class TabularAdapter(ABC):
     @abstractmethod
     def schema(self) -> AdapterSchema:
         """
-        Inspect and return schema without loading full data.
+        Inspect and return the normalized source schema.
 
-        This method should peek at the source (e.g., read column headers,
-        count rows) without materializing all data in memory.
+        Implementations may scan or materialize the source when exact row counts
+        or post-normalization types cannot otherwise be determined.
 
         Returns:
             AdapterSchema describing the data structure.
@@ -78,13 +87,13 @@ class TabularAdapter(ABC):
     @abstractmethod
     def load(
         self,
-        backend: Literal["pandas", "polars"] = "pandas",
+        backend: Literal["polars"] = "polars",
     ) -> tuple[Any, AdapterSchema]:
         """
         Load data from source and normalize to eager DataFrame.
 
         Args:
-            backend: Requested dataframe backend ("pandas" or "polars").
+            backend: Requested dataframe backend. Core adapters materialize Polars.
 
         Returns:
             (DataFrame, AdapterSchema) where DataFrame is native to the backend.
@@ -99,7 +108,8 @@ class EventLogAdapter(ABC):
     """
     Base class for adapters that produce event-log data.
 
-    Event logs have required fields: case_id, activity, timestamp.
+    Interval event logs have required fields: case_id, step_id, started_at,
+    and completed_at.
     External adapter implementations should inherit from this class.
     """
 
@@ -114,26 +124,25 @@ class EventLogAdapter(ABC):
     @abstractmethod
     def schema(self) -> AdapterSchema:
         """
-        Inspect event-log schema without loading all events.
+        Inspect and return the normalized event-log schema.
 
         Returns:
-            AdapterSchema with required_fields including case_id, activity, timestamp.
+            AdapterSchema describing the canonical interval-event fields.
 
         Raises:
             AdapterError: if the source is unreachable.
         """
 
     @abstractmethod
-    def load(self, backend: str = "pandas") -> tuple[Any, AdapterSchema]:
+    def load(self, backend: Literal["polars"] = "polars") -> tuple[Any, AdapterSchema]:
         """
-        Load events from source and normalize to EventLog domain model.
+        Load events from source and normalize to IntervalEventLog.
 
         Args:
-            backend: Unused for now (event logs are normalized to EventLog,
-                not raw DataFrames). Kept for API compatibility.
+            backend: Requested dataframe backend. Core adapters materialize Polars.
 
         Returns:
-            (EventLog, AdapterSchema) where EventLog is lss4py.domain.models.EventLog.
+            An IntervalEventLog backed by Polars and its AdapterSchema.
 
         Raises:
             AdapterError: if data cannot be loaded or is invalid.

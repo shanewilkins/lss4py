@@ -33,15 +33,16 @@ It also includes a process-model IR for integrating FLO-derived process structur
 
 It also includes stable event-log contracts and helpers:
 
-- `EventLog`
+- `EventStream`
+- `IntervalEventLog`
+- `EventLogCSVAdapter`
+- `load_event_log`
 - `validate_event_log`
 - `map_process`
 
-Topology-aware event-log calculations are also part of the current stable surface for:
+Interval-event calculations are part of the current stable surface for:
 
 - `lead_time`
-- `wait_time`
-- `process_cycle_efficiency`
 
 ## Contract
 
@@ -49,12 +50,11 @@ LSS4PY works from two inputs.
 
 The FLO side supplies a normalized process model IR.
 
-The pandas side supplies observed process data.
-
-That is the current implementation contract. Proposed
-[ADR-0004](docs/adr/0004-support-dataframe-neutral-inputs-and-results.md) replaces
-the concrete pandas dependency with a tested dataframe-neutral boundary before the
-analytical surface expands.
+The observed-data side accepts supported eager dataframe inputs through Narwhals.
+Core file ingestion materializes validated Polars frames by default, as recorded in
+[ADR-0018](docs/adr/0018-use-polars-as-the-canonical-ingestion-backend.md). pandas
+remains an optional analytical-input backend rather than the package's canonical
+storage contract.
 
 LSS4PY calculates metrics from both.
 
@@ -68,9 +68,8 @@ Parallel paths and rework loops are represented in the IR with explicit graph ed
 
 Event-log rows are the canonical observed data shape for process-model-aware metrics.
 
-The default elapsed-time interpretation for parallel paths is `critical_path` semantics.
-
-An alternate `sum_all_branches` interpretation is also supported for event-log-aware calculations.
+Per-case lead time uses the earliest observed start and latest observed completion.
+Branch-aware wait time and process-cycle efficiency remain planned work.
 
 ## Quick Start
 
@@ -94,7 +93,7 @@ uv run python -c "import lss4py; print('lss4py ready')"
 ## Example
 
 ```python
-import pandas as pd
+import polars as pl
 
 from lss4py import (
 	LeadTimeBindingIR,
@@ -145,7 +144,7 @@ process_model = ProcessModelIR(
 	metric_semantics=MetricSemanticsIR(parallel_timing="critical_path"),
 )
 
-data = pd.DataFrame(
+data = pl.DataFrame(
 	{
 		"created_at": ["2026-01-01T08:00:00", "2026-01-02T09:00:00"],
 		"completed_at": ["2026-01-01T18:00:00", "2026-01-02T15:00:00"],
@@ -162,6 +161,48 @@ wait = wait_time(data, process_model=process_model)
 pce = process_cycle_efficiency(data, process_model=process_model)
 created_booked = created_to_booked_yield(data, process_model=process_model)
 rolled = rolled_yield(data, process_model=process_model)
+```
+
+### Ingest an interval event log
+
+CSV interval logs use four semantic fields. Source names can be mapped during
+loading; the returned `IntervalEventLog` wraps a Polars frame with canonical names.
+
+```python
+from lss4py import (
+    EventLogBindingsIR,
+    MetricBindingsIR,
+    ProcessModelIR,
+    ProcessStepIR,
+    lead_time,
+    load_event_log,
+)
+
+events = load_event_log(
+    "process-events.csv",
+    case_id_column="case",
+    step_id_column="activity",
+    started_at_column="start_time",
+    completed_at_column="end_time",
+)
+
+process = ProcessModelIR(
+    name="Client intake",
+    steps=[
+        ProcessStepIR(id="review", name="Review"),
+        ProcessStepIR(id="approve", name="Approve"),
+    ],
+    bindings=MetricBindingsIR(
+        event_log=EventLogBindingsIR(
+            case_id_column="case_id",
+            step_id_column="step_id",
+            started_at_column="started_at",
+            completed_at_column="completed_at",
+        )
+    ),
+)
+
+case_lead_time = lead_time(events, process_model=process, unit="hours")
 ```
 
 ## API Summary
@@ -190,15 +231,17 @@ rolled = rolled_yield(data, process_model=process_model)
 
 ### Event-Log Contracts And Helpers
 
-- `EventLog` represents the observed event-log contract used by stable event-log helpers.
+- `EventStream` represents single-timestamp activity observations used by discovery helpers.
+- `EventLog` remains a pre-1.0 compatibility alias for `EventStream`.
+- `IntervalEventLog` wraps a validated canonical Polars interval frame.
+- `load_event_log(path, ...)` loads and validates an interval-event CSV into that contract.
+- `EventLogCSVAdapter` exposes both the normalized interval log and its `AdapterSchema`.
 - `validate_event_log(event_log)` returns machine-readable warnings for empty logs or missing required event fields.
 - `map_process(event_log)` returns discovered activity nodes and transition counts from observed event order.
 
 ### Topology-Aware Event-Log Metrics
 
 - event-log-aware `lead_time` uses per-case event boundaries from observed rows.
-- event-log-aware `wait_time` supports branch-aware elapsed work from explicit parallel edges.
-- event-log-aware `process_cycle_efficiency` supports value-add calculations across parallel and rework-aware event logs.
 - repeated step occurrences require explicit rework edges in the process model.
 - overlapping step intervals require explicit parallel edges in the process model.
 
@@ -212,11 +255,12 @@ These areas are not part of the stable book-facing API today:
 - bottleneck workflows
 - before/after comparison workflows
 - reporting bundles
+- branch-aware event-log wait time and process-cycle efficiency
 - automatic `.flo` parsing inside `lss4py`
 
-The IR and metric engine now support stable topology-aware event-log calculations for the current Yellow Belt slice.
+The IR and metric engine support validated, per-case lead time from interval-event
+logs. Broader branch-aware calculations are still future work.
 
-Broader graph-driven semantics outside that slice are still future work.
 
 ## Development Status
 
@@ -234,7 +278,7 @@ The repository is currently validated with:
 - `uv run --locked lint-imports`
 - `uv sync`
 - `uv run --locked ruff check .`
-- `uv run --locked pyright`
+- `uv run --locked ty check`
 - `uv run --locked xenon --max-absolute B --max-modules A --max-average A src/lss4py tests`
 - `uv run --locked pytest`
 - `uv run --locked vulture src tests --min-confidence 80`

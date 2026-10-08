@@ -55,7 +55,7 @@ Belt labels describe the analyses the package supports. They are not certificati
 | **v0.7** | **Black Belt complete** | Validate Black Belt contract: create end-to-end transformation workflows with advanced MSA screening, predictive modeling with interpretation, response surface design and analysis, multi-objective optimization scenarios, discrete-event simulation with redesign capabilities, profile monitoring with control limits, and conformance/drift detection. Include Black Belt governance tags, parameterized backend-parity tests, complete R `SixSigma` parity study, and reproducible transformation scenario examples. |
 | **v0.8** | Integration and gap closure | Close cross-workflow, backend-parity, numerical-validation, performance, and compatibility gaps discovered while assembling complete projects. Add no new belt-level capability category. |
 | **v0.9** | **Polish only; feature freeze** | Stabilize naming and signatures, finish documentation and examples, improve errors and diagnostics, verify accessibility and plotting semantics, harden serialization and migrations, benchmark performance, and complete packaging and upgrade guidance. |
-| **v1.0** | Stable practitioner contract | Publish the supported API and compatibility guarantees under semantic versioning. Every claimed belt workflow is documented, tested, reproducible, and usable without a mandatory pandas or Polars dependency. |
+| **v1.0** | Stable practitioner contract | Publish the supported API and compatibility guarantees under semantic versioning. Every claimed belt workflow is documented, tested, and reproducible. Callers are not required to supply pandas or Polars inputs, while core ingestion may continue to use Polars internally. |
 
 ## Release-targeting rules
 

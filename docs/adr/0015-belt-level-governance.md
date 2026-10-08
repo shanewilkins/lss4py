@@ -2,6 +2,9 @@
 
 **Status:** Proposed
 
+> The practitioner-progression decision remains proposed. ADR-0019 supersedes
+> this record's module-organization examples and implementation roadmap.
+
 **Context:**
 
 LSS4PY supports a progression from foundation to mastery aligned to Six Sigma belt certifications.

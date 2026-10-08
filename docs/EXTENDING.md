@@ -1,321 +1,104 @@
-# Extending LSS4PY: Building Custom Adapters
+# Extending LSS4PY Data Ingestion
 
-LSS4PY is designed to accept data from many sources through a stable adapter interface.
-This guide explains how to build external adapters (e.g., database-specific, cloud-specific)
-without modifying LSS4PY core.
+LSS4PY separates source-specific I/O from analytical functions. Core event-log
+adapters materialize validated Polars `DataFrame` objects inside an
+`IntervalEventLog`. Analytical functions accept that contract directly and may also
+accept other governed eager dataframe inputs through Narwhals.
 
-## Architecture
+## Canonical interval-event shape
 
-LSS4PY's adapter layer normalizes data from any source into two contracts:
+An interval event log has four required semantic columns:
 
-- **Tabular data** (measurements, durations, dimensions) → `pd.DataFrame | pl.DataFrame` + `AdapterSchema`
-- **Event logs** (case ID, activity, timestamp) → `EventLog` domain model + `AdapterSchema`
+| Canonical column | Meaning |
+| --- | --- |
+| `case_id` | Identifier for one process instance |
+| `step_id` | Identifier for the observed process step |
+| `started_at` | Activity-interval start timestamp |
+| `completed_at` | Activity-interval completion timestamp |
 
-Adapters sit between your data source and LSS4PY analytics. They translate source-specific
-schemas and error handling into LSS4PY's canonical formats.
-
-```
-Your Data Source
-    ↓ (custom SDK/API)
-External Adapter
-    ↓ (returns DataFrame + AdapterSchema)
-LSS4PY Calculations
-    ↓
-AnalyticalResult
-```
-
-## Building a Tabular Adapter
-
-All tabular adapters inherit from `lss4py.adapters.TabularAdapter`.
-
-### Example: PostgreSQL Adapter
+`EventLogCSVAdapter` maps source column names into this shape, preserves additional
+columns, parses timestamps, and rejects missing identifiers or negative durations.
 
 ```python
-# my_company/lss4py_postgres_adapter.py
+from lss4py import EventLogCSVAdapter, lead_time
 
-from pathlib import Path
+adapter = EventLogCSVAdapter(
+    "events.csv",
+    case_id_column="case",
+    step_id_column="activity",
+    started_at_column="start_time",
+    completed_at_column="end_time",
+)
+events, schema = adapter.load()
+result = lead_time(events, process_model=process_model)
+```
+
+Use `load_event_log(...)` for the typed interval contract. Call
+`events.to_polars()` when direct Polars operations are needed.
+
+## Building an external adapter
+
+External tabular adapters inherit from `TabularAdapter`; event-log adapters inherit
+from `EventLogAdapter`. A tabular adapter returns a Polars frame and an
+`AdapterSchema`. An event-log adapter returns `IntervalEventLog` and
+`AdapterSchema`.
+
+```python
 from typing import Literal
 
-import psycopg2
-import narwhals as nw
-from lss4py.adapters import TabularAdapter, AdapterSchema
+import polars as pl
+
+from lss4py.adapters import AdapterSchema, TabularAdapter
 
 
-class PostgresTabularAdapter(TabularAdapter):
-    """Load process measurements from a PostgreSQL database."""
-    
-    def __init__(self, connection_string: str, table_name: str):
-        """
-        Args:
-            connection_string: psycopg2 connection string
-            table_name: table to load
-        """
-        self.connection_string = connection_string
-        self.table_name = table_name
-        self._connection = None
-    
+class WarehouseAdapter(TabularAdapter):
     def schema(self) -> AdapterSchema:
-        """Inspect table schema without loading full data."""
-        conn = psycopg2.connect(self.connection_string)
-        cursor = conn.cursor()
-        
-        try:
-            cursor.execute(f"SELECT * FROM {self.table_name} LIMIT 0")
-            columns = [desc[0] for desc in cursor.description]
-            
-            cursor.execute(f"SELECT COUNT(*) FROM {self.table_name}")
-            row_count = cursor.fetchone()[0]
-            
-            # Infer types from column info
-            column_types = {}
-            for col in columns:
-                cursor.execute(
-                    f"""
-                    SELECT data_type FROM information_schema.columns
-                    WHERE table_name = %s AND column_name = %s
-                    """,
-                    (self.table_name, col),
-                )
-                pg_type = cursor.fetchone()[0]
-                column_types[col] = self._pg_to_narwhals_type(pg_type)
-            
-            return AdapterSchema(
-                column_names=frozenset(columns),
-                column_types=column_types,
-                row_count=row_count,
-                key_columns=[],  # Infer from your use case
-            )
-        
-        finally:
-            cursor.close()
-            conn.close()
-    
+        frame, schema = self.load()
+        return schema
+
     def load(
         self,
-        backend: Literal["pandas", "polars"] = "pandas",
-    ) -> tuple:
-        """Load and normalize data.
-        
-        Returns:
-            (DataFrame, AdapterSchema) where DataFrame is native to backend
-        """
-        import pandas as pd
-        
-        conn = psycopg2.connect(self.connection_string)
-        
-        try:
-            df = pd.read_sql(f"SELECT * FROM {self.table_name}", conn)
-            schema = self._build_schema(df)
-            
-            # Convert to requested backend
-            if backend == "pandas":
-                return df, schema
-            elif backend == "polars":
-                import polars as pl
-                return pl.from_pandas(df), schema
-        
-        finally:
-            conn.close()
-    
-    def _build_schema(self, df) -> AdapterSchema:
-        """Build AdapterSchema from loaded DataFrame."""
-        column_types = {col: str(df[col].dtype) for col in df.columns}
-        return AdapterSchema(
-            column_names=frozenset(df.columns),
-            column_types=column_types,
-            row_count=len(df),
-            key_columns=[],
+        backend: Literal["polars"] = "polars",
+    ) -> tuple[pl.DataFrame, AdapterSchema]:
+        if backend != "polars":
+            raise ValueError("WarehouseAdapter materializes Polars only")
+
+        frame = read_warehouse_as_polars(self.source_reference)
+        schema = AdapterSchema(
+            column_names=frozenset(frame.columns),
+            column_types={name: str(dtype) for name, dtype in frame.schema.items()},
+            row_count=frame.height,
+            backend="polars",
+            source_format="warehouse",
         )
-    
-    @staticmethod
-    def _pg_to_narwhals_type(pg_type: str) -> str:
-        """Map PostgreSQL type to Narwhals type string."""
-        mapping = {
-            "integer": "int64",
-            "bigint": "int64",
-            "numeric": "float64",
-            "double precision": "float64",
-            "text": "string",
-            "timestamp": "datetime[μs]",
-            "date": "date",
-        }
-        return mapping.get(pg_type, "string")
+        return frame, schema
 ```
 
-### Usage
+Translate source client and parsing failures into `AdapterError`. Use
+`ValidationError` inside reusable normalization code, then translate it at the I/O
+boundary. Do not import private analytical kernels or workflows from an adapter.
 
-```python
-from my_company.lss4py_postgres_adapter import PostgresTabularAdapter
-from lss4py import lead_time
+## Required adapter tests
 
-# Load data via adapter
-adapter = PostgresTabularAdapter(
-    "postgresql://user:password@localhost/mydb",
-    "process_events",
-)
+Test at least:
 
-df, schema = adapter.load(backend="polars")
+- a valid source and its normalized column types;
+- missing source and required-column errors;
+- null, blank, malformed, and invalid-domain values;
+- preservation of identifiers, timestamps, extra columns, and source row order;
+- the `AdapterSchema` contents and declared transformations; and
+- one end-to-end analytical result that matches the equivalent in-memory input.
 
-# Validate schema before running analytics
-required_fields = ["case_id", "started_at", "completed_at"]
-missing = schema.validate_required_fields(required_fields)
-if missing:
-    raise ValueError(f"Missing required fields: {missing}")
+Analytical methods still require pandas/Polars parity where governed. That parity
+belongs to the analytical contract; it does not require file adapters to emit both
+backends.
 
-# Run analytics
-result = lead_time(
-    df,
-    case_id_column="case_id",
-    started_at_column="started_at",
-    completed_at_column="completed_at",
-)
-print(result)
-```
+## Format registry boundary
 
-## Building an Event-Log Adapter
+ADR-0017 reserves a registry for routing future formats such as OCEL and XES. Do
+not add format detection to analytical functions. A new format adapter should
+normalize to the canonical Polars representation and then reuse the same validators
+and calculations.
 
-Event-log adapters inherit from `lss4py.adapters.EventLogAdapter` and return the
-`EventLog` domain model.
-
-```python
-from lss4py.adapters import EventLogAdapter
-from lss4py.domain.models import EventLog
-
-
-class KafkaEventLogAdapter(EventLogAdapter):
-    """Stream event logs from a Kafka topic."""
-    
-    def __init__(self, topic: str, bootstrap_servers: list[str]):
-        self.topic = topic
-        self.bootstrap_servers = bootstrap_servers
-    
-    def schema(self) -> AdapterSchema:
-        """Peek at a few events to infer schema."""
-        # Connect to Kafka, consume 10 events
-        ...
-    
-    def load(self, backend: str = "pandas") -> tuple[EventLog, AdapterSchema]:
-        """Consume events and normalize to EventLog."""
-        from kafka import KafkaConsumer
-        
-        consumer = KafkaConsumer(
-            self.topic,
-            bootstrap_servers=self.bootstrap_servers,
-            group_id="lss4py-adapter",
-        )
-        
-        events = []
-        for message in consumer:
-            events.append(json.loads(message.value))
-        
-        # Required fields: case_id, activity, timestamp
-        return EventLog(events=events), self._build_schema(events)
-```
-
-## Public Adapter API
-
-The following are part of LSS4PY's public adapter contract and are stable across
-releases:
-
-```python
-from lss4py.adapters import (
-    TabularAdapter,         # Base class for tabular adapters
-    EventLogAdapter,        # Base class for event-log adapters
-    AdapterSchema,          # Schema contract returned by all adapters
-)
-
-from lss4py.domain.models import (
-    EventLog,               # Event-log domain model
-    ProcessModelIR,         # Process model (for reference)
-)
-```
-
-External adapters should import **only** from `lss4py.adapters` and `lss4py.domain.models`.
-
-Do not import from:
-- `lss4py.analytics` (calculations)
-- `lss4py.kernels` (numerical code)
-- `lss4py.workflows` (end-to-end workflows)
-- `lss4py.reporting` (visualization and bundles)
-
-## Testing Your Adapter
-
-```python
-import pytest
-from my_company.lss4py_postgres_adapter import PostgresTabularAdapter
-
-
-@pytest.fixture
-def adapter():
-    """Adapter connected to test database."""
-    return PostgresTabularAdapter(
-        "postgresql://user:password@localhost/testdb",
-        "test_events",
-    )
-
-
-def test_schema_inspection(adapter):
-    """Schema should be available without loading full data."""
-    schema = adapter.schema()
-    assert "case_id" in schema.column_names
-    assert schema.row_count >= 0
-
-
-def test_load_pandas(adapter):
-    """Load should return pandas DataFrame."""
-    df, schema = adapter.load(backend="pandas")
-    assert len(df) == schema.row_count
-    assert list(df.columns) == sorted(schema.column_names)
-
-
-def test_load_polars(adapter):
-    """Load should return Polars DataFrame when requested."""
-    df, schema = adapter.load(backend="polars")
-    # df is now a Polars DataFrame
-    assert df.shape[0] == schema.row_count
-
-
-def test_schema_validation(adapter):
-    """Adapter schema should report missing required fields."""
-    schema = adapter.schema()
-    missing = schema.validate_required_fields(
-        ["case_id", "started_at", "completed_at"]
-    )
-    assert len(missing) == 0  # All present in test data
-```
-
-## Packaging and Distribution
-
-Consider distributing your adapter as a separate package:
-
-```toml
-# pyproject.toml for my_company.lss4py_postgres_adapter
-
-[project]
-name = "lss4py-postgres-adapter"
-version = "0.1.0"
-description = "PostgreSQL adapter for LSS4PY"
-dependencies = [
-    "lss4py>=0.2.0",
-    "psycopg2-binary>=2.9.0",
-    "narwhals>=1.0.0",
-]
-```
-
-Then users can install:
-
-```bash
-uv pip install lss4py-postgres-adapter
-```
-
-## Support and Feedback
-
-If you build an adapter, please:
-1. Test against the public API surface (listed above)
-2. Report issues to the LSS4PY project
-3. Consider contributing adapters back if they're general-purpose
-
-Do not:
-- Depend on internal LSS4PY modules (those can change)
-- Assume pandas-specific behavior (use Narwhals for compatibility)
-- Import from workflows, visualization, or kernels
+The registry itself is not yet a stable extension API. Until it is implemented,
+external packages should expose their adapter class directly.

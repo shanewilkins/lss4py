@@ -1,10 +1,12 @@
-from lss4py import EventLog, map_process, validate_event_log
+from lss4py import EventLog, EventStream, IntervalEventLog, map_process, validate_event_log
 from lss4py import main as package_main
 from lss4py.errors import LSS4PyError
 
 
 def test_stable_yellow_belt_surface_is_importable() -> None:
     assert EventLog is not None
+    assert EventLog is EventStream
+    assert IntervalEventLog is not None
     assert map_process is not None
     assert validate_event_log is not None
 
@@ -22,13 +24,13 @@ def test_package_main_prints_ready_message(capsys) -> None:
 
 
 def test_validate_event_log_warns_on_empty_log() -> None:
-    report = validate_event_log(EventLog(events=[]))
+    report = validate_event_log(EventStream(events=[]))
 
     assert [note.code for note in report.warnings] == ["empty_event_log"]
 
 
 def test_validate_event_log_warns_on_missing_required_fields() -> None:
-    report = validate_event_log(EventLog(events=[{"case_id": "C1", "activity": "A"}]))
+    report = validate_event_log(EventStream(events=[{"case_id": "C1", "activity": "A"}]))
 
     assert [note.code for note in report.warnings] == ["missing_required_fields"]
     assert "timestamp" in report.warnings[0].message
@@ -36,7 +38,7 @@ def test_validate_event_log_warns_on_missing_required_fields() -> None:
 
 def test_validate_event_log_accepts_required_fields() -> None:
     report = validate_event_log(
-        EventLog(events=[{"case_id": "C1", "activity": "A", "timestamp": "2020-01-01T00:00:00"}])
+        EventStream(events=[{"case_id": "C1", "activity": "A", "timestamp": "2020-01-01T00:00:00"}])
     )
 
     assert report.warnings == []

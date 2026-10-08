@@ -101,16 +101,22 @@ class ProcessModelIR:
 
 
 @dataclass(slots=True)
-class EventLog:
+class EventStream:
+    """Single-timestamp observations used for lightweight process discovery."""
+
     events: list[dict[str, Any]]
     required_fields: tuple[str, ...] = ("case_id", "activity", "timestamp")
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+EventLog = EventStream
+"""Deprecated compatibility alias for :class:`EventStream`."""
+
+
 @dataclass(slots=True)
 class ComparisonSlice:
-    before: EventLog
-    after: EventLog
+    before: EventStream
+    after: EventStream
     label: str = "before_after"
 
 

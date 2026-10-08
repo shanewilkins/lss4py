@@ -9,11 +9,11 @@ from typing import Any
 
 import narwhals as nw
 
-from lss4py.domain import ProcessModelIR, YieldResult
-from lss4py.kernels._helpers import (
+from lss4py._kernels._helpers import (
     build_provenance,
     stage_yield_components,
 )
+from lss4py.domain import ProcessModelIR, YieldResult
 
 
 def created_to_booked_yield(

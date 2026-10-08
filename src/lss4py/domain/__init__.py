@@ -1,9 +1,11 @@
+from .interval_event_log import CANONICAL_INTERVAL_EVENT_COLUMNS, IntervalEventLog
 from .models import (
     AssumptionNote,
     AssumptionReport,
     ComparisonSlice,
     EventLog,
     EventLogBindingsIR,
+    EventStream,
     LeadTimeBindingIR,
     MetricBindingsIR,
     MetricResult,
@@ -34,8 +36,11 @@ __all__ = [
     "CapabilityResult",
     "ComparisonSlice",
     "DescriptiveResult",
+    "CANONICAL_INTERVAL_EVENT_COLUMNS",
     "EventLogBindingsIR",
     "EventLog",
+    "EventStream",
+    "IntervalEventLog",
     "LeadTimeBindingIR",
     "MetricBindingsIR",
     "MetricSemanticsIR",

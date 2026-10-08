@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Any, TypedDict
 
-from lss4py.domain.models import EventLog
+from lss4py.domain import EventStream
 
 
 class ProcessMapResult(TypedDict):
@@ -20,7 +20,8 @@ def _parse_timestamp(value: Any) -> datetime:
     raise TypeError("Event timestamps must be datetime objects or ISO-8601 strings.")
 
 
-def map_process(event_log: EventLog) -> ProcessMapResult:
+def map_process(event_log: EventStream) -> ProcessMapResult:
+    """Discover activity nodes and direct-follow transitions from an event stream."""
     grouped_events: dict[str, list[dict[str, Any]]] = defaultdict(list)
 
     for event in event_log.events:

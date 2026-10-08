@@ -1,6 +1,6 @@
-from lss4py.domain.models import EventLog
+from lss4py.domain import EventStream
 
 
-def redesign_simulation(event_log: EventLog) -> dict[str, object]:
+def redesign_simulation(event_log: EventStream) -> dict[str, object]:
     _ = event_log
     raise NotImplementedError("Simulation workflow is not implemented yet.")

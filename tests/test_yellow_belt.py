@@ -196,7 +196,7 @@ def test_metrics_can_resolve_columns_from_process_model_ir() -> None:
     assert pce_result.values.tolist() == [10.0, pytest.approx(33.33333333333333)]
 
 
-@pytest.mark.xfail(reason="Event-log lead_time calculation refactored in v0.3")
+@pytest.mark.xfail(reason="Branch-aware event-log wait time and PCE are planned for v0.3")
 def test_event_log_metrics_use_parallel_critical_path_semantics() -> None:
     process_model = _sample_event_log_process_model_ir(parallel_timing="critical_path")
     data = _sample_parallel_event_log()
@@ -210,7 +210,7 @@ def test_event_log_metrics_use_parallel_critical_path_semantics() -> None:
     assert pce_result.to_dict() == {"C1": 50.0}
 
 
-@pytest.mark.xfail(reason="Event-log lead_time calculation refactored in v0.3")
+@pytest.mark.xfail(reason="Branch-aware event-log wait time and PCE are planned for v0.3")
 def test_event_log_metrics_can_sum_parallel_branch_work() -> None:
     process_model = _sample_event_log_process_model_ir(parallel_timing="sum_all_branches")
     data = _sample_parallel_event_log()
@@ -222,7 +222,7 @@ def test_event_log_metrics_can_sum_parallel_branch_work() -> None:
     assert pce_result.to_dict() == {"C1": 50.0}
 
 
-@pytest.mark.xfail(reason="Event-log lead_time calculation refactored in v0.3")
+@pytest.mark.xfail(reason="Branch-aware event-log wait time is planned for v0.3")
 def test_event_log_metrics_allow_rework_when_rework_edge_is_defined() -> None:
     process_model = _sample_event_log_process_model_ir(parallel_timing="critical_path")
     data = pd.DataFrame(
@@ -251,7 +251,6 @@ def test_event_log_metrics_allow_rework_when_rework_edge_is_defined() -> None:
     assert wait_result.to_dict() == {"C2": 0.0}
 
 
-@pytest.mark.xfail(reason="Event-log lead_time calculation refactored in v0.3")
 def test_event_log_metrics_reject_unknown_steps_not_in_process_model() -> None:
     process_model = _sample_event_log_process_model_ir(parallel_timing="critical_path")
     data = _sample_parallel_event_log().copy()
@@ -261,7 +260,7 @@ def test_event_log_metrics_reject_unknown_steps_not_in_process_model() -> None:
         lead_time(data, process_model=process_model)
 
 
-@pytest.mark.xfail(reason="Event-log validation refactored in v0.3")
+@pytest.mark.xfail(reason="Branch-aware event-log wait time is planned for v0.3")
 def test_event_log_metrics_reject_overlap_without_parallel_edges() -> None:
     process_model = ProcessModelIR(
         name="Sequential only",
@@ -292,7 +291,6 @@ def test_event_log_metrics_reject_overlap_without_parallel_edges() -> None:
         wait_time(data, process_model=process_model)
 
 
-@pytest.mark.xfail(reason="Event-log validation refactored in v0.3")
 def test_event_log_metrics_reject_repeat_without_rework_edge() -> None:
     process_model = ProcessModelIR(
         name="No rework",
@@ -318,7 +316,7 @@ def test_event_log_metrics_reject_repeat_without_rework_edge() -> None:
         }
     )
 
-    with pytest.raises(ValidationError, match="does not define a rework edge"):
+    with pytest.raises(ValidationError, match="require explicit rework edges"):
         lead_time(data, process_model=process_model)
 
 

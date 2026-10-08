@@ -37,7 +37,7 @@ Run the same checks before submitting a pull request:
 uv lock --check
 uv run --locked lint-imports
 uv run --locked ruff check .
-uv run --locked pyright
+uv run --locked ty check
 uv run --locked xenon --max-absolute B --max-modules A --max-average A src/lss4py tests
 uv run --locked pytest
 uv run --locked vulture src tests --min-confidence 80
@@ -76,8 +76,8 @@ After the pending publisher exists on PyPI, publish the GitHub release or rerun 
   result object as the stable API.
 - Keep calculations independent from optional plotting and document-generation
   dependencies.
-- Preserve dataframe-neutral public contracts. Tabular behavior should be tested
-  with pandas and Polars when applicable.
+- Preserve dataframe-neutral analytical contracts. Core file adapters materialize
+  Polars; analytical behavior should be tested with pandas and Polars when applicable.
 - Cite authoritative formulas or reference implementations for new numerical
   methods. R `SixSigma` compatibility claims require versioned fixtures and
   documented tolerances.

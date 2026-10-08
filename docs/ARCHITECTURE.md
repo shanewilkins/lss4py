@@ -1,250 +1,161 @@
-# LSS4PY Architecture: Approved Layers & Import Directions
+# LSS4PY Architecture
 
-**Document Status:** Approved  
-**Last Updated:** 2026-09-02  
-**Audience:** Maintainers, Contributors, Auditors  
+**Document status:** Approved
 
-This document defines the approved layered architecture and enforces import restrictions
-to maintain boundaries. Use this as an audit checklist during code review and refactoring.
+**Last updated:** 2026-10-07
 
----
+**Audience:** Maintainers, contributors, and auditors
 
-## Layer Stack (Top to Bottom)
+LSS4PY is a process-aware analytical core. It combines observed process data with
+an explicit process model and returns typed, reproducible analytical results. It is
+not a general ETL system, document-production platform, or line-for-line wrapper
+around R `SixSigma`.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        USER CODE                                │
-│            (notebooks, scripts, downstream packages)            │
-└────────────────────┬────────────────────────────────────────────┘
-                     │
-        ┌────────────▼───────────────┐
-        │   PUBLIC API LAYER         │         Import: from lss4py import ...
-        │  lss4py/__init__.py        │
-        │ (analytical functions)     │
-        └────────────┬───────────────┘
-                     │
-        ┌────────────▼──────────────────────────────────┐
-        │     DOMAIN MODEL LAYER                        │   Import: from lss4py.domain import ...
-        │  - domain/models.py (ProcessModelIR, etc.)    │
-        │  - domain/results.py (AnalyticalResult, etc.) │
-        │  - domain/validation.py (ValidationError)     │
-        └────────────┬──────────────────────────────────┘
-                     │
-        ┌────────────▼──────────────────────────────────┐
-        │     ADAPTER LAYER (Private)                   │   Import: (internal use only)
-        │  lss4py/_adapters/                            │
-        │  - __init__.py (AdapterRegistry)              │
-        │  - _pandas.py (pandas adapter)                │
-        │  - _ocel2.py (OCEL 2.0 adapter, v0.3+)        │
-        │  - _xes.py (XES adapter, v0.4+)               │
-        └────────────┬──────────────────────────────────┘
-                     │
-        ┌────────────▼──────────────────────────────────┐
-        │     KERNEL LAYER (Private)                    │   Import: (internal use only)
-        │  lss4py/_kernels/                             │
-        │  - timing.py (lead_time, wait_time, ...)      │
-        │  - yield_.py (stage yield, rolled yield, ...) │
-        │  - capability.py (Cp, Cpk, future)            │
-        │  - spc.py (control charts, future)            │
-        │  - descriptive.py (percentiles, future)       │
-        │  - inference.py (hypothesis tests, future)    │
-        │  - _helpers.py (shared utilities)             │
-        └────────────┬──────────────────────────────────┘
-                     │
-        ┌────────────▼──────────────────────────────────┐
-        │     INTERNAL HELPERS (Private)                │   Import: (internal use only)
-        │  lss4py/_event_log.py                         │
-        │  (pandas-based event-log utilities, v0.3)     │
-        └────────────┬──────────────────────────────────┘
-                     │
-        ┌────────────▼──────────────────────────────────┐
-        │     EXTERNAL DEPENDENCIES                     │
-        │  - narwhals (dataframe abstraction)           │
-        │  - pandas / polars (optional backends)        │
-        │  - numpy, scipy, statsmodels (computation)    │
-        └──────────────────────────────────────────────┘
+## Runtime flow
+
+```text
+Source files ──▶ adapters ──▶ IntervalEventLog (canonical Polars)
+                                      │
+Eager pandas / Polars / PyArrow ──────┤
+                                      ▼
+ProcessModelIR ───────────────▶ public analysis functions
+                                      │
+                                      ▼
+                              private _kernels
+                                      │
+                                      ▼
+                         typed AnalyticalResult models
 ```
 
----
+Polars is the concrete ingestion and interval-log materialization engine. Narwhals
+is the compatibility boundary for supported eager analytical inputs. Numerical
+primitives may use NumPy, SciPy, or statsmodels behind LSS4PY result contracts.
 
-## Import Rules
+## Layers and contracts
 
-### ✅ PUBLIC API (Stable; external users depend on this)
+### Public API
 
 **Location:** `lss4py/__init__.py`
 
-**Exports:**
-- All analytical functions: `lead_time`, `wait_time`, `process_cycle_efficiency`, `takt_time`,
-  `created_to_booked_yield`, `booked_to_completed_yield`, `rolled_yield`
-- Domain models: Import from `lss4py.domain` (public contract)
+The package root is the supported import surface for calculations, core domain
+types, the CSV interval-log loader, and stable workflows.
 
-**Users write:**
 ```python
-from lss4py import lead_time, wait_time
-from lss4py.domain import ProcessModelIR, TimingResult
-
-result = lead_time(df, columns={...})
+from lss4py import IntervalEventLog, ProcessModelIR, lead_time, load_event_log
 ```
 
-**Internal code writes:**
-```python
-from lss4py import lead_time  # Use public surface
-```
+Internal module paths are not compatibility promises. Public functions may be
+implemented in private modules and re-exported from the package root.
 
-**Never:**
-```python
-from lss4py.yellow_belt import lead_time  # ❌ DELETED
-from lss4py._kernels.timing import lead_time  # ❌ Private
-from lss4py.kernels.timing import lead_time  # ❌ Doesn't exist
-```
-
----
-
-### ✅ DOMAIN MODELS (Stable; part of public API)
+### Domain contracts
 
 **Location:** `lss4py/domain/`
 
-**Exports:**
-- `ProcessModelIR` — process topology with optional event-log bindings
-- `AnalyticalResult` — base class for all analyses (provides provenance, assumptions, serialization)
-- `TimingResult`, `YieldResult` — typed subclasses
-- `ValidationError` — domain validation exception
-- `TimeUnit`, `ProcessStep`, etc.
+The domain layer owns process topology, metric bindings, analytical results, and
+the two distinct observed-event concepts:
 
-**Users write:**
-```python
-from lss4py.domain import ProcessModelIR, TimingResult, ValidationError
-```
+- `EventStream` contains single-timestamp observations used by lightweight
+  discovery helpers such as `map_process`.
+- `IntervalEventLog` contains activity intervals backed by a canonical eager
+  Polars frame with `case_id`, `step_id`, `started_at`, and `completed_at`.
+- `EventLog` is a pre-1.0 compatibility alias for `EventStream` and should not be
+  used in new code.
 
-**Internal code writes:**
-```python
-from lss4py.domain import ProcessModelIR  # Use public domain models
-```
+The domain layer does not import adapters, kernels, workflows, reporting, the CLI,
+or observability modules.
 
-**Never:**
-```python
-from lss4py.domain.models import SomePrivateHelper  # ❌ Check naming; if private, don't import
-```
+### Adapters
 
----
+**Location:** `lss4py/adapters/`
 
-### ❌ KERNEL LAYER (Private; refactor-safe)
+Adapters own source-specific I/O and normalize data before analysis. Core event-log
+adapters return an `IntervalEventLog` plus `AdapterSchema`; they do not implement
+statistical calculations or select analytical methods.
+
+The current implementation supports CSV interval logs. A future private registry
+may route OCEL, XES, database, or telemetry sources without changing kernel APIs.
+
+### Private kernels
 
 **Location:** `lss4py/_kernels/`
 
-**Intent:** Implementation detail. Functions are exposed via public API only.
+Private kernels own calculations, formula validation, and construction of typed
+results. They may depend on domain contracts and shared private normalization
+helpers, but never on adapters, workflows, reporting, observability, or the CLI.
 
-**Internal code writes:**
-```python
-# Inside kernel functions or adapters:
-from lss4py._kernels import timing
-from lss4py._kernels._helpers import detect_backend, build_provenance
+There is no separate `analytics` layer. New analytical methods belong in a
+capability-oriented `_kernels` module and are exposed deliberately from
+`lss4py/__init__.py` when their contracts are ready.
 
-result = timing._compute_lead_time_from_event_log(canonical_data, process_model)
-```
-
-**Users write:** ❌ NEVER
-```python
-from lss4py._kernels.timing import lead_time  # Don't dig into internals
-from lss4py.kernels.timing import lead_time  # Directory doesn't exist
-```
-
-**Refactoring safety:** Kernel organization can change in any v0.x release
-without breaking downstream code (users don't import internals).
-
----
-
-### ❌ ADAPTER LAYER (Private; extensible)
-
-**Location:** `lss4py/_adapters/`
-
-**Intent:** Format-specific parsing. Internal use; accessed via `AdapterRegistry` only.
-
-**Internal code writes:**
-```python
-# Inside kernel functions:
-from lss4py._adapters import AdapterRegistry
-canonical_data = AdapterRegistry.adapt(user_input)
-```
-
-**Users write:** ❌ NEVER
-```python
-from lss4py._adapters._pandas import adapt_pandas  # Don't use directly
-```
-
-**Future extension:** Advanced users *may* register custom adapters
-(documented in v0.5+ if feature stabilizes):
-```python
-# Hypothetical v0.5+ API:
-from lss4py._adapters import AdapterRegistry
-AdapterRegistry.register('custom_format', my_adapter_fn)
-```
-
----
-
-### ❌ EVENT-LOG HELPERS (Private; v0.3 refactor candidate)
+### Shared interval-log normalization
 
 **Location:** `lss4py/_event_log.py`
 
-**Intent:** Pandas-based event-log utilities (scheduled for Narwhals refactor in v0.3).
+This private module converts supported eager inputs into the canonical interval
+shape and validates identifiers, timestamps, durations, declared steps, rework,
+and parallel overlaps. It is shared by adapters and private kernels.
 
-**Internal code writes:**
-```python
-# Inside timing.py or adapters:
-from lss4py._event_log import event_log_lead_time_series
-```
+### Workflows
 
-**Users write:** ❌ NEVER
-```python
-from lss4py._event_log import event_log_lead_time_series  # Private
-```
+**Location:** `lss4py/workflows/`
 
----
+Workflows orchestrate public domain operations. They do not own numerical formulas
+and do not import adapters or private kernels. `map_process` is the only currently
+supported workflow; other workflow modules remain experimental placeholders.
 
-## Cross-Layer Import Matrix
+### Reporting, observability, and CLI
 
-| From → To   | PUBLIC | DOMAIN | KERNEL | ADAPTER | EVENT_LOG |
-|-------------|--------|--------|--------|---------|-----------|
-| **PUBLIC**  | ✅ (re-export) | ✅ (import & re-export) | ❌ (forbidden) | ❌ (forbidden) | ❌ (forbidden) |
-| **DOMAIN**  | ✅ (depend on public) | ✅ (intra-layer OK) | ❌ (forbidden) | ❌ (forbidden) | ❌ (forbidden) |
-| **KERNEL**  | ❌ (would create cycle) | ✅ (use domain models) | ✅ (intra-layer OK) | ✅ (call adapters) | ✅ (call helpers) |
-| **ADAPTER** | ❌ (would create cycle) | ✅ (use domain models) | ❌ (forbidden) | ✅ (intra-layer OK) | ✅ (call helpers) |
-| **EVENT_LOG** | ❌ (would create cycle) | ✅ (use domain models) | ✅ (called by kernels) | ✅ (called by adapters) | ✅ (intra-layer OK) |
+These modules remain experimental. Calculations must work without plotting or
+document-generation dependencies. Reporting consumes typed results rather than
+reaching into adapters or workflows. The CLI consumes the public API only.
 
----
+## Dependency rules
 
-## Audit Checklist
+| Source layer | May depend on | Must not depend on |
+| --- | --- | --- |
+| Package root | Domain, adapters, private kernels, supported workflows | Private implementation details outside deliberate re-exports |
+| Domain | External foundational libraries | Any other LSS4PY layer |
+| Adapters | Domain, errors, private normalization | Private kernels, workflows, reporting |
+| Private kernels | Domain, errors, private normalization | Adapters, workflows, reporting, observability, CLI |
+| Workflows | Domain and other public contracts | Adapters and private kernels |
+| Reporting | Domain result contracts | Adapters and workflows |
+| CLI | Package-root public API | Adapters and private kernels |
 
-Use this checklist during code review:
+`lint_imports_config.ini` enforces the corresponding forbidden-import contracts.
 
-- [ ] **No imports from `_kernels/` outside of other kernel modules or adapters**
-- [ ] **No imports from `_adapters/` outside of kernel or adapter modules**
-- [ ] **No imports from `_event_log.py` outside of kernel or adapter modules**
-- [ ] **All public functions are re-exported in `lss4py/__init__.py`**
-- [ ] **Domain models are imported from `lss4py.domain`, not `lss4py.domain.models`**
-- [ ] **Test files use public imports: `from lss4py import lead_time`, not internal paths**
-- [ ] **No circular imports between layers**
-- [ ] **New analytical functions are added to appropriate `_kernels/module.py`, then re-exported in `__init__.py`**
-- [ ] **New formats are added as `_adapters/format_name.py` + registered in `AdapterRegistry`**
+## Backend support policy
 
----
+- Core file adapters materialize eager Polars frames.
+- Public tabular analyses accept governed eager inputs through Narwhals.
+- pandas and Polars require parity tests for every claimed tabular method.
+- PyArrow support is provisional until the same contract suite covers it.
+- Lazy, streaming, and distributed inputs are out of scope until a separate ADR
+  defines explicit collection and execution semantics.
+- Public analytical results use LSS4PY types with explicit values, keys, units,
+  assumptions, warnings, and provenance rather than backend-specific indexes.
 
-## Version Roadmap & Layer Evolution
+## Adding a capability
 
-| Version | Changes | Layer Impact |
-|---------|---------|--------------|
-| v0.2 | Timing & yield kernels stable | Kernel organization fixed; pandas adapter only |
-| v0.3 | Add capability, SPC kernels; OCEL 2.0 adapter | Kernel & adapter layers expand |
-| v0.4 | Add inference, visualization kernels; XES adapter | Kernel & adapter layers expand; visualizations in separate package |
-| v0.5+ | Custom adapter registration (if demanded); optional workflow APIs | Adapter registry becomes optional public API |
-| v1.0 | All layers stable; versioning guarantees apply | No breaking changes to public API or domain models |
+1. Define or extend the typed result and domain contracts.
+2. Add the implementation to an appropriate private `_kernels` module.
+3. Test valid inputs, invalid inputs, numerical references, and backend parity.
+4. Re-export the supported function from `lss4py/__init__.py`.
+5. Update requirements, compatibility claims, examples, and the roadmap.
 
----
+Belt levels describe suitability and practitioner progression. They do not determine
+module names or create separate Yellow, Green, or Black Belt implementation trees.
 
-## Related Documents
+## Current and planned boundaries
 
-- **ADR-0016:** Private kernel architecture and capability-based organization
-- **ADR-0017:** Format adapter registry for multi-standard event log support
-- **ADR-0002:** Keep the core package focused on analytics (ecosystem boundary)
-- **TR-018:** Kernel organization technical requirement
-- **TR-033:** Analysis bundle and result export contract
+| Area | Current contract | Planned extension |
+| --- | --- | --- |
+| File ingestion | CSV interval logs | General tabular, OCEL, XES, database, telemetry |
+| Dataframes | Eager pandas and Polars tested; PyArrow provisional | Broader parity after contract tests |
+| Timing | Row timing plus per-case interval-log lead time | Branch-aware event-log wait time and PCE |
+| Yield | Binary stage and rolled funnel yield | Defect, rework, FTY, RTY, DPMO |
+| Workflows | Lightweight process discovery | Bottleneck, comparison, simulation |
+| Studies | None stable yet | Descriptive, capability, SPC, MSA, inference, DOE |
+
+See [ADR-0019](adr/0019-reconcile-package-boundaries-and-event-log-contracts.md)
+for the decision that reconciled the private-kernel, ingestion, and event-log
+contracts.

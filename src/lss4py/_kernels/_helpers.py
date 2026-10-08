@@ -1,4 +1,4 @@
-"""Shared helpers for analytical kernels.
+"""Shared helpers for private analytical kernels.
 
 Internal utilities for column resolution, data validation, and provenance building.
 Not part of the public API; subject to change between v0.2 releases.

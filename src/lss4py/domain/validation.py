@@ -3,14 +3,14 @@
 Utilities for validating process models, event logs, and analytical inputs.
 """
 
-from .models import AssumptionNote, AssumptionReport, EventLog
+from .models import AssumptionNote, AssumptionReport, EventStream
 
 
-def validate_event_log(event_log: EventLog) -> AssumptionReport:
-    """Validate event log structure and contents.
+def validate_event_log(event_log: EventStream) -> AssumptionReport:
+    """Validate a single-timestamp event stream's structure and contents.
 
     Args:
-        event_log: EventLog to validate.
+        event_log: EventStream to validate.
 
     Returns:
         AssumptionReport with validation warnings.

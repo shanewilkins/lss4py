@@ -49,17 +49,17 @@ functions share one requirement when they are steps in the same user journey.
 
 | R `SixSigma` API | R behavior | Proposed LSS4PY API | Status | Current evidence / parity requirement |
 |---|---|---|---|---|
-| `ss.ca.cp` | Process capability index Cp, optionally with a confidence interval | `capability_indices(...).cp` | Stub | `analytics.capability.capability_report()` exists but raises `NotImplementedError`. Match one- and two-sided specification handling, missing-value policy, and confidence intervals. |
-| `ss.ca.cpk` | Centered process capability index Cpk, optionally with a confidence interval | `capability_indices(...).cpk` | Stub | Same placeholder as above. Match lower/upper component selection and confidence intervals. |
-| `ss.ca.z` | Sigma score from process data and specification limits | `capability_indices(...).z` | Stub | Same placeholder as above. Match one-sided limits and the R package's short-term interpretation. |
+| `ss.ca.cp` | Process capability index Cp, optionally with a confidence interval | `capability_indices(...).cp` | Gap | No governed capability calculation exists. Match one- and two-sided specification handling, missing-value policy, and confidence intervals. |
+| `ss.ca.cpk` | Centered process capability index Cpk, optionally with a confidence interval | `capability_indices(...).cpk` | Gap | No governed capability calculation exists. Match lower/upper component selection and confidence intervals. |
+| `ss.ca.z` | Sigma score from process data and specification limits | `capability_indices(...).z` | Gap | No governed capability calculation exists. Match one-sided limits and the R package's short-term interpretation. |
 | `ss.ca.yield` | Yield, first-time yield, rolled-throughput yield, and DPMO from defect/rework counts | `process_yield(defects, *, rework=None, opportunities=1)` returning `YieldResult` | Partial | `rolled_yield()` and two stage-yield helpers work on binary funnel stages, not defect/rework vectors. Add the R counting semantics and validate against `ss.ca.yield()` fixtures. |
-| `ss.study.ca` | Capability-study plots, normality checks, specification limits, target, and short-/long-term views | `capability_study(...)` returning `CapabilityStudyResult`; plotting kept in a visualization layer | Stub | `capability_report()` is only a placeholder. Calculation results must be usable without rendering; plots should consume the typed result. |
+| `ss.study.ca` | Capability-study plots, normality checks, specification limits, target, and short-/long-term views | `capability_study(...)` returning `CapabilityStudyResult`; plotting kept in a visualization layer | Gap | No governed capability study exists. Calculation results must be usable without rendering; plots should consume the typed result. |
 
 ## Statistical process control
 
 | R `SixSigma` API | R behavior | Proposed LSS4PY API | Status | Current evidence / parity requirement |
 |---|---|---|---|---|
-| `ss.cc` | Moving-range control chart with Phase I/II limits and out-of-control points | `control_chart(..., chart="moving_range")` returning `ControlChartResult` | Stub | `analytics.spc.spc_report()` exists but raises `NotImplementedError`. Match LCL, center line, UCL, phase, and flagged observations before adding more chart families. |
+| `ss.cc` | Moving-range control chart with Phase I/II limits and out-of-control points | `control_chart(..., chart="moving_range")` returning `ControlChartResult` | Gap | No governed SPC calculation exists. Match LCL, center line, UCL, phase, and flagged observations before adding more chart families. |
 | `ss.cc.getd2` | Relative-range constant d2 for a sample size | `control_chart_constants(n).d2` | Gap | Match supported sample sizes and error behavior. |
 | `ss.cc.getd3` | Relative-range constant d3 for a sample size | `control_chart_constants(n).d3` | Gap | Match supported sample sizes and error behavior. |
 | `ss.cc.getc4` | Bias-correction constant c4 for a sample size | `control_chart_constants(n).c4` | Gap | Match supported sample sizes and error behavior. |
@@ -85,7 +85,7 @@ functions, not a fourth callable API.
 
 | R `SixSigma` API | R behavior | Proposed LSS4PY API | Status | Current evidence / parity requirement |
 |---|---|---|---|---|
-| `ss.pMap` | Draws a supplied process map with overall inputs/outputs and step-level x/y characteristics | `plot_process_map(process_model, ...)` | Partial | `map_process(EventLog)` currently discovers nodes and transition counts from observed events. `ProcessModelIR` represents explicit topology, but neither reproduces the R diagram contract. Preserve discovery and visualization as separate operations. |
+| `ss.pMap` | Draws a supplied process map with overall inputs/outputs and step-level x/y characteristics | `plot_process_map(process_model, ...)` | Partial | `map_process(EventStream)` currently discovers nodes and transition counts from observed events. `ProcessModelIR` represents explicit topology, but neither reproduces the R diagram contract. Preserve discovery and visualization as separate operations. |
 | `ss.ceDiag` | Cause-and-effect (Ishikawa/fishbone) diagram grouped by cause family | `plot_cause_effect(effect, causes_by_group, ...)` | Gap | Prefer a mapping such as `Mapping[str, Sequence[str]]` over parallel vectors. Rendering is the parity target. |
 
 ## Profile monitoring
@@ -112,8 +112,8 @@ gaps:
 | LSS4PY API | Current status | Purpose |
 |---|---|---|
 | `lead_time` | Stable | Per-row or per-case elapsed process time. |
-| `wait_time` | Stable | Lead time less active cycle time, including event-log topology semantics. |
-| `process_cycle_efficiency` | Stable | Value-add time divided by lead time. |
+| `wait_time` | Stable for explicit measured columns | Lead time less active cycle time; branch-aware interval-log semantics remain planned. |
+| `process_cycle_efficiency` | Stable for explicit measured columns | Value-add time divided by lead time; branch-aware interval-log semantics remain planned. |
 | `takt_time` | Stable | Available production time divided by customer demand. |
 | `created_to_booked_yield` | Stable | Binary stage-conversion yield. |
 | `booked_to_completed_yield` | Stable | Binary stage-conversion yield. |
