@@ -26,10 +26,12 @@ from .results import (
     TimingResult,
     YieldResult,
 )
+from .specification import AnalysisWindow, Specification
 from .validation import validate_event_log
 
 __all__ = [
     "AnalysisBundle",
+    "AnalysisWindow",
     "AnalyticalResult",
     "AssumptionNote",
     "AssumptionReport",
@@ -52,6 +54,7 @@ __all__ = [
     "ProcessWindow",
     "Provenance",
     "StageBindingsIR",
+    "Specification",
     "TimingResult",
     "YieldResult",
     "validate_event_log",

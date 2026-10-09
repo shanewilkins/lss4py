@@ -1,3 +1,4 @@
+from lss4py._kernels.descriptive import describe
 from lss4py._kernels.timing import (
     lead_time,
     process_cycle_efficiency,
@@ -11,6 +12,8 @@ from lss4py._kernels.yield_ import (
 )
 from lss4py.adapters import AdapterSchema, EventLogCSVAdapter, load_event_log
 from lss4py.domain import (
+    AnalysisWindow,
+    DescriptiveResult,
     EventLog,
     EventLogBindingsIR,
     EventStream,
@@ -21,6 +24,7 @@ from lss4py.domain import (
     ProcessEdgeIR,
     ProcessModelIR,
     ProcessStepIR,
+    Specification,
     StageBindingsIR,
     validate_event_log,
 )
@@ -33,6 +37,9 @@ __all__ = [
     "__version__",
     "AdapterError",
     "AdapterSchema",
+    "AnalysisWindow",
+    "DescriptiveResult",
+    "describe",
     "EventLogBindingsIR",
     "EventLog",
     "EventLogCSVAdapter",
@@ -56,6 +63,7 @@ __all__ = [
     "process_cycle_efficiency",
     "rolled_yield",
     "StageBindingsIR",
+    "Specification",
     "takt_time",
     "validate_event_log",
     "wait_time",

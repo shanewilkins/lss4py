@@ -118,6 +118,7 @@ gaps:
 | `created_to_booked_yield` | Stable | Binary stage-conversion yield. |
 | `booked_to_completed_yield` | Stable | Binary stage-conversion yield. |
 | `rolled_yield` | Stable | Product of the two configured stage yields. |
+| `describe` | Stable descriptive slice | Numeric summaries with typed results and pandas/Polars contract parity; R fixture parity is not yet claimed. |
 | `ProcessModelIR` and related IR types | Stable for the current Yellow Belt slice | Explicit process topology and metric bindings, including parallel and rework semantics. |
 | `map_process` | Experimental | Discovers activity nodes and transition counts from an event log. |
 

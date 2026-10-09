@@ -154,7 +154,7 @@ module names or create separate Yellow, Green, or Black Belt implementation tree
 | Timing | Row timing plus per-case interval-log lead time | Branch-aware event-log wait time and PCE |
 | Yield | Binary stage and rolled funnel yield | Defect, rework, FTY, RTY, DPMO |
 | Workflows | Lightweight process discovery | Bottleneck, comparison, simulation |
-| Studies | None stable yet | Descriptive, capability, SPC, MSA, inference, DOE |
+| Studies | Typed numeric descriptive summaries, including grouping | Capability, SPC, MSA, inference, DOE |
 
 See [ADR-0019](adr/0019-reconcile-package-boundaries-and-event-log-contracts.md)
 for the decision that reconciled the private-kernel, ingestion, and event-log

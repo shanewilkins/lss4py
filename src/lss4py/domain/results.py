@@ -310,6 +310,36 @@ class DescriptiveResult(AnalyticalResult):
     missing: int = 0
     """Count of missing values in the input."""
 
+    total: int = 0
+    """Total observations before missing-value exclusions; count is the valid count."""
+
+    modes: list[float] = field(default_factory=list)
+    """All tied modes in ascending order; empty when no value repeats."""
+
+    mode_frequency: int = 0
+    """Maximum observed frequency, including one when all values are unique."""
+
+    unique_count: int = 0
+    """Number of distinct valid measurements."""
+
+    range: float | None = None
+    """Maximum minus minimum."""
+
+    iqr: float | None = None
+    """Third quartile minus first quartile."""
+
+    mad: float | None = None
+    """Unscaled median absolute deviation from the median."""
+
+    coefficient_of_variation: float | None = None
+    """Standard deviation divided by mean, expressed as a ratio, not percent."""
+
+    unit: str | None = None
+    """Declared measurement unit; no unit conversion is performed."""
+
+    group_keys: dict[str, Any] = field(default_factory=dict)
+    """Group identifiers, serialized independently of any dataframe backend."""
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize descriptive result to a dictionary."""
         base = super().to_dict()
@@ -326,6 +356,16 @@ class DescriptiveResult(AnalyticalResult):
                 "percentiles": self.percentiles,
                 "count": self.count,
                 "missing": self.missing,
+                "total": self.total,
+                "modes": self.modes,
+                "mode_frequency": self.mode_frequency,
+                "unique_count": self.unique_count,
+                "range": self.range,
+                "iqr": self.iqr,
+                "mad": self.mad,
+                "coefficient_of_variation": self.coefficient_of_variation,
+                "unit": self.unit,
+                "group_keys": self.group_keys,
             }
         )
         return base

@@ -2,7 +2,7 @@
 
 LSS4PY is a Python 3.14 Lean Six Sigma utility library for the current Yellow Belt slice.
 
-It is focused on repeatable process metrics and yield calculations.
+It is focused on repeatable process metrics, yield calculations, and descriptive statistics.
 
 It is not yet a full SPC, capability, simulation, or deliverables platform.
 
@@ -19,6 +19,10 @@ It includes these public functions:
 - `created_to_booked_yield`
 - `booked_to_completed_yield`
 - `rolled_yield`
+- `describe` (typed descriptive statistics, optionally grouped)
+
+See the [descriptive statistics guide](docs/descriptive-statistics.md) for examples
+and the statistical conventions.
 
 It also includes a process-model IR for integrating FLO-derived process structure with observed tabular data:
 
@@ -30,6 +34,11 @@ It also includes a process-model IR for integrating FLO-derived process structur
 - `StageBindingsIR`
 - `MetricSemanticsIR`
 - `EventLogBindingsIR`
+
+`Specification` and `AnalysisWindow` define reusable, validated CTQs, targets,
+acceptance limits, and analytical context. See the
+[specification guide](docs/specifications.md) for validation rules and an example
+paired with `describe`.
 
 It also includes stable event-log contracts and helpers:
 
