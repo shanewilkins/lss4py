@@ -14,6 +14,7 @@ from scipy import stats
 from lss4py._kernels._helpers import build_provenance, require_columns
 from lss4py.domain import AssumptionNote, DescriptiveResult
 from lss4py.errors import ValidationError
+from lss4py.guidance import AnalysisSuitability, register_analysis
 
 
 def _warn(result: DescriptiveResult, code: str, message: str) -> None:
@@ -243,6 +244,27 @@ def describe(
 ) -> list[DescriptiveResult]: ...
 
 
+@register_analysis(
+    AnalysisSuitability(
+        name="describe",
+        family="descriptive",
+        question_tags=("summarize_measurements",),
+        required_fields=(("column",),),
+        data_types=("numeric",),
+        prerequisites=(
+            "An eager numeric measurement column; optional explicit grouping columns.",
+            "Variance needs count > ddof; skewness needs three values; kurtosis four.",
+        ),
+        assumptions=("The declared cohort and measurement scale match the question.",),
+        alternatives=("lead_time",),
+        limits=(
+            "Cannot establish normality, stability, capability, causality or independence.",
+            "CV requires ratio scale and a sufficiently positive mean.",
+        ),
+        belt_level="white",
+        design_types=("observational",),
+    )
+)
 def describe(
     data: Any,
     *,

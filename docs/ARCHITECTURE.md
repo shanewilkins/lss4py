@@ -64,6 +64,16 @@ the two distinct observed-event concepts:
 The domain layer does not import adapters, kernels, workflows, reporting, the CLI,
 or observability modules.
 
+### Analysis guidance
+
+**Location:** `lss4py/guidance/`
+
+Private kernels declare immutable suitability metadata through decorators. The
+package root exposes `AnalysisSuitability`, `get_analysis`, and `get_candidates`.
+Guidance queries match declared intent and return metadata without inspecting
+data or executing methods. Guidance cannot import kernels or IO/orchestration
+layers; domain contracts remain independent of guidance.
+
 ### Adapters
 
 **Location:** `lss4py/adapters/`

@@ -53,6 +53,9 @@ Interval-event calculations are part of the current stable surface for:
 
 - `lead_time`
 
+`get_candidates` and `get_analysis` expose method requirements, assumptions, and
+limits without executing analyses. See the [analysis guidance guide](docs/analysis-guidance.md).
+
 ## Contract
 
 LSS4PY works from two inputs.

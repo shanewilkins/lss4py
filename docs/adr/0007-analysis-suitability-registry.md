@@ -69,3 +69,15 @@ function with `method=` parameter.
   (useful for reproducibility and avoiding auto-selection).
 - Pre-1.0, suitability criteria are not stable; categories and question tags may
   evolve (documented in deprecation policy, ADR-0014).
+
+## Implementation evidence (2026-10-09)
+
+The initial registry covers the eight supported descriptive, timing, and yield
+functions. `get_candidates` uses question, data-type, and design-type tags;
+`get_analysis` retrieves a named contract. Decorators preserve the original
+function and store metadata without callable references. Practitioners explicitly
+call the chosen existing function; no `method=` parameter is needed for these
+single-method APIs. `docs/analysis-guidance.md` documents current tags and limits;
+`tests/test_guidance.py` verifies completeness, deterministic queries, and
+non-execution. Guidance does not yet check suitability against observed datasets.
+The ADR's proposed status is retained pending maintainer acceptance.

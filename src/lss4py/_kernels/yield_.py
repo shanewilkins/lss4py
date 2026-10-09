@@ -14,8 +14,27 @@ from lss4py._kernels._helpers import (
     stage_yield_components,
 )
 from lss4py.domain import ProcessModelIR, YieldResult
+from lss4py.guidance import AnalysisSuitability, register_analysis
 
 
+@register_analysis(
+    AnalysisSuitability(
+        name="created_to_booked_yield",
+        family="yield",
+        question_tags=("stage_conversion",),
+        required_fields=(("created", "booked"),),
+        data_types=("binary_stage_outcome",),
+        prerequisites=(
+            "Nested binary stage indicators and a positive upstream denominator.",
+            "Column roles may be supplied explicitly or through stage bindings.",
+        ),
+        assumptions=("Rows represent comparable items from one declared funnel cohort.",),
+        alternatives=("booked_to_completed_yield", "rolled_yield"),
+        limits=("Conversion cannot establish significance or first-pass defect-free yield.",),
+        belt_level="yellow",
+        design_types=("observational",),
+    )
+)
 def created_to_booked_yield(
     data: Any,  # IntoFrame
     *,
@@ -89,6 +108,24 @@ def created_to_booked_yield(
     )
 
 
+@register_analysis(
+    AnalysisSuitability(
+        name="booked_to_completed_yield",
+        family="yield",
+        question_tags=("stage_conversion",),
+        required_fields=(("booked", "completed"),),
+        data_types=("binary_stage_outcome",),
+        prerequisites=(
+            "Nested binary stage indicators and a positive upstream denominator.",
+            "Column roles may be supplied explicitly or through stage bindings.",
+        ),
+        assumptions=("Rows represent comparable items from one declared funnel cohort.",),
+        alternatives=("created_to_booked_yield", "rolled_yield"),
+        limits=("Conversion cannot establish significance or first-pass defect-free yield.",),
+        belt_level="yellow",
+        design_types=("observational",),
+    )
+)
 def booked_to_completed_yield(
     data: Any,  # IntoFrame
     *,
@@ -161,6 +198,24 @@ def booked_to_completed_yield(
     )
 
 
+@register_analysis(
+    AnalysisSuitability(
+        name="rolled_yield",
+        family="yield",
+        question_tags=("overall_conversion",),
+        required_fields=(("created", "booked", "completed"),),
+        data_types=("binary_stage_outcome",),
+        prerequisites=(
+            "Nested binary stage indicators and a positive upstream denominator.",
+            "Column roles may be supplied explicitly or through stage bindings.",
+        ),
+        assumptions=("Rows represent comparable items from one declared funnel cohort.",),
+        alternatives=("created_to_booked_yield", "booked_to_completed_yield"),
+        limits=("Conversion cannot establish significance or first-pass defect-free yield.",),
+        belt_level="yellow",
+        design_types=("observational",),
+    )
+)
 def rolled_yield(
     data: Any,  # IntoFrame
     *,

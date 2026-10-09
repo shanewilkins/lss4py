@@ -19,6 +19,12 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 - [R `SixSigma` compatibility matrix](sixsigma-compatibility.md) tracks the
   reference package surface and parity gaps.
 
+## Current analytical guides
+
+- [Descriptive statistics](descriptive-statistics.md)
+- [CTQs and specifications](specifications.md)
+- [Analysis guidance](analysis-guidance.md)
+
 ## Background and vision
 
 The files in `copilot_prompts/` capture useful product vision, ecosystem ideas, and

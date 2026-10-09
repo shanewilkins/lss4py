@@ -23,6 +23,7 @@ from lss4py._kernels._helpers import (
 )
 from lss4py.domain import IntervalEventLog, ProcessModelIR, TimingResult
 from lss4py.errors import ValidationError
+from lss4py.guidance import AnalysisSuitability, register_analysis
 
 _SECONDS_PER_UNIT: dict[TimeUnit, float] = {
     "seconds": 1.0,
@@ -32,6 +33,27 @@ _SECONDS_PER_UNIT: dict[TimeUnit, float] = {
 }
 
 
+@register_analysis(
+    AnalysisSuitability(
+        name="lead_time",
+        family="timing",
+        question_tags=("elapsed_time",),
+        required_fields=(
+            ("start_timestamp", "end_timestamp"),
+            ("case_id", "step_id", "started_at", "completed_at", "process_model"),
+        ),
+        data_types=("timestamps", "interval_event_log"),
+        prerequisites=(
+            "Consistent timestamp units and timezone awareness.",
+            "Interval logs require explicit process bindings and declared parallel/rework edges.",
+        ),
+        assumptions=("Observed boundaries represent the intended process start and completion.",),
+        alternatives=("wait_time",),
+        limits=("Elapsed time includes both working and waiting; it does not separate them.",),
+        belt_level="yellow",
+        design_types=("observational",),
+    )
+)
 def lead_time(
     data: Any,  # IntoFrame (pandas, Polars, PyArrow)
     *,
@@ -173,6 +195,24 @@ def lead_time(
     )
 
 
+@register_analysis(
+    AnalysisSuitability(
+        name="wait_time",
+        family="timing",
+        question_tags=("waiting_time",),
+        required_fields=(("lead_time_column", "cycle_time_column"),),
+        data_types=("numeric_duration",),
+        prerequisites=("Explicit measured lead and cycle columns are required.",),
+        assumptions=("Lead and cycle measurements use the same units and scope.",),
+        alternatives=("lead_time", "process_cycle_efficiency"),
+        limits=(
+            "Branch-aware interval-event inference is unavailable.",
+            "Lead minus cycle time does not identify the cause of waiting.",
+        ),
+        belt_level="yellow",
+        design_types=("observational",),
+    )
+)
 def wait_time(
     data: Any,  # IntoFrame
     *,
@@ -248,6 +288,27 @@ def wait_time(
     )
 
 
+@register_analysis(
+    AnalysisSuitability(
+        name="process_cycle_efficiency",
+        family="timing",
+        question_tags=("value_add_share",),
+        required_fields=(("lead_time_column", "value_add_time_column"),),
+        data_types=("numeric_duration",),
+        prerequisites=("Explicit lead and value-add columns; lead time must be positive.",),
+        assumptions=(
+            "Value-add classification is supplied by the practitioner.",
+            "Measurements use the same units and process scope.",
+        ),
+        alternatives=("wait_time",),
+        limits=(
+            "Branch-aware interval-event inference is unavailable.",
+            "The ratio does not establish an improvement effect.",
+        ),
+        belt_level="yellow",
+        design_types=("observational",),
+    )
+)
 def process_cycle_efficiency(
     data: Any,  # IntoFrame
     *,
@@ -334,6 +395,21 @@ def process_cycle_efficiency(
     )
 
 
+@register_analysis(
+    AnalysisSuitability(
+        name="takt_time",
+        family="timing",
+        question_tags=("demand_pace",),
+        required_fields=(("available_time", "customer_demand"),),
+        data_types=("scalar",),
+        prerequisites=("Positive available time and demand for the same period.",),
+        assumptions=("Available productive time and demand represent the planning period.",),
+        alternatives=("lead_time",),
+        limits=("Takt is a planning pace, not observed cycle time or a capacity guarantee.",),
+        belt_level="yellow",
+        design_types=("planning",),
+    )
+)
 def takt_time(*, available_time: float, customer_demand: float) -> float:
     """Calculate takt time (available production time / customer demand).
 

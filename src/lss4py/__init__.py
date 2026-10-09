@@ -29,6 +29,7 @@ from lss4py.domain import (
     validate_event_log,
 )
 from lss4py.errors import AdapterError, LSS4PyError, ValidationError, WorkflowError
+from lss4py.guidance import AnalysisSuitability, get_analysis, get_candidates
 from lss4py.workflows import map_process
 
 __version__ = "0.1.0"
@@ -38,6 +39,9 @@ __all__ = [
     "AdapterError",
     "AdapterSchema",
     "AnalysisWindow",
+    "AnalysisSuitability",
+    "get_analysis",
+    "get_candidates",
     "DescriptiveResult",
     "describe",
     "EventLogBindingsIR",
