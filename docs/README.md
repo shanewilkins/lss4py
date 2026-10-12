@@ -22,8 +22,12 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 ## Current analytical guides
 
 - [Descriptive statistics](descriptive-statistics.md)
+- [Cp and Cpk](capability-indices.md)
 - [CTQs and specifications](specifications.md)
 - [Analysis guidance](analysis-guidance.md)
+- [Analytical backend contracts](backend-contracts.md)
+- [Governed numerical references](reference-fixtures.md)
+- [Optional R reference environment](../tools/r-reference/README.md)
 
 ## Background and vision
 

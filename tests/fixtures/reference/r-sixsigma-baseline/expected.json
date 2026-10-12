@@ -1,0 +1,218 @@
+[
+  {
+    "id": "cp-two-sided",
+    "method": "ss.ca.cp",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 6,
+      "USL": 14
+    },
+    "expected": {
+      "status": "returned",
+      "value": 0.84327404271156781,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "cp-upper-only",
+    "method": "ss.ca.cp",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "USL": 14
+    },
+    "expected": {
+      "status": "returned",
+      "value": 0.84327404271156781,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "cp-confidence",
+    "method": "ss.ca.cp",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 6,
+      "USL": 14,
+      "ci": true
+    },
+    "expected": {
+      "status": "returned",
+      "value": [0.29346014140494397, 1.407490234858743],
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "cpk-offset",
+    "method": "ss.ca.cpk",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 7,
+      "USL": 14
+    },
+    "expected": {
+      "status": "returned",
+      "value": 0.63245553203367588,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "cpk-confidence",
+    "method": "ss.ca.cpk",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 7,
+      "USL": 14,
+      "ci": true
+    },
+    "expected": {
+      "status": "returned",
+      "value": [0.10573103800887104, 1.1591800260584808],
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "z-two-sided",
+    "method": "ss.ca.z",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 7,
+      "USL": 14
+    },
+    "expected": {
+      "status": "returned",
+      "value": 1.8973665961010275,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "z-long-term",
+    "method": "ss.ca.z",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 7,
+      "USL": 14,
+      "LT": true
+    },
+    "expected": {
+      "status": "returned",
+      "value": 0.39736659610102754,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "yield-with-rework",
+    "method": "ss.ca.yield",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "defects": [1, 0, 2, 0, 1],
+      "rework": [0, 1, 0, 0, 0],
+      "opportunities": 100
+    },
+    "expected": {
+      "status": "returned",
+      "value": [
+        {
+          "Yield": 0.95999999999999996,
+          "FTY": 0.94999999999999996,
+          "RTY": 0.95089301999999998,
+          "DPU": 4,
+          "DPMO": 40000
+        }
+      ],
+      "result_class": "data.frame",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "yield-zero-defects",
+    "method": "ss.ca.yield",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "defects": [0, 0],
+      "rework": [0, 0],
+      "opportunities": 100
+    },
+    "expected": {
+      "status": "returned",
+      "value": [
+        {
+          "Yield": 1,
+          "FTY": 1,
+          "RTY": 1,
+          "DPU": 0,
+          "DPMO": 0
+        }
+      ],
+      "result_class": "data.frame",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  }
+]

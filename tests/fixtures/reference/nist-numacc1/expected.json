@@ -1,0 +1,21 @@
+[
+  {
+    "id": "certified-location-spread",
+    "method": "describe",
+    "input_kind": "frame",
+    "parameters": {
+      "column": "y"
+    },
+    "expected": {
+      "mean": 10000002.0,
+      "std": 1.0,
+      "count": 3
+    },
+    "basis": "NIST NumAcc1 certifies sample mean=10000002 and sample standard deviation=1 exactly (denominator n-1); the data file specifies three observations.",
+    "tolerance": {
+      "absolute": 0.0,
+      "relative": 0.0
+    },
+    "tolerance_reason": "These certified values and three integer inputs are exactly representable in float64; require exact agreement."
+  }
+]

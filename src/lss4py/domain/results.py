@@ -247,11 +247,43 @@ class CapabilityResult(AnalyticalResult):
     method: str = "normal"
     """Method used (e.g., 'normal', 'box_cox', 'empirical', 'johnson')."""
 
+    cpl: float | None = None
+    """Lower component (mean - LSL)/(3s); absent for an upper-only specification."""
+
+    cpu: float | None = None
+    """Upper component (USL - mean)/(3s); absent for a lower-only specification."""
+
+    cp_confidence_interval: tuple[float, float] | None = None
+    """Chi-square confidence interval for Cp."""
+
+    cpk_confidence_interval: tuple[float, float] | None = None
+    """Approximate normal confidence interval for Cpk."""
+
+    total: int = 0
+    """Number of supplied measurements before missing-value exclusion."""
+
+    missing: int = 0
+    """Number of excluded null/NaN measurements."""
+
+    unit: str | None = None
+    """Shared measurement and specification unit; no conversion is inferred."""
+
+    variation_estimator: str = "overall_sample_std"
+    """Estimator actually used; does not imply within-subgroup or short-term variation."""
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize capability result to a dictionary."""
-        base = super().to_dict()
+        base = AnalyticalResult.to_dict(self)
         base.update(
             {
+                "cpl": self.cpl,
+                "cpu": self.cpu,
+                "cp_confidence_interval": self.cp_confidence_interval,
+                "cpk_confidence_interval": self.cpk_confidence_interval,
+                "total": self.total,
+                "missing": self.missing,
+                "unit": self.unit,
+                "variation_estimator": self.variation_estimator,
                 "cp": self.cp,
                 "cpk": self.cpk,
                 "z_score": self.z_score,

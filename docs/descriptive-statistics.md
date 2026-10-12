@@ -1,6 +1,7 @@
 # Descriptive statistics
 
 `describe` summarizes a numeric column from an eager Polars or pandas dataframe.
+Provisional PyArrow cases are covered by the [shared backend suite](backend-contracts.md).
 It returns a backend-neutral `DescriptiveResult`; no pandas dependency is needed
 when using Polars. This is the descriptive slice of the v0.2 contract foundation,
 not a claim that the full milestone or R SixSigma parity is complete.
@@ -9,10 +10,12 @@ not a claim that the full milestone or R SixSigma parity is complete.
 import polars as pl
 from lss4py import describe
 
-observations = pl.DataFrame({
-    "team": ["A", "A", "B", "B", "B"],
-    "hours": [1.0, 2.0, 2.0, 4.0, None],
-})
+observations = pl.DataFrame(
+    {
+        "team": ["A", "A", "B", "B", "B"],
+        "hours": [1.0, 2.0, 2.0, 4.0, None],
+    }
+)
 
 summary = describe(observations, column="hours", unit="hours")
 assert summary.mean == 2.25

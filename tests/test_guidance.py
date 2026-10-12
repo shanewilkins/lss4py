@@ -11,6 +11,7 @@ from lss4py import AnalysisSuitability, ValidationError, get_analysis, get_candi
 from lss4py.guidance import register_analysis
 
 METHODS = {
+    "capability_indices",
     "describe",
     "lead_time",
     "wait_time",
@@ -43,6 +44,7 @@ def test_catalog_covers_supported_calculations():
         ("value_add_share", ("process_cycle_efficiency",)),
         ("demand_pace", ("takt_time",)),
         ("summarize_measurements", ("describe",)),
+        ("process_capability", ("capability_indices",)),
         ("stage_conversion", ("booked_to_completed_yield", "created_to_booked_yield")),
         ("overall_conversion", ("rolled_yield",)),
         ("unknown", ()),
@@ -79,7 +81,7 @@ def test_guidance_cannot_execute_an_analysis(monkeypatch):
 
     for name in METHODS:
         monkeypatch.setattr(lss4py, name, fail)
-    assert len(get_candidates()) == 8
+    assert len(get_candidates()) == 9
     assert get_analysis("describe").name == "describe"
     assert "data" not in inspect.signature(get_candidates).parameters
 

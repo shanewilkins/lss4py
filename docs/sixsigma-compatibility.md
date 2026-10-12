@@ -49,9 +49,9 @@ functions share one requirement when they are steps in the same user journey.
 
 | R `SixSigma` API | R behavior | Proposed LSS4PY API | Status | Current evidence / parity requirement |
 |---|---|---|---|---|
-| `ss.ca.cp` | Process capability index Cp, optionally with a confidence interval | `capability_indices(...).cp` | Gap | No governed capability calculation exists. Match one- and two-sided specification handling, missing-value policy, and confidence intervals. |
-| `ss.ca.cpk` | Centered process capability index Cpk, optionally with a confidence interval | `capability_indices(...).cpk` | Gap | No governed capability calculation exists. Match lower/upper component selection and confidence intervals. |
-| `ss.ca.z` | Sigma score from process data and specification limits | `capability_indices(...).z` | Gap | No governed capability calculation exists. Match one-sided limits and the R package's short-term interpretation. |
+| `ss.ca.cp` | Process capability index Cp, optionally with a confidence interval | `capability_indices(...).cp` | Partial | Cp/components and chi-square intervals use explicit Specification and sample std; checked-in R cases pass on all eager backend variants. Missing-value interval counts and degenerate/signed-domain policies intentionally differ; see docs/capability-indices.md. |
+| `ss.ca.cpk` | Centered process capability index Cpk, optionally with a confidence interval | `capability_indices(...).cpk` | Partial | Cpk/component selection and approximate intervals pass the checked-in R cases on all eager backend variants. Ordered negative and finite zero-Cpk intervals intentionally differ; see docs/capability-indices.md. |
+| `ss.ca.z` | Sigma score from process data and specification limits | `capability_indices(...).z` | Gap | Cp/Cpk exist, but Z scores are unavailable. Match one-sided limits and the R package's short-term interpretation. |
 | `ss.ca.yield` | Yield, first-time yield, rolled-throughput yield, and DPMO from defect/rework counts | `process_yield(defects, *, rework=None, opportunities=1)` returning `YieldResult` | Partial | `rolled_yield()` and two stage-yield helpers work on binary funnel stages, not defect/rework vectors. Add the R counting semantics and validate against `ss.ca.yield()` fixtures. |
 | `ss.study.ca` | Capability-study plots, normality checks, specification limits, target, and short-/long-term views | `capability_study(...)` returning `CapabilityStudyResult`; plotting kept in a visualization layer | Gap | No governed capability study exists. Calculation results must be usable without rendering; plots should consume the typed result. |
 
@@ -125,5 +125,12 @@ gaps:
 ## Delivery governance
 
 The [roadmap](roadmap.md) owns delivery order; this matrix owns compatibility
-coverage and status. Numerical parity acceptance is governed by
+coverage and status. The [offline reference catalog](reference-fixtures.md) now includes NIST-certified
+and independently derived cases for current supported methods. It also includes
+actually generated SixSigma 0.11.1 Cp/Cpk/Z/yield baselines with runtime provenance,
+checksums and a reproducible generator. Those entries are reference-only until
+corresponding Python methods pass numerical comparisons; no R compatibility
+status is promoted by fixture generation alone.
+
+Numerical parity acceptance is governed by
 [TR-007](requirements/technical-requirements.csv).

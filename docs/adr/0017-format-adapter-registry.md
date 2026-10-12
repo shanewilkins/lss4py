@@ -65,7 +65,7 @@ Implement a **pluggable format adapter registry** that:
 4. **Format auto-detection is optional; explicit format specification is allowed:**
    ```python
    lead_time(ocel2_log)  # System detects OCEL 2.0 automatically
-   lead_time(ocel2_log, format='ocel2')  # Explicit specification for ambiguous data
+   lead_time(ocel2_log, format="ocel2")  # Explicit specification for ambiguous data
    ```
 
 5. **Canonical representation is minimal and format-agnostic:**

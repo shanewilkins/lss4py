@@ -1,3 +1,4 @@
+from lss4py._kernels.capability import capability_indices
 from lss4py._kernels.descriptive import describe
 from lss4py._kernels.timing import (
     lead_time,
@@ -13,6 +14,7 @@ from lss4py._kernels.yield_ import (
 from lss4py.adapters import AdapterSchema, EventLogCSVAdapter, load_event_log
 from lss4py.domain import (
     AnalysisWindow,
+    CapabilityResult,
     DescriptiveResult,
     EventLog,
     EventLogBindingsIR,
@@ -42,6 +44,8 @@ __all__ = [
     "AnalysisSuitability",
     "get_analysis",
     "get_candidates",
+    "CapabilityResult",
+    "capability_indices",
     "DescriptiveResult",
     "describe",
     "EventLogBindingsIR",

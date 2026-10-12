@@ -86,3 +86,7 @@ docs/_build/
 # mkdocs / sphinx caches
 .doctrees/
 
+# Optional, isolated R reference tooling
+/tools/r-reference/.bootstrap/
+/tools/r-reference/.library/
+/tools/r-reference/.renv/

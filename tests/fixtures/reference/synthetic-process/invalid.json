@@ -1,0 +1,116 @@
+[
+  {
+    "id": "negative-elapsed",
+    "method": "lead_time",
+    "parameters": {
+      "start_column": "start",
+      "end_column": "end"
+    },
+    "columns_override": {
+      "end": [
+        "2026-01-01T07:00:00",
+        "2026-01-02T14:00:00",
+        "2026-01-03T12:00:00"
+      ]
+    },
+    "error_type": "ValidationError",
+    "message": "Lead time cannot be negative"
+  },
+  {
+    "id": "cycle-exceeds-lead",
+    "method": "wait_time",
+    "parameters": {
+      "lead_time_column": "lead",
+      "cycle_time_column": "cycle"
+    },
+    "columns_override": {
+      "cycle": [
+        11.0,
+        1.0,
+        1.0
+      ]
+    },
+    "error_type": "ValidationError",
+    "message": "Wait time cannot be negative"
+  },
+  {
+    "id": "zero-lead",
+    "method": "process_cycle_efficiency",
+    "parameters": {
+      "lead_time_column": "lead",
+      "value_add_time_column": "value_add"
+    },
+    "columns_override": {
+      "lead": [
+        0.0,
+        5.0,
+        2.0
+      ]
+    },
+    "error_type": "ValidationError",
+    "message": "Lead time must be greater than zero"
+  },
+  {
+    "id": "nonbinary-intake",
+    "method": "created_to_booked_yield",
+    "parameters": {
+      "created_column": "created",
+      "booked_column": "booked"
+    },
+    "columns_override": {
+      "booked": [
+        2,
+        1,
+        0
+      ]
+    },
+    "error_type": "ValidationError",
+    "message": "non-binary values"
+  },
+  {
+    "id": "nonbinary-completion",
+    "method": "booked_to_completed_yield",
+    "parameters": {
+      "booked_column": "booked",
+      "completed_column": "completed"
+    },
+    "columns_override": {
+      "completed": [
+        2,
+        0,
+        0
+      ]
+    },
+    "error_type": "ValidationError",
+    "message": "non-binary values"
+  },
+  {
+    "id": "nonbinary-rolled",
+    "method": "rolled_yield",
+    "parameters": {
+      "created_column": "created",
+      "booked_column": "booked",
+      "completed_column": "completed"
+    },
+    "columns_override": {
+      "booked": [
+        2,
+        1,
+        0
+      ]
+    },
+    "error_type": "ValidationError",
+    "message": "non-binary values"
+  },
+  {
+    "id": "zero-demand",
+    "method": "takt_time",
+    "parameters": {
+      "available_time": 420.0,
+      "customer_demand": 0.0
+    },
+    "columns_override": {},
+    "error_type": "ValidationError",
+    "message": "Customer demand must be greater than zero"
+  }
+]

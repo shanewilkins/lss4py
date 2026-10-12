@@ -1,0 +1,266 @@
+{
+  "schema_version": "1.0",
+  "datasets": [
+    {
+      "id": "nist-numacc1",
+      "version": "1.0.0",
+      "purpose": "test_fixture",
+      "source": {
+        "author": "National Institute of Standards and Technology (NIST)",
+        "citation": "NIST Statistical Reference Datasets, NumAcc1: https://www.itl.nist.gov/div898/strd/univ/data/NumAcc1.dat",
+        "version": "NumAcc1 (unversioned published file; accessed 2026-10-09)",
+        "derivation": "Reconstructed the three published constructed integers in original order. Certified mean/std and observation count transcribed from the cited file. No original NIST source file is redistributed.",
+        "kind": "published_certified",
+        "accessed_on": "2026-10-09"
+      },
+      "license": {
+        "identifier": "MIT",
+        "attribution": "Original LSS4PY fixture JSON: Copyright (c) 2026 Shane Wilkins; see LICENSE.md.",
+        "redistribution": "permitted",
+        "notice": "Original LSS4PY JSON reconstructs three constructed numbers and cites certified scalar values. It does not redistribute the NIST data file or claim to relicense NIST materials. NIST source terms: https://www.nist.gov/open/license; acknowledge NIST as source of the certification."
+      },
+      "schema": {
+        "rows": 3,
+        "fields": {
+          "y": {
+            "type": "integer",
+            "nullable": false
+          }
+        }
+      },
+      "intended_analyses": [
+        "describe"
+      ],
+      "semantic_differences": [
+        "No R SixSigma equivalence is claimed.",
+        "Autocorrelation is certified by NIST but is not computed by describe."
+      ],
+      "invalid_cases_required": false,
+      "artifacts": {
+        "inputs": {
+          "path": "nist-numacc1/inputs.json",
+          "sha256": "fbaf6cd17df308a8683588240ec4df998118cbecfb4ec22d765d3545255720aa"
+        },
+        "expected": {
+          "path": "nist-numacc1/expected.json",
+          "sha256": "ae789dade5faa6fb65422d67f912b9b383e3aca9c589918d747165d724147804"
+        },
+        "invalid": {
+          "path": "nist-numacc1/invalid.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        }
+      }
+    },
+    {
+      "id": "synthetic-summary",
+      "version": "1.0.0",
+      "purpose": "test_fixture",
+      "source": {
+        "author": "LSS4PY maintainers",
+        "citation": "Original synthetic example and arithmetic documented in expected.json basis; repository LICENSE.md applies.",
+        "version": "Synthetic five-point example 1.0.0",
+        "derivation": "Expected values derived algebraically; sqrt(5/2) and CV rounded from 50-digit Decimal arithmetic. No NumPy, SciPy, R, or lss4py functions generate these expected values.",
+        "kind": "independently_derived",
+        "accessed_on": "2026-10-09"
+      },
+      "license": {
+        "identifier": "MIT",
+        "attribution": "Original LSS4PY fixture JSON: Copyright (c) 2026 Shane Wilkins; see LICENSE.md.",
+        "redistribution": "permitted",
+        "notice": "Synthetic test data, not production or teaching evidence."
+      },
+      "schema": {
+        "rows": 6,
+        "fields": {
+          "x": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "intended_analyses": [
+        "describe"
+      ],
+      "semantic_differences": [
+        "No R SixSigma equivalence is claimed."
+      ],
+      "invalid_cases_required": true,
+      "artifacts": {
+        "inputs": {
+          "path": "synthetic-summary/inputs.json",
+          "sha256": "3463273e053130474ede3377188a1e08f6b8c09479a42de5ee2624c823ce7228"
+        },
+        "expected": {
+          "path": "synthetic-summary/expected.json",
+          "sha256": "af93c14506d3c7e13b878d7fcc237de468f22f48aff22d8cfbeb286dabdede39"
+        },
+        "invalid": {
+          "path": "synthetic-summary/invalid.json",
+          "sha256": "5902ffabd2fdce5bde8a6b465d6e85c37be3b5e1e88b8b15540582e4b9b1bd15"
+        }
+      }
+    },
+    {
+      "id": "synthetic-process",
+      "version": "1.0.0",
+      "purpose": "test_fixture",
+      "source": {
+        "author": "LSS4PY maintainers",
+        "citation": "Original synthetic process example and exact arithmetic documented in expected.json basis; repository LICENSE.md applies.",
+        "version": "Synthetic process example 1.0.0",
+        "derivation": "Durations, ratios, counts and planning pace obtained by direct arithmetic; fixture outputs were not computed with lss4py.",
+        "kind": "independently_derived",
+        "accessed_on": "2026-10-09"
+      },
+      "license": {
+        "identifier": "MIT",
+        "attribution": "Original LSS4PY fixture JSON: Copyright (c) 2026 Shane Wilkins; see LICENSE.md.",
+        "redistribution": "permitted",
+        "notice": "Synthetic test data, not production or teaching evidence."
+      },
+      "schema": {
+        "rows": 3,
+        "fields": {
+          "start": {
+            "type": "string",
+            "nullable": false
+          },
+          "end": {
+            "type": "string",
+            "nullable": false
+          },
+          "lead": {
+            "type": "number",
+            "nullable": false
+          },
+          "cycle": {
+            "type": "number",
+            "nullable": false
+          },
+          "value_add": {
+            "type": "number",
+            "nullable": false
+          },
+          "created": {
+            "type": "integer",
+            "nullable": false
+          },
+          "booked": {
+            "type": "integer",
+            "nullable": false
+          },
+          "completed": {
+            "type": "integer",
+            "nullable": false
+          }
+        }
+      },
+      "intended_analyses": [
+        "booked_to_completed_yield",
+        "created_to_booked_yield",
+        "lead_time",
+        "process_cycle_efficiency",
+        "rolled_yield",
+        "takt_time",
+        "wait_time"
+      ],
+      "semantic_differences": [
+        "No R SixSigma equivalence is claimed."
+      ],
+      "invalid_cases_required": true,
+      "artifacts": {
+        "inputs": {
+          "path": "synthetic-process/inputs.json",
+          "sha256": "1e6df68dc9c2a72b7fc1174722361cc405fc3c06ea2fd1c4a34a9bdfea8571f2"
+        },
+        "expected": {
+          "path": "synthetic-process/expected.json",
+          "sha256": "f1e181256d3307a1c93535286643d6d5c4636bfdc96abace1fd7177fc8935fc7"
+        },
+        "invalid": {
+          "path": "synthetic-process/invalid.json",
+          "sha256": "dbd4d2f589bfaeb0e11b39316eb2554a60398b10f53c805b7a4d413ba97361c2"
+        }
+      }
+    },
+    {
+      "id": "r-sixsigma-baseline",
+      "version": "1.0.0",
+      "purpose": "test_fixture",
+      "validation_status": "reference_only",
+      "source": {
+        "kind": "r_sixsigma",
+        "author": "LSS4PY maintainers; R SixSigma authors Emilio L. Cano and contributors",
+        "citation": "CRAN SixSigma 0.11.1: https://cran.r-project.org/src/contrib/SixSigma_0.11.1.tar.gz",
+        "version": "SixSigma 0.11.1 reference snapshot 1.0.0",
+        "accessed_on": "2026-10-09",
+        "derivation": "Executed genuine exported SixSigma functions on original synthetic inputs, capturing returns, errors and warnings. Re-executed generate.R --verify and obtained byte-identical expected and invalid artifacts.",
+        "package_source_sha256": "8e2235b7d278d7cdc7984ae704c0c2334448bc1219553033cffae99c707c66bd",
+        "package": "SixSigma",
+        "package_version": "0.11.1",
+        "r_version": "R version 4.6.1 (2026-06-24)",
+        "generated_at": "2026-10-09T13:41:32Z",
+        "command": "Rscript --vanilla tests/fixtures/reference/r-sixsigma-baseline/generate.R"
+      },
+      "license": {
+        "identifier": "MIT (original generator, synthetic inputs and recorded JSON); upstream SixSigma GPL-2.0-or-later",
+        "attribution": "Original fixture artifacts copyright (c) 2026 Shane Wilkins. Calculations performed by SixSigma 0.11.1, Emilio L. Cano and contributors.",
+        "redistribution": "permitted",
+        "notice": "No upstream R implementation or bundled SixSigma data is redistributed. The generator calls the installed GPL-licensed package; upstream package licensing is unchanged."
+      },
+      "schema": {
+        "rows": 5,
+        "fields": {
+          "x": {
+            "type": "integer",
+            "nullable": false
+          },
+          "defects": {
+            "type": "integer",
+            "nullable": false
+          },
+          "rework": {
+            "type": "integer",
+            "nullable": false
+          }
+        }
+      },
+      "intended_analyses": [
+        "ss.ca.cp",
+        "ss.ca.cpk",
+        "ss.ca.z",
+        "ss.ca.yield"
+      ],
+      "semantic_differences": [
+        "Reference-only baselines: no supported Python capability or defect/rework yield API currently matches these methods.",
+        "Current LSS4PY binary funnel-stage yields are not equivalents of ss.ca.yield defect/rework vectors.",
+        "SixSigma DPU is the sum of defects in this API, not the defect count divided by a unit denominator.",
+        "Zero yield opportunities return nonfinite values; unequal vector lengths recycle values with a warning. Future Python validation may deliberately reject these inputs.",
+        "R data-frame outputs, warning/error classes and nonfinite string encoding are retained; future Python typed-result and error contracts will differ."
+      ],
+      "invalid_cases_required": true,
+      "artifacts": {
+        "inputs": {
+          "path": "r-sixsigma-baseline/inputs.json",
+          "sha256": "2abc282775881b8a286bca12b842489c7fc9e1e4bf8975c5ea139fb5bd36f228"
+        },
+        "expected": {
+          "path": "r-sixsigma-baseline/expected.json",
+          "sha256": "9508d76868dffe6a0eb273620bfa368a219df07d7a336209fbd6f6e338cf4e68"
+        },
+        "invalid": {
+          "path": "r-sixsigma-baseline/invalid.json",
+          "sha256": "8071b72a2688c05397372301cd2418cea78a13ad3accdb0d1613b2cc4477d935"
+        },
+        "generator": {
+          "path": "r-sixsigma-baseline/generate.R",
+          "sha256": "5821b1ad61332eeb70931ace4551f15f596877683399abaf2c31d0a17682700f"
+        },
+        "provenance": {
+          "path": "r-sixsigma-baseline/provenance.json",
+          "sha256": "d98e6389df9fe88d0f97afd1bf642268c3c1c012748e935b37208e7a314e713a"
+        }
+      }
+    }
+  ]
+}

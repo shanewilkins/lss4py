@@ -10,12 +10,6 @@ import pytest
 from lss4py import DescriptiveResult, ValidationError, describe
 
 
-@pytest.fixture(params=["pandas", "polars"])
-def frame_factory(request):
-    """Exercise every analytical contract with both supported dataframe backends."""
-    return pd.DataFrame if request.param == "pandas" else pl.DataFrame
-
-
 def test_reference_summary(frame_factory):
     """Check a five-point symmetric reference with hand-calculated moments."""
     frame = frame_factory({"x": [1.0, 2.0, 3.0, 4.0, 5.0]})
@@ -204,18 +198,6 @@ def test_numerical_overflow_is_json_safe():
     result = describe(pl.DataFrame({"x": [-1e308, 1e308, 1e308, -1e308]}), column="x")
     assert "NUMERICAL_UNAVAILABLE" in {w.code for w in result.provenance.warnings}
     json.dumps(result.to_dict(), allow_nan=False)
-
-
-def test_backends_match_full_payload():
-    """Only backend identity and creation time differ across the supported inputs."""
-    payloads = []
-    for factory in (pd.DataFrame, pl.DataFrame):
-        result = describe(factory({"x": [1.0, 1.0, 2.0, 4.0, None]}), column="x")
-        payload = result.to_dict()
-        assert payload["provenance"].pop("backend") in {"pandas", "polars"}
-        payload["provenance"].pop("created_at")
-        payloads.append(payload)
-    assert payloads[0] == payloads[1]
 
 
 def test_asymmetric_moments(frame_factory):

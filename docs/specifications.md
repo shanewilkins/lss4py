@@ -32,7 +32,10 @@ spec = Specification(
 # The caller prepares the declared cohort/window explicitly before analysis.
 observations = pl.DataFrame({"team": ["A", "A", "B"], "hours": [2, 8, 4]})
 summaries = describe(
-    observations, column="hours", unit=spec.unit, group_by=spec.group_by,
+    observations,
+    column="hours",
+    unit=spec.unit,
+    group_by=spec.group_by,
 )
 assert [result.mean for result in summaries] == [5.0, 4.0]
 assert [result.unit for result in summaries] == ["hours", "hours"]

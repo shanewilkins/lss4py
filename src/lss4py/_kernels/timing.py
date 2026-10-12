@@ -33,6 +33,19 @@ _SECONDS_PER_UNIT: dict[TimeUnit, float] = {
 }
 
 
+def _timestamp_series(frame: nw.DataFrame, column: str) -> nw.Series:
+    """Parse strings explicitly and preserve native datetime timezone semantics."""
+    series = frame[column]
+    try:
+        if series.dtype == nw.String:
+            return series.str.to_datetime()
+        if isinstance(series.dtype, nw.Datetime):
+            return series
+        return series.cast(nw.Datetime)
+    except Exception as exc:
+        raise ValidationError(f"Column '{column}' contains invalid timestamps.") from exc
+
+
 @register_analysis(
     AnalysisSuitability(
         name="lead_time",
@@ -145,19 +158,10 @@ def lead_time(
     )
     require_columns(frame, resolved_start_column, resolved_end_column)
 
-    start = frame[resolved_start_column].cast(nw.Datetime)
-    end = frame[resolved_end_column].cast(nw.Datetime)
-
-    # Calculate durations in seconds, convert to unit
-    durations_native = (end - start).to_native()
-
-    # Extract to NumPy
-    if hasattr(durations_native, "dt"):
-        # pandas Series
-        durations_seconds = durations_native.dt.total_seconds().to_numpy()
-    else:
-        # Polars Series
-        durations_seconds = durations_native.dt.total_seconds().to_numpy()
+    start = _timestamp_series(frame, resolved_start_column)
+    end = _timestamp_series(frame, resolved_end_column)
+    # Extract fractional seconds through the backend-neutral duration namespace.
+    durations_seconds = (end - start).dt.total_microseconds().to_numpy() / 1_000_000
 
     result = durations_seconds / _SECONDS_PER_UNIT[unit]
 

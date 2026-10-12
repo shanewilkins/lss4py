@@ -182,6 +182,7 @@ class CapabilityResult(AnalyticalResult):
 @dataclass(slots=True)
 class CapabilityKernelResult:
     """Raw output from capability calculation."""
+
     cp: float
     cpk: float
     cpu: float | None
@@ -189,12 +190,12 @@ class CapabilityKernelResult:
     z_score: float
     mean: float
     std_dev: float
-    
+
     # Provenance
     formula_source: str  # e.g., "AIAG 4th ed" or "R SixSigma 0.11.1"
     scipy_version: str
     numpy_version: str
-    
+
     confidence_interval: tuple[float, float] | None = None
     ci_method: str | None = None
 
@@ -209,7 +210,7 @@ def calculate_capability_normal(
 ) -> CapabilityKernelResult:
     """
     Calculate Cp, Cpk, Z for normal process data.
-    
+
     Delegates to scipy/numpy; returns raw kernel output.
     Validation, typing, assumptions happen at workflow layer.
     """
@@ -218,10 +219,12 @@ def calculate_capability_normal(
     # Return typed result with provenance
     ...
 
+
 # Kernel registry for parity
 _KERNEL_VERSIONS = {
     "capability_normal": ("AIAG", "scipy==1.15.0", "numpy==2.2.0"),
 }
+
 
 def get_kernel_version(kernel_name: str) -> str:
     """Get parity version string for fixtures."""
@@ -280,6 +283,7 @@ def get_kernel_version(kernel_name: str) -> str:
 from dataclasses import dataclass
 from enum import Enum
 
+
 class AnalysisFamily(Enum):
     CAPABILITY = "capability"
     INFERENCE = "inference"
@@ -288,29 +292,30 @@ class AnalysisFamily(Enum):
     QUALITY_LOSS = "quality_loss"
     # ... etc
 
+
 @dataclass(slots=True)
 class AnalysisSuitability:
     """Describes when an analysis is appropriate."""
-    
+
     family: AnalysisFamily
     name: str  # e.g., "normal_capability_study"
     question_tag: str  # e.g., "can_process_meet_specs"
-    
+
     # Applicability
     required_scale: int  # minimum sample size
     data_types: frozenset[str]  # e.g., {"numeric_continuous"}
     design_types: frozenset[str]  # e.g., {"observational", "one_sample"}
-    
+
     # Assumptions
     assumptions: list[str]  # e.g., ["normality", "independence"]
     assumption_checks: frozenset[str]  # e.g., {"shapiro_wilk", "qq_plot"}
-    
+
     # Alternatives
     alternatives: list[str]  # similar analyses
-    
+
     # Interpretation limits
     limits: list[str]  # e.g., "does not imply causation"
-    
+
     def can_run_with(self, data_type: str, sample_size: int, design: str) -> bool:
         """Quick check: is this analysis plausible for user's setup?"""
         return (
@@ -323,13 +328,17 @@ class AnalysisSuitability:
 # Registry (discoverable via inspect/reflection)
 _REGISTRY: dict[str, AnalysisSuitability] = {}
 
+
 def register_analysis(suitability: AnalysisSuitability):
     """Decorator to register an analysis."""
+
     def wrapper(func):
         _REGISTRY[suitability.name] = suitability
         func._lss4py_suitability = suitability
         return func
+
     return wrapper
+
 
 def get_candidates(
     question_tag: str,
@@ -339,7 +348,8 @@ def get_candidates(
 ) -> list[AnalysisSuitability]:
     """Find analyses that fit the user's question/setup."""
     return [
-        s for s in _REGISTRY.values()
+        s
+        for s in _REGISTRY.values()
         if s.question_tag == question_tag and s.can_run_with(data_type, sample_size, design)
     ]
 
@@ -359,8 +369,7 @@ def get_candidates(
         limits=["requires stable process", "does not account for future special causes"],
     )
 )
-def capability_study(data: pd.DataFrame | pl.DataFrame, **kwargs) -> CapabilityResult:
-    ...
+def capability_study(data: pd.DataFrame | pl.DataFrame, **kwargs) -> CapabilityResult: ...
 ```
 
 **No Auto-Selection:** Guidance returns candidates; user explicitly chooses. Core analytics function requires explicit `method="normal_capability_study"` parameter.
@@ -411,12 +420,13 @@ def capability_study(data: pd.DataFrame | pl.DataFrame, **kwargs) -> CapabilityR
 @dataclass(slots=True)
 class AdapterSchema:
     """Normalized schema after ingestion."""
+
     column_names: frozenset[str]
     column_types: dict[str, str]  # {"col": "datetime", "count": "int64", ...}
     row_count: int
     key_columns: list[str]  # e.g., ["case_id"] for event logs
     timestamp_columns: list[str] | None = None
-    
+
     def validate_required_fields(self, required: Iterable[str]) -> list[str]:
         """Return missing required fields."""
         return [f for f in required if f not in self.column_names]
@@ -424,19 +434,19 @@ class AdapterSchema:
 
 class TabularAdapter:
     """Base class for tabular ingestion."""
-    
+
     def __init__(self, source_reference: str):
         """source_reference: path, URI, connection string, etc."""
         self.source_reference = source_reference
-    
+
     def schema(self) -> AdapterSchema:
         """Inspect source without loading."""
         ...
-    
+
     def load(self, **kwargs) -> tuple[pd.DataFrame | pl.DataFrame, AdapterSchema]:
         """Load and normalize; return native frame + schema."""
         ...
-    
+
     def validate_load(self, required_fields: list[str]) -> list[str]:
         """Quick check before loading: are required fields present?"""
         return self.schema().validate_required_fields(required_fields)
@@ -445,10 +455,11 @@ class TabularAdapter:
 # Concrete adapters
 class CSVTabularAdapter(TabularAdapter):
     """Load CSV files."""
+
     def schema(self) -> AdapterSchema:
         # Peek at first few rows
         ...
-    
+
     def load(self, **kwargs) -> tuple[pd.DataFrame | pl.DataFrame, AdapterSchema]:
         # Use Narwhals + backend parameter
         # Preserve dtypes; fail on parse errors
@@ -457,14 +468,14 @@ class CSVTabularAdapter(TabularAdapter):
 
 class EventLogAdapter:
     """Base class for event log ingestion."""
-    
+
     def __init__(self, source_reference: str):
         self.source_reference = source_reference
-    
+
     def schema(self) -> AdapterSchema:
         """Expected fields: case_id, activity, timestamp, [resource], [payload]."""
         ...
-    
+
     def load(self, **kwargs) -> tuple[EventLog, AdapterSchema]:
         """Load and normalize to LSS4PY EventLog contract."""
         ...
@@ -534,18 +545,20 @@ frame, validated_schema = adapter.load(backend="polars")
 import narwhals as nw
 from narwhals.typing import IntoFrame
 
+
 def load_frame(data: IntoFrame, backend: Literal["pandas", "polars", "pyarrow"] | None = None):
     """Normalize eager dataframe input."""
     frame = nw.from_native(data, eager_only=True, allow_series=False)
-    
+
     if backend:
         # Materialize to requested backend
         native = frame.to_native()
         if backend == "polars":
             import polars as pl
+
             return pl.from_pandas(native) if isinstance(native, pd.DataFrame) else native
         # ... etc
-    
+
     return frame
 
 
@@ -556,16 +569,16 @@ def extract_series(
 ) -> np.ndarray:
     """Extract validated column as NumPy array."""
     series = frame[column]
-    
+
     if dtype:
         series = series.cast(dtype)
-    
+
     # Handle nulls: drop or explicit value?
     if series.null_count() > 0:
         # User decision in calling function; here just document
         # Convert to native to get NaNs
         pass
-    
+
     native = series.to_native()
     return np.asarray(native)
 
@@ -590,18 +603,18 @@ def lead_time(
     unit: TimeUnit = "hours",
 ) -> KeyedMetricResult:
     """Calculate lead time per case."""
-    
+
     frame = load_frame(event_log, backend=None)  # Stay in Narwhals
-    
+
     # Extract keys and duration columns
     case_ids = frame[case_id_column]
     started = extract_series(frame, started_at_column, dtype="datetime[μs]")
     completed = extract_series(frame, completed_at_column, dtype="datetime[μs]")
-    
+
     # Calculate in NumPy
     durations_seconds = (completed - started).astype("timedelta64[s]").astype(float)
     durations_unit = durations_seconds / _SECONDS_PER_UNIT[unit]
-    
+
     # Return typed result with keys
     return KeyedMetricResult(
         keys=case_ids.to_native(),
@@ -619,26 +632,29 @@ import pandas as pd
 import polars as pl
 import pytest
 
+
 @pytest.mark.parametrize("backend", ["pandas", "polars"])
 def test_lead_time_parity(backend):
     """Ensure identical results across backends."""
-    
+
     # Prepare same data in both backends
-    pandas_frame = pd.DataFrame({
-        "case_id": ["A", "B", "A"],
-        "started": ["2026-01-01", "2026-01-02", "2026-01-03"],
-        "completed": ["2026-01-05", "2026-01-04", "2026-01-06"],
-    })
-    
+    pandas_frame = pd.DataFrame(
+        {
+            "case_id": ["A", "B", "A"],
+            "started": ["2026-01-01", "2026-01-02", "2026-01-03"],
+            "completed": ["2026-01-05", "2026-01-04", "2026-01-06"],
+        }
+    )
+
     polars_frame = pl.from_pandas(pandas_frame)
-    
+
     # Calculate with both
     result_pd = lead_time(pandas_frame, ...)
     result_pl = lead_time(polars_frame, ...)
-    
+
     # Values should be numerically equivalent
     np.testing.assert_array_almost_equal(result_pd.values, result_pl.values)
-    
+
     # Keys should match (order matters)
     assert result_pd.keys == result_pl.keys
 ```
@@ -687,6 +703,7 @@ def test_lead_time_parity(backend):
 ```python
 # src/lss4py/domain/diagnostics.py
 
+
 class Severity(Enum):
     INFO = "info"
     WARNING = "warning"
@@ -703,7 +720,7 @@ class DiagnosticNote:
 
 class DiagnosticRegistry:
     """Centralized definitions for all diagnostic codes."""
-    
+
     _CODES = {
         "sample_size_low": DiagnosticNote(
             code="sample_size_low",
@@ -722,13 +739,13 @@ class DiagnosticRegistry:
         ),
         # ... more
     }
-    
+
     @classmethod
     def create(cls, code: str, details: dict[str, Any] | None = None) -> DiagnosticNote:
         """Create a diagnostic note from a registered code."""
         if code not in cls._CODES:
             raise ValueError(f"Unknown diagnostic code: {code}")
-        
+
         base = cls._CODES[code]
         if details:
             return DiagnosticNote(
@@ -751,20 +768,20 @@ class AnalyticalResult(AnalyticalResult):
 # Usage
 def capability_study(data, lsl, usl, **kwargs) -> CapabilityResult:
     result = CapabilityResult(...)
-    
+
     # Check assumptions
     if sample_size < 30:
         result.warnings.append(
             DiagnosticRegistry.create("sample_size_low", {"sample_size": sample_size})
         )
-    
+
     # Run diagnostic tests
     shapiro_stat, shapiro_p = scipy.stats.shapiro(data)
     result.diagnostics["shapiro_wilk"] = DiagnosticRegistry.create(
         "normality_fail_shapiro" if shapiro_p < 0.05 else "normality_pass_shapiro",
         {"p_value": float(shapiro_p), "statistic": float(shapiro_stat)},
     )
-    
+
     return result
 
 
@@ -968,6 +985,7 @@ def plot_capability_study(result: CapabilityResult) -> "matplotlib.figure.Figure
 ```python
 # src/lss4py/reporting/visualization.py (optional extra)
 
+
 def plot_capability_study(
     result: CapabilityResult,
     *,
@@ -975,19 +993,19 @@ def plot_capability_study(
 ) -> Any:  # matplotlib.figure.Figure or plotly.graph_objects.Figure
     """
     Plot capability study results.
-    
+
     Args:
         result: CapabilityResult from capability_study().
         style: "matplotlib" (default) or "plotly".
-    
+
     Returns:
         matplotlib Figure or plotly Figure object.
-    
+
     Notes:
         - No recalculation; uses result.diagnostics directly.
         - All limits, units, assumptions preserved from result.
         - Requires: lss4py[visualization]
-    
+
     Examples:
         >>> from lss4py import capability_study
         >>> from lss4py.reporting.visualization import plot_capability_study
@@ -995,13 +1013,13 @@ def plot_capability_study(
         >>> fig = plot_capability_study(result, style="matplotlib")
         >>> fig.show()
     """
-    
+
     if not _HAS_VISUALIZATION:
         raise ImportError(
             "Visualization requires matplotlib/seaborn. "
             "Install: uv pip install lss4py[visualization]"
         )
-    
+
     if style == "matplotlib":
         return _plot_capability_matplotlib(result)
     elif style == "plotly":
@@ -1014,34 +1032,32 @@ def _plot_capability_matplotlib(result: CapabilityResult) -> "matplotlib.figure.
     """Return matplotlib figure; seaborn styles applied."""
     import matplotlib.pyplot as plt
     import seaborn as sns
-    
+
     with sns.axes_style("whitegrid"):
         fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-        
+
         # Plot 1: Data histogram + normal curve
         ax = axes[0, 0]
         ax.hist(result.data, bins=30, density=True, alpha=0.6, label="Data")
         # ... overlay fitted normal
         ax.set_title("Histogram and Fitted Normal")
-        
+
         # Plot 2: Q-Q plot
         ax = axes[0, 1]
         scipy.stats.probplot(result.data, dist="norm", plot=ax)
         ax.set_title("Q-Q Plot")
-        
+
         # Plot 3: Capability indices
         ax = axes[1, 0]
         # Bar plot of Cp, Cpk, CPU, CPL
         ...
-        
+
         # Plot 4: Diagnostic notes
         ax = axes[1, 1]
         ax.axis("off")
-        diagnostic_text = "\n".join(
-            f"• {note.message}" for note in result.diagnostics.values()
-        )
+        diagnostic_text = "\n".join(f"• {note.message}" for note in result.diagnostics.values())
         ax.text(0.1, 0.9, diagnostic_text, transform=ax.transAxes, fontsize=10)
-        
+
         plt.tight_layout()
         return fig
 
@@ -1049,12 +1065,12 @@ def _plot_capability_matplotlib(result: CapabilityResult) -> "matplotlib.figure.
 def _plot_capability_plotly(result: CapabilityResult) -> Any:
     """Return plotly Figure; interactive."""
     import plotly.graph_objects as go
-    
+
     fig = go.Figure()
-    
+
     # Subplots or traces
     # ...
-    
+
     return fig
 ```
 
@@ -1325,12 +1341,14 @@ __major_release__ = "v0.2"  # Roadmap release owning this version
 # Deprecation utilities
 import warnings
 
+
 def deprecated(
     removed_in: str,  # e.g., "0.3.0"
     alternative: str | None = None,
     message: str | None = None,
 ):
     """Decorator for deprecated functions."""
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             msg = message or (
@@ -1338,13 +1356,13 @@ def deprecated(
             )
             if alternative:
                 msg += f"Use {alternative} instead."
-            
+
             warnings.warn(msg, category=DeprecationWarning, stacklevel=2)
             return func(*args, **kwargs)
-        
+
         wrapper.__doc__ = f"[DEPRECATED in {removed_in}] {func.__doc__ or ''}"
         return wrapper
-    
+
     return decorator
 
 
@@ -1360,24 +1378,25 @@ def capability_report(event_log: EventLog) -> AssumptionReport:
 ```python
 # src/lss4py/reporting/bundles.py
 
+
 @dataclass
 class AnalysisBundle:
     schema_version: str  # e.g., "bundle_v1", "bundle_v2"
     results: list[AnalyticalResult]
     metadata: dict
-    
+
     @classmethod
     def load(cls, data: dict) -> "AnalysisBundle":
         """Load and migrate if needed."""
         schema_version = data.get("schema_version", "bundle_v1")
-        
+
         if schema_version == "bundle_v1":
             return cls._migrate_v1_to_v2(data)
         elif schema_version == "bundle_v2":
             return cls(**data)
         else:
             raise ValueError(f"Unknown bundle schema: {schema_version}")
-    
+
     @classmethod
     def _migrate_v1_to_v2(cls, data: dict) -> "AnalysisBundle":
         """Upgrade v1 bundle to v2."""
@@ -1419,14 +1438,15 @@ with notice:
 ```python
 # tests/test_migrations.py
 
+
 def test_bundle_v1_loads_as_v2():
     """Old bundles can be loaded and upgraded."""
-    
+
     v1_data = {
         "schema_version": "bundle_v1",
         "results": [...],
     }
-    
+
     bundle = AnalysisBundle.load(v1_data)
     assert bundle.schema_version == "bundle_v2"
     assert len(bundle.results) == len(v1_data["results"])

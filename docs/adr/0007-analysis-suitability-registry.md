@@ -44,8 +44,7 @@ Example:
         limits=["requires stable process"],
     )
 )
-def capability_study(data, **kwargs) -> CapabilityResult:
-    ...
+def capability_study(data, **kwargs) -> CapabilityResult: ...
 ```
 
 The `get_candidates()` function discovers analyses matching a question, data type,

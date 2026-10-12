@@ -1,0 +1,21 @@
+[
+  {
+    "id": "text-measurements",
+    "method": "describe",
+    "parameters": {
+      "column": "x"
+    },
+    "columns_override": {
+      "x": [
+        "one",
+        "two",
+        "three",
+        "four",
+        "five",
+        null
+      ]
+    },
+    "error_type": "ValidationError",
+    "message": "must contain numeric measurements"
+  }
+]

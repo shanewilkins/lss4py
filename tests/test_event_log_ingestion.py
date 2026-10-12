@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
 import polars as pl
 import pytest
 
@@ -120,31 +118,6 @@ def test_loaded_event_log_feeds_per_case_lead_time(tmp_path: Path) -> None:
     assert result.values.tolist() == [3.0, 1.0]
     assert result.provenance.backend == "polars"
     assert result.provenance.parameters["data_shape"] == "interval_event_log"
-
-
-def test_in_memory_pandas_and_polars_event_logs_are_equivalent() -> None:
-    """Polars is canonical, while governed in-memory inputs retain backend parity."""
-    records = {
-        "case_id": ["C1", "C1", "C2"],
-        "step_id": ["intake", "review", "intake"],
-        "started_at": [
-            "2026-09-01T08:00:00",
-            "2026-09-01T09:30:00",
-            "2026-09-02T08:00:00",
-        ],
-        "completed_at": [
-            "2026-09-01T09:00:00",
-            "2026-09-01T11:00:00",
-            "2026-09-02T10:00:00",
-        ],
-    }
-    pandas_result = lead_time(pd.DataFrame(records), process_model=_process_model())
-    polars_result = lead_time(pl.DataFrame(records), process_model=_process_model())
-
-    np.testing.assert_array_equal(pandas_result.keys, polars_result.keys)
-    np.testing.assert_allclose(pandas_result.values, polars_result.values)
-    assert pandas_result.provenance.backend == "pandas"
-    assert polars_result.provenance.backend == "polars"
 
 
 @pytest.mark.parametrize(

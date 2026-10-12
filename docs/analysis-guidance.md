@@ -3,14 +3,16 @@
 `get_candidates` lists analytical methods matching caller-declared intent.
 `get_analysis` explains a named method. Both return immutable
 `AnalysisSuitability` metadata, never calculations or observed-data diagnostics.
-The catalog covers the eight supported timing, yield, and descriptive functions.
+The catalog covers nine supported timing, yield, descriptive, and capability functions.
 
 ```python
 import polars as pl
 from lss4py import describe, get_analysis, get_candidates
 
 candidates = get_candidates(
-    "summarize_measurements", data_type="numeric", design_type="observational",
+    "summarize_measurements",
+    data_type="numeric",
+    design_type="observational",
 )
 assert [entry.name for entry in candidates] == ["describe"]
 for entry in candidates:
@@ -27,6 +29,7 @@ assert metadata["belt_level"] == "white"
 
 | Question tag | Candidates | Data type | Design type |
 | --- | --- | --- | --- |
+| `process_capability` | `capability_indices` | `numeric` | `observational` |
 | `summarize_measurements` | `describe` | `numeric` | `observational` |
 | `elapsed_time` | `lead_time` | `timestamps`, `interval_event_log` | `observational` |
 | `waiting_time` | `wait_time` | `numeric_duration` | `observational` |

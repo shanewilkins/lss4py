@@ -66,7 +66,8 @@ The observed-data side accepts supported eager dataframe inputs through Narwhals
 Core file ingestion materializes validated Polars frames by default, as recorded in
 [ADR-0018](docs/adr/0018-use-polars-as-the-canonical-ingestion-backend.md). pandas
 remains an optional analytical-input backend rather than the package's canonical
-storage contract.
+storage contract. See the [backend contract guide](docs/backend-contracts.md)
+for tested equivalence, row/case identity, and provisional PyArrow limits.
 
 LSS4PY calculates metrics from both.
 
@@ -108,64 +109,64 @@ uv run python -c "import lss4py; print('lss4py ready')"
 import polars as pl
 
 from lss4py import (
-	LeadTimeBindingIR,
-	MetricBindingsIR,
-	MetricSemanticsIR,
-	ProcessEdgeIR,
-	ProcessModelIR,
-	ProcessStepIR,
-	StageBindingsIR,
-	created_to_booked_yield,
-	lead_time,
-	process_cycle_efficiency,
-	rolled_yield,
-	wait_time,
+    LeadTimeBindingIR,
+    MetricBindingsIR,
+    MetricSemanticsIR,
+    ProcessEdgeIR,
+    ProcessModelIR,
+    ProcessStepIR,
+    StageBindingsIR,
+    created_to_booked_yield,
+    lead_time,
+    process_cycle_efficiency,
+    rolled_yield,
+    wait_time,
 )
 
 process_model = ProcessModelIR(
-	name="Client intake",
-	steps=[
-		ProcessStepIR(
-			id="review",
-			name="Review",
-			cycle_time_column="review_hours",
-			value_classification="non_value_add",
-		),
-		ProcessStepIR(
-			id="approve",
-			name="Approve",
-			cycle_time_column="approval_hours",
-			value_classification="value_add",
-		),
-	],
-	edges=[
-		ProcessEdgeIR(source_step_id="review", target_step_id="approve", kind="sequence"),
-		ProcessEdgeIR(source_step_id="approve", target_step_id="review", kind="rework"),
-	],
-	bindings=MetricBindingsIR(
-		lead_time=LeadTimeBindingIR(
-			start_column="created_at",
-			end_column="completed_at",
-		),
-		stages=StageBindingsIR(
-			created="created",
-			booked="booked",
-			completed="completed",
-		),
-	),
-	metric_semantics=MetricSemanticsIR(parallel_timing="critical_path"),
+    name="Client intake",
+    steps=[
+        ProcessStepIR(
+            id="review",
+            name="Review",
+            cycle_time_column="review_hours",
+            value_classification="non_value_add",
+        ),
+        ProcessStepIR(
+            id="approve",
+            name="Approve",
+            cycle_time_column="approval_hours",
+            value_classification="value_add",
+        ),
+    ],
+    edges=[
+        ProcessEdgeIR(source_step_id="review", target_step_id="approve", kind="sequence"),
+        ProcessEdgeIR(source_step_id="approve", target_step_id="review", kind="rework"),
+    ],
+    bindings=MetricBindingsIR(
+        lead_time=LeadTimeBindingIR(
+            start_column="created_at",
+            end_column="completed_at",
+        ),
+        stages=StageBindingsIR(
+            created="created",
+            booked="booked",
+            completed="completed",
+        ),
+    ),
+    metric_semantics=MetricSemanticsIR(parallel_timing="critical_path"),
 )
 
 data = pl.DataFrame(
-	{
-		"created_at": ["2026-01-01T08:00:00", "2026-01-02T09:00:00"],
-		"completed_at": ["2026-01-01T18:00:00", "2026-01-02T15:00:00"],
-		"review_hours": [2.0, 1.0],
-		"approval_hours": [1.0, 2.0],
-		"created": [1, 1],
-		"booked": [1, 1],
-		"completed": [1, 0],
-	}
+    {
+        "created_at": ["2026-01-01T08:00:00", "2026-01-02T09:00:00"],
+        "completed_at": ["2026-01-01T18:00:00", "2026-01-02T15:00:00"],
+        "review_hours": [2.0, 1.0],
+        "approval_hours": [1.0, 2.0],
+        "created": [1, 1],
+        "booked": [1, 1],
+        "completed": [1, 0],
+    }
 )
 
 lead = lead_time(data, process_model=process_model)
@@ -261,7 +262,7 @@ case_lead_time = lead_time(events, process_model=process, unit="hours")
 
 These areas are not part of the stable book-facing API today:
 
-- capability analysis
+- full capability studies, Z scores, and within-subgroup variation
 - SPC reporting
 - simulation workflows
 - bottleneck workflows
@@ -283,6 +284,17 @@ The Yellow Belt metric surface above is the current stable target.
 Other modules and ideas in the repository should be treated as experimental, internal, or future work unless they are explicitly listed in the stable surface.
 
 ## Validation
+
+The [numerical-reference catalog](docs/reference-fixtures.md) checks current methods
+against NIST-certified and independently derived expected values. R SixSigma
+Cp/Cpk point estimates and intervals now pass the checked-in R baselines; broader
+R parity remains future work. See [capability indices](docs/capability-indices.md).
+
+Optional [R reference tooling](tools/r-reference/README.md) has its own dependency
+lock and CI workflow. Install R 4.6.1 separately, then run
+`Rscript --vanilla tools/r-reference/bootstrap.R` and
+`Rscript --vanilla tools/r-reference/verify.R`. Ordinary Python development and
+tests use only the Python environment.
 
 The repository is currently validated with:
 

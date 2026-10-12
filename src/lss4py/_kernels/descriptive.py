@@ -11,7 +11,7 @@ import numpy as np
 import scipy
 from scipy import stats
 
-from lss4py._kernels._helpers import build_provenance, require_columns
+from lss4py._kernels._helpers import build_provenance, measurement_values, require_columns
 from lss4py.domain import AssumptionNote, DescriptiveResult
 from lss4py.errors import ValidationError
 from lss4py.guidance import AnalysisSuitability, register_analysis
@@ -33,20 +33,6 @@ def _options(ddof: int, percentiles: Sequence[float]) -> list[float]:
     if levels.ndim != 1 or not np.all(np.isfinite(levels) & (levels >= 0) & (levels <= 100)):
         raise ValidationError("percentiles must be finite levels between 0 and 100.")
     return sorted(set(levels.tolist()) | {25.0, 50.0, 75.0})
-
-
-def _measurements(frame: nw.DataFrame, column: str) -> np.ndarray:
-    """Extract only a numeric measurement column; never coerce text or booleans."""
-    require_columns(frame, column)
-    series = frame[column]
-    if series.null_count() == len(series):
-        return np.full(len(series), np.nan)
-    if not series.dtype.is_numeric():
-        raise ValidationError(f"Column '{column}' must contain numeric measurements.")
-    values = np.asarray(series.cast(nw.Float64).to_numpy(), dtype=float)
-    if np.isinf(values).any():
-        raise ValidationError(f"Column '{column}' contains infinity; correct it before analysis.")
-    return values
 
 
 def _group_value(value: Any) -> Any:
@@ -298,7 +284,7 @@ def describe(
     levels = _options(ddof, percentiles)
     _policies(missing, measurement_scale, excess_kurtosis)
     frame = nw.from_native(data, eager_only=True)
-    values = _measurements(frame, column)
+    values = measurement_values(frame, column)
     if missing == "raise" and np.isnan(values).any():
         raise ValidationError(f"Column '{column}' contains missing measurements.")
     columns = _group_columns(frame, group_by)

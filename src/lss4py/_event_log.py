@@ -157,7 +157,20 @@ def _to_polars(data: Any) -> pl.DataFrame:
         native_frame = portable_frame.to_native()
         if isinstance(native_frame, pl.DataFrame):
             return native_frame
-        return pl.DataFrame(portable_frame.to_dict(as_series=False), strict=False)
+        # pandas string columns can export missing values as NaN. Preserve the
+        # portable null mask before Polars infers strings such as "NaN" as IDs.
+        records = {
+            column: [
+                None if missing else value
+                for value, missing in zip(
+                    portable_frame[column].to_list(),
+                    portable_frame[column].is_null().to_list(),
+                    strict=True,
+                )
+            ]
+            for column in portable_frame.columns
+        }
+        return pl.DataFrame(records, strict=False)
     except Exception as exc:
         raise ValidationError(
             "Interval event-log data must be an eager pandas, Polars, or PyArrow frame."

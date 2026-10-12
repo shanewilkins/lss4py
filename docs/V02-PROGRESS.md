@@ -23,31 +23,52 @@ it does not declare v0.2 complete.
   units, direction, acceptance limits, opportunities, grouping/cohort/window,
   decision context, validated versioning, and serialization. Declaration does
   not imply automatic filtering or conformance calculations.
-- [Analysis guidance](analysis-guidance.md): decorator registration for all eight
+- [Analysis guidance](analysis-guidance.md): decorator registration for all nine
   supported calculations, immutable method metadata, deterministic candidate
   queries, requirements/assumptions/alternatives/limits, and non-execution tests.
 
+- [Shared backend contracts](backend-contracts.md): all seven tabular calculations
+  across pandas, pandas with duplicate/non-default indexes, Polars, and provisional
+  Arrow; full-payload comparison, input preservation, keys/group ordering, invalid
+  domains, missing fields, and unsupported/lazy input rejection. CI requires Arrow.
+- Parity regressions corrected: row-wise lead time parses Polars timestamp strings
+  and preserves fractional seconds through Narwhals; interval normalization retains
+  pandas nulls rather than turning missing case IDs into string identifiers.
+
+- [Governed numerical references](reference-fixtures.md): four versioned test
+  datasets, NIST-certified location/spread and independent arithmetic for all eight
+  original supported calculations; explicit tolerances, source/license/schema metadata,
+  artifact checksums, invalid-input cases, and offline catalog validation.
+  Genuine SixSigma 0.11.1 Cp/Cpk/Z/yield outputs are now generated with R 4.6.1,
+  a checksummed generator and session provenance. A second run reproduced the
+  artifacts exactly. They are reference-only until corresponding Python methods
+  are implemented. Cp/Cpk point and interval cases now have passing Python parity
+  tests; Z/yield remain reference-only.
+
+- [Cp/Cpk capability indices](capability-indices.md): explicit Specification,
+  overall sample variation, one/two-sided components, confidence intervals,
+  exclusions, signed/degenerate diagnostics, and genuine R/backend tests.
+  Z scores and defect/rework yield are the next capability calculations.
+
 ## Next work, in order
 
-1. **Shared backend-parity scaffolding (TR-002, TR-014).** Consolidate fixtures
-   for timing, yield, descriptive, and interval-log paths. Exercise pandas and
-   Polars consistently, non-default indexes, unsupported/lazy inputs, and
-   document the provisional PyArrow surface.
-2. **Governed numerical-reference fixtures (TR-007, TR-037).** Establish a
-   manifest with source/version/license/checksum and expected values/tolerances.
-   Add retained R SixSigma reference cases with actual generated outputs and
-   provenance. Do not label hand-calculated Python cases as R parity.
-3. **Reusable validation reporting (UR-016).** Extend the existing input
+1. **Reusable validation reporting (UR-016).** Extend the existing input
    normalization beyond interval logs, with explicit missingness/duplicate/unit
    policies and structured diagnostics. Avoid changing formula semantics while
-   consolidating validators.
-4. **Auditable bundle contract (UR-033) and result gaps (TR-009).** Review current
+   consolidating validators. Broaden shared backend edge contracts for nulls,
+   nonfinite values, coercion, and uncommon schemas; Arrow offset/fractional
+   timestamp strings remain a documented provisional exception.
+2. **Auditable bundle contract (UR-033) and result gaps (TR-009).** Review current
    result/bundle models against neutral versioned serialization and rerun
    requirements; retain input references and software/method context.
-5. **Guidance expansion (UR-017, TR-019).** Add study-design/outcome/predictor
+3. **Guidance expansion (UR-017, TR-019).** Add study-design/outcome/predictor
    metadata as future analyses arrive. Schema suitability checks remain separate
    from catalog filtering. Keep practitioner selection explicit.
-6. **v0.2 acceptance.** Complete requirement evidence, migration/worked examples,
+4. **Retained-method parity (TR-007).** Consume the generated Cp/Cpk/Z/yield
+   reference baselines as corresponding Python capabilities arrive; extend cases
+   and record intentional validation/contract differences. Additional retained R
+   method families still need generated fixtures.
+5. **v0.2 acceptance.** Complete requirement evidence, migration/worked examples,
    packaging checks, and release gates before bumping the version.
 
 ## Deferred scope

@@ -1,0 +1,126 @@
+[
+  {
+    "id": "cp-no-limits",
+    "method": "ss.ca.cp",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12]
+    },
+    "expected": {
+      "status": "error",
+      "error_class": ["simpleError", "error", "condition"],
+      "message": "No specification limits provided",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "cpk-nonnumeric",
+    "method": "ss.ca.cpk",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": ["a", "b"],
+      "LSL": 6,
+      "USL": 14
+    },
+    "expected": {
+      "status": "error",
+      "error_class": ["simpleError", "error", "condition"],
+      "message": "Incorrect vector data",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "z-no-limits",
+    "method": "ss.ca.z",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12]
+    },
+    "expected": {
+      "status": "error",
+      "error_class": ["simpleError", "error", "condition"],
+      "message": "No specification limits provided",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "yield-zero-opportunities",
+    "method": "ss.ca.yield",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "defects": [1, 2],
+      "rework": [0, 1],
+      "opportunities": 0
+    },
+    "expected": {
+      "status": "returned",
+      "value": [
+        {
+          "Yield": "-Inf",
+          "FTY": "-Inf",
+          "RTY": "Inf",
+          "DPU": 3,
+          "DPMO": "Inf"
+        }
+      ],
+      "result_class": "data.frame",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "yield-length-mismatch",
+    "method": "ss.ca.yield",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "defects": [1, 2, 3],
+      "rework": [0, 1],
+      "opportunities": 100
+    },
+    "expected": {
+      "status": "returned",
+      "value": [
+        {
+          "Yield": 0.93999999999999995,
+          "FTY": 0.93000000000000005,
+          "RTY": 0.93149099999999996,
+          "DPU": 6,
+          "DPMO": 60000
+        }
+      ],
+      "result_class": "data.frame",
+      "warnings": [
+        "longer object length is not a multiple of shorter object length"
+      ]
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  }
+]

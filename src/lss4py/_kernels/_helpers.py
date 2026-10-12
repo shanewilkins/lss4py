@@ -276,3 +276,17 @@ def event_log_bindings_available(
 
     frame_columns = set(frame.columns)
     return all(cast(str, column) in frame_columns for column in required_columns)
+
+
+def measurement_values(frame: nw.DataFrame, column: str) -> np.ndarray:
+    """Extract only a numeric measurement column; never coerce text or booleans."""
+    require_columns(frame, column)
+    series = frame[column]
+    if series.null_count() == len(series):
+        return np.full(len(series), np.nan)
+    if not series.dtype.is_numeric():
+        raise ValidationError(f"Column '{column}' must contain numeric measurements.")
+    values = np.asarray(series.cast(nw.Float64).to_numpy(), dtype=float)
+    if np.isinf(values).any():
+        raise ValidationError(f"Column '{column}' contains infinity; correct it before analysis.")
+    return values
