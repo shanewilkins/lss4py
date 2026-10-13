@@ -36,6 +36,9 @@ jobs:
       - name: Build distributions
         run: uv build
 
+      - name: Require installed-package ecosystem journey
+        run: python tools/check_wheel.py --ecosystem
+
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:

@@ -1,6 +1,6 @@
 # 0012: Visualization contracts
 
-- Status: Proposed
+- Status: Superseded by [ADR-0021](0021-reuse-flo-and-established-presentation-libraries.md)
 - Date: 2026-09-02
 - Deciders: Maintainers
 - Related requirements: UR-029, TR-032, ADR-0002

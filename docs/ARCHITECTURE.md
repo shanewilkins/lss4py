@@ -2,7 +2,7 @@
 
 **Document status:** Approved
 
-**Last updated:** 2026-10-07
+**Last updated:** 2026-10-13
 
 **Audience:** Maintainers, contributors, and auditors
 
@@ -30,6 +30,33 @@ ProcessModelIR ───────────────▶ public analysis 
 Polars is the concrete ingestion and interval-log materialization engine. Narwhals
 is the compatibility boundary for supported eager analytical inputs. Numerical
 primitives may use NumPy, SciPy, or statsmodels behind LSS4PY result contracts.
+
+## Analytical ownership
+
+[ADR-0020](adr/0020-delegate-numerical-algorithms-and-own-analytical-contracts.md) defines responsibility for
+numerical reuse and analytical contracts. LSS4PY owns domain semantics, estimator
+and exclusion policies, typed results, diagnostics, provenance, and interpretation.
+Established scientific libraries supply numerical algorithms where their behavior
+meets that contract; small auditable domain formulas may remain in private kernels.
+
+Calculations can return typed results directly. Studies orchestrate public
+calculations and diagnostics; optional presentation consumes those results.
+R SixSigma parity concerns documented behavior and outcomes, with reference tests
+and explicit differences. It does not mandate identical APIs, a second statistics
+stack, or a separate raw-result/wrapper layer for every calculation.
+
+[ADR-0021](adr/0021-reuse-flo-and-established-presentation-libraries.md) assigns
+process and value-stream rendering to FLO through optional, explicit contract
+translation. Statistical plots consume LSS4PY results through established plotting
+libraries. Scientific algorithms are delegated after estimator/contract review;
+fishbone renderer selection remains open. Core analytics require neither FLO nor
+rendering dependencies. Modeled process timing and observed measurements retain
+separate identities and provenance when integrated.
+
+[ADR-0022](adr/0022-ecosystem-integration-contracts-and-journey-gates.md) defines
+explicit versioned identity, source evidence and selection contracts and the two
+journey gates. [ADR-0023](adr/0023-matplotlib-contract-with-seaborn-convenience.md)
+defines native Matplotlib objects with optional Seaborn convenience.
 
 ## Layers and contracts
 
@@ -118,6 +145,21 @@ supported workflow; other workflow modules remain experimental placeholders.
 These modules remain experimental. Calculations must work without plotting or
 document-generation dependencies. Reporting consumes typed results rather than
 reaching into adapters or workflows. The CLI consumes the public API only.
+The initial `reporting.visualization.plot_timing` consumes a completed timing
+result and returns native axes; its optional imports occur only when called.
+
+### Ecosystem integration
+
+**Location:** `lss4py/integration/`
+
+The optional bridge accepts FLO 0.4.2's public JSON export and translates a bounded
+supported projection into ProcessModelIR. It preserves declared step identities,
+parallel/rework topology, source semantics and modeled metadata. It imports domain
+contracts only, without FLO, kernels, adapters or rendering. Versioned evidence
+manifests capture completed timing/descriptive results and explicit study context;
+restoration does not recalculate. The external reference workflow composes FLO and
+LSS4PY public operations and keeps modeled diagrams and observed metrics separate.
+See the [integration guide](ecosystem-integration.md) for supported semantics.
 
 ## Dependency rules
 
@@ -125,10 +167,11 @@ reaching into adapters or workflows. The CLI consumes the public API only.
 | --- | --- | --- |
 | Package root | Domain, adapters, private kernels, supported workflows | Private implementation details outside deliberate re-exports |
 | Domain | External foundational libraries | Any other LSS4PY layer |
-| Adapters | Domain, errors, private normalization | Private kernels, workflows, reporting |
-| Private kernels | Domain, errors, private normalization | Adapters, workflows, reporting, observability, CLI |
+| Adapters | Domain, errors, private normalization | Private kernels, workflows, reporting, integration |
+| Private kernels | Domain, errors, private normalization | Adapters, workflows, reporting, observability, CLI, integration |
 | Workflows | Domain and other public contracts | Adapters and private kernels |
-| Reporting | Domain result contracts | Adapters and workflows |
+| Reporting | Domain result contracts, optional plotting libraries | Adapters, workflows, integration |
+| Integration | Domain contracts, errors, portable JSON | Kernels, adapters, workflows, reporting, observability, CLI, guidance |
 | CLI | Package-root public API | Adapters and private kernels |
 
 `lint_imports_config.ini` enforces the corresponding forbidden-import contracts.

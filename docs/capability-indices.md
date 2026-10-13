@@ -1,4 +1,4 @@
-# Cp and Cpk
+# Cp, Cpk, and specification Z distance
 
 `capability_indices` calculates normal capability indices from an eager pandas,
 Polars, or provisional Arrow frame and an explicit `Specification`. It returns
@@ -36,6 +36,16 @@ probability `a=(1-confidence_level)/2`, the Cp endpoints multiply Cp by
 Cpk interval is `Cpk ± z(1-a)*sqrt(1/(9n) + Cpk²/(2(n-1)))`.
 The legacy `confidence_interval` field aliases the Cpk interval.
 
+`z_score` is the signed distance to the governing specification limit, using the
+same overall sample variation: `3*Cpk - sigma_shift`. The default
+`sigma_shift=0.0` applies no adjustment. `sigma_shift=1.5` matches SixSigma's
+`LT=True` convention; any requested shift must be finite and nonnegative and
+produces a `SIGMA_SHIFT_ASSUMED` diagnostic. It does not establish measured
+long-term performance. Provenance records the shift and method; metadata's
+`z_to_spec` retains the unshifted distance. Z stays unavailable when Cpk is
+unavailable or Z arithmetic overflows. No observation-standardization API or Z
+confidence interval is implied.
+
 These formulas and assumptions are described in the
 [NIST capability handbook](https://www.itl.nist.gov/div898/handbook/pmc/section1/pmc16.htm).
 Capability interpretation needs a stable, independent, approximately normal
@@ -58,7 +68,7 @@ infinite capability values. Numerical outputs serialize as strict JSON.
 Units must already agree with the specification; no conversion is inferred.
 Select cohorts before calling the function. Specifications containing grouping or
 time-window instructions are rejected to avoid silently ignoring selection rules.
-The cohort label is recorded but does not filter rows. Z scores, within-subgroup
+The cohort label is recorded but does not filter rows. Within-subgroup
 variation, non-normal methods, distribution/stability tests, plots, and full
 capability studies remain future work.
 
@@ -70,8 +80,10 @@ four backend variants. It also tests lower-only formulas, signed/zero Cpk,
 exclusions, unit transformations, confidence widths, invalid domains, provenance,
 and input preservation. Ordinary Python tests consume JSON and do not require R.
 
-The R baseline remains reference-only as a whole because its Z/yield cases have
-no corresponding Python implementation. Cp/Cpk compatibility is partial, with
+The R baseline remains reference-only as a whole because its defect/rework yield cases have
+no corresponding Python implementation. `tests/test_capability_z.py` validates
+eight genuine R Z cases, including lower-only, upper-only, negative distances,
+and their shifted counterparts. The reference snapshot is now version 1.1.0. Cp/Cpk compatibility is partial, with
 explicit differences: Python uses retained `n` in both intervals (R Cp uses the
 original vector length even after omitting missing values); Python orders signed
 intervals and has a finite Cpk interval at zero; R's multiplicative Cpk expression

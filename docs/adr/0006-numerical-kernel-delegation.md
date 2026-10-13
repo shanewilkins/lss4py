@@ -1,8 +1,9 @@
 # 0006: Numerical kernel delegation and registry
 
-- Status: Proposed
+- Status: Superseded
 - Date: 2026-09-02
 - Deciders: Maintainers
+- Superseded by: [ADR-0020](0020-delegate-numerical-algorithms-and-own-analytical-contracts.md) (2026-10-12)
 - Related requirements: TR-018, TR-023, TR-024, TR-025, TR-028, TR-029
 
 ## Context

@@ -1,0 +1,10 @@
+{
+  "name": "Part diameter",
+  "unit": "mm",
+  "direction": "target",
+  "target": 10,
+  "lsl": 4,
+  "usl": 16,
+  "cohort": "September inspection sample",
+  "schema_version": "1.0"
+}

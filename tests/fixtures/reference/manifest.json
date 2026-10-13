@@ -185,21 +185,21 @@
     },
     {
       "id": "r-sixsigma-baseline",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "purpose": "test_fixture",
       "validation_status": "reference_only",
       "source": {
         "kind": "r_sixsigma",
         "author": "LSS4PY maintainers; R SixSigma authors Emilio L. Cano and contributors",
         "citation": "CRAN SixSigma 0.11.1: https://cran.r-project.org/src/contrib/SixSigma_0.11.1.tar.gz",
-        "version": "SixSigma 0.11.1 reference snapshot 1.0.0",
+        "version": "SixSigma 0.11.1 reference snapshot 1.1.0",
         "accessed_on": "2026-10-09",
         "derivation": "Executed genuine exported SixSigma functions on original synthetic inputs, capturing returns, errors and warnings. Re-executed generate.R --verify and obtained byte-identical expected and invalid artifacts.",
         "package_source_sha256": "8e2235b7d278d7cdc7984ae704c0c2334448bc1219553033cffae99c707c66bd",
         "package": "SixSigma",
         "package_version": "0.11.1",
         "r_version": "R version 4.6.1 (2026-06-24)",
-        "generated_at": "2026-10-09T13:41:32Z",
+        "generated_at": "2026-10-12T23:10:50Z",
         "command": "Rscript --vanilla tests/fixtures/reference/r-sixsigma-baseline/generate.R"
       },
       "license": {
@@ -232,11 +232,12 @@
         "ss.ca.yield"
       ],
       "semantic_differences": [
-        "Reference-only baselines: no supported Python capability or defect/rework yield API currently matches these methods.",
+        "Cp/Cpk and specification-Z cases are tested by supported Python capability_indices; defect/rework yield remains reference-only.",
         "Current LSS4PY binary funnel-stage yields are not equivalents of ss.ca.yield defect/rework vectors.",
         "SixSigma DPU is the sum of defects in this API, not the defect count divided by a unit denominator.",
         "Zero yield opportunities return nonfinite values; unequal vector lengths recycle values with a warning. Future Python validation may deliberately reject these inputs.",
-        "R data-frame outputs, warning/error classes and nonfinite string encoding are retained; future Python typed-result and error contracts will differ."
+        "R data-frame outputs, warning/error classes and nonfinite string encoding are retained; future Python typed-result and error contracts will differ.",
+        "Python sigma_shift is explicit, finite and nonnegative; 1.5 matches R LT=True. Neither shift convention demonstrates measured long-term variation."
       ],
       "invalid_cases_required": true,
       "artifacts": {
@@ -246,7 +247,7 @@
         },
         "expected": {
           "path": "r-sixsigma-baseline/expected.json",
-          "sha256": "9508d76868dffe6a0eb273620bfa368a219df07d7a336209fbd6f6e338cf4e68"
+          "sha256": "329fb41a51b574412be96546b5dbd20bb7ccea864e98dd6d84904bb8fbec9c6a"
         },
         "invalid": {
           "path": "r-sixsigma-baseline/invalid.json",
@@ -254,11 +255,11 @@
         },
         "generator": {
           "path": "r-sixsigma-baseline/generate.R",
-          "sha256": "5821b1ad61332eeb70931ace4551f15f596877683399abaf2c31d0a17682700f"
+          "sha256": "6bb29287f8708ed74bec21708d5dec1a08704945d62caa72c2c4cff91532801c"
         },
         "provenance": {
           "path": "r-sixsigma-baseline/provenance.json",
-          "sha256": "d98e6389df9fe88d0f97afd1bf642268c3c1c012748e935b37208e7a314e713a"
+          "sha256": "5809846ec988ecec6e65455e8a191ec96c46a0df0a89217b6db97586371bc488"
         }
       }
     }

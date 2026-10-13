@@ -156,6 +156,137 @@
     "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
   },
   {
+    "id": "z-lower-only",
+    "method": "ss.ca.z",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 7
+    },
+    "expected": {
+      "status": "returned",
+      "value": 1.8973665961010275,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "z-upper-only",
+    "method": "ss.ca.z",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "USL": 14
+    },
+    "expected": {
+      "status": "returned",
+      "value": 2.5298221281347035,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "z-negative",
+    "method": "ss.ca.z",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 11,
+      "USL": 14
+    },
+    "expected": {
+      "status": "returned",
+      "value": -0.63245553203367588,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "z-lower-shifted",
+    "method": "ss.ca.z",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 7,
+      "LT": true
+    },
+    "expected": {
+      "status": "returned",
+      "value": 0.39736659610102754,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "z-upper-shifted",
+    "method": "ss.ca.z",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "USL": 14,
+      "LT": true
+    },
+    "expected": {
+      "status": "returned",
+      "value": 1.0298221281347035,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "z-negative-shifted",
+    "method": "ss.ca.z",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "LSL": 11,
+      "USL": 14,
+      "LT": true
+    },
+    "expected": {
+      "status": "returned",
+      "value": -2.132455532033676,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
     "id": "yield-with-rework",
     "method": "ss.ca.yield",
     "input_kind": "r_arguments",

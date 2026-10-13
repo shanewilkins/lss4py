@@ -262,7 +262,7 @@ case_lead_time = lead_time(events, process_model=process, unit="hours")
 
 These areas are not part of the stable book-facing API today:
 
-- full capability studies, Z scores, and within-subgroup variation
+- full capability studies and within-subgroup variation
 - SPC reporting
 - simulation workflows
 - bottleneck workflows
@@ -287,7 +287,7 @@ Other modules and ideas in the repository should be treated as experimental, int
 
 The [numerical-reference catalog](docs/reference-fixtures.md) checks current methods
 against NIST-certified and independently derived expected values. R SixSigma
-Cp/Cpk point estimates and intervals now pass the checked-in R baselines; broader
+Cp/Cpk estimates, intervals, and specification Z distances now pass R baselines; broader
 R parity remains future work. See [capability indices](docs/capability-indices.md).
 
 Optional [R reference tooling](tools/r-reference/README.md) has its own dependency
@@ -317,8 +317,15 @@ The `pre-commit` stage runs Ruff on changed files and the locked test suite with
 
 The `pre-push` stage and CI run the full locked repository-wide gates.
 
-CI additionally enforces 95% coverage on the current supported slice and runs a
-built-wheel smoke test outside the source tree.
+CI additionally enforces 90% coverage on the current supported slice and runs
+[installed-wheel end-to-end studies](e2e/README.md) outside the source tree.
+These exercise CSV ingestion, timing/yield analyses, capability studies, JSON
+exports, and failure scenarios in base and pandas-extra installations. Run them
+locally with `uv run --locked python tools/check_wheel.py`.
+CI and the release build also require the
+[FLO ecosystem journey](docs/ecosystem-integration.md), using published FLO 0.4.2
+and the candidate LSS4PY wheel. Run it with
+`uv run --locked python tools/check_wheel.py --ecosystem`.
 
 ## Roadmap
 

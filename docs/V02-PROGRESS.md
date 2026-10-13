@@ -1,6 +1,6 @@
 # LSS4PY v0.2 Progress & Continuation Guide
 
-**Last updated:** 2026-10-09
+**Last updated:** 2026-10-12
 **Status:** Contract foundation in progress; package version remains 0.1.0.
 
 The [roadmap](roadmap.md) owns release targeting. Requirement CSVs own status and
@@ -43,12 +43,15 @@ it does not declare v0.2 complete.
   a checksummed generator and session provenance. A second run reproduced the
   artifacts exactly. They are reference-only until corresponding Python methods
   are implemented. Cp/Cpk point and interval cases now have passing Python parity
-  tests; Z/yield remain reference-only.
+  tests; eight specification Z cases also pass. Defect/rework yield remains reference-only.
 
 - [Cp/Cpk capability indices](capability-indices.md): explicit Specification,
   overall sample variation, one/two-sided components, confidence intervals,
   exclusions, signed/degenerate diagnostics, and genuine R/backend tests.
-  Z scores and defect/rework yield are the next capability calculations.
+  Capability Z distance now reuses Cpk with an explicit sigma shift;
+  defect/rework yield is the next planned contract in the
+  [next analytical slices](plans/next-analytical-slices.md), governed by
+  [ADR-0020](adr/0020-delegate-numerical-algorithms-and-own-analytical-contracts.md).
 
 ## Next work, in order
 

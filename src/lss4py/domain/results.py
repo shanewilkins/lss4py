@@ -218,7 +218,7 @@ class CapabilityResult(AnalyticalResult):
     """Actual capability index (centering and spread vs. tolerance)."""
 
     z_score: float | None = None
-    """Equivalent Z-score (defect rate proxy)."""
+    """Signed specification distance after any declared sigma shift; not a tail probability."""
 
     target: float | None = None
     """Process target or nominal value."""

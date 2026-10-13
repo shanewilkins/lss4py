@@ -23,6 +23,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+integration = [
+    "flo-lang==0.4.2",
+]
 pandas = [
     "pandas>=2.2.0",
 ]
@@ -56,6 +59,7 @@ build-backend = "uv_build"
 dev = [
     "bandit>=1.8.0",  # Security scanning
     "import-linter>=2.1",
+    "matplotlib>=3.10.0",  # Optional plotting contract development and typing
     "interrogate>=1.5.0",  # Docstring coverage
     "pandas>=2.2.0",  # Backend parity tests
     "pip-audit>=2.6.0",  # Dependency vulnerabilities
@@ -64,6 +68,7 @@ dev = [
     "pytest>=8.3.0",
     "pytest-cov>=6.0.0",
     "ruff>=0.9.0",
+    "seaborn>=0.13.0",  # Optional plotting contract development and typing
     "ty>=0.0.77",  # Astral type checker
     "vulture>=2.13",
     "xenon>=0.9.3",

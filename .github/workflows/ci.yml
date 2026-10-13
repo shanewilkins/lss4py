@@ -99,7 +99,7 @@ jobs:
         run: uv sync --locked --group dev --extra storage
 
       - name: Pytest
-        run: uv run --locked pytest --require-pyarrow --cov=src/lss4py --cov-report=term-missing
+        run: uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-report=term-missing
 
   smoke:
     needs:
@@ -123,16 +123,13 @@ jobs:
           version: "0.12.3"
           enable-cache: true
 
-      - name: Build distributions
-        run: uv build
+      - name: Test customer workflows against the built wheel
+        run: python tools/check_wheel.py --ecosystem --artifacts-dir artifacts/ecosystem
 
-      - name: Smoke test built wheel
-        run: |
-          uv venv .smoke-venv
-          uv pip install --python .smoke-venv/bin/python dist/*.whl
-          python_bin="$GITHUB_WORKSPACE/.smoke-venv/bin/python"
-          cli_bin="$GITHUB_WORKSPACE/.smoke-venv/bin/lss4py"
-          smoke_dir="$(mktemp -d)"
-          cd "$smoke_dir"
-          "$python_bin" -c "import lss4py; from lss4py import lead_time, validate_event_log; print('lss4py smoke import ok')"
-          "$cli_bin" doctor
+      - name: Preserve ecosystem evidence and exported graphics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecosystem-baseline
+          path: artifacts/ecosystem
+          if-no-files-found: ignore

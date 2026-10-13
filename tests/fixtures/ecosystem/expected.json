@@ -1,0 +1,9 @@
+{
+  "case_ids": ["002", "001"],
+  "lead_hours": [5, 4],
+  "mean_lead_hours": 4.5,
+  "excluded": [{"case_id": "003", "reason": "Missing declared close observation"}],
+  "mean_activity_hours": {"review": 1.1666666666666667, "approval": 0.75, "intake": 1, "close": 1},
+  "modeled_intake_minutes": 20,
+  "annotation_origin": "observed"
+}

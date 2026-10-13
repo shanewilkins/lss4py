@@ -1,0 +1,32 @@
+{
+  "intake": {
+    "lead": [10, 5, 2, 8],
+    "wait": [6, 4, 1, 6],
+    "pce": [30, 20, 25, 25],
+    "created_booked": 75,
+    "booked_completed": 66.66666666666667,
+    "rolled": 50,
+    "lead_mean": 6.25,
+    "lead_median": 6.5,
+    "lead_std": 3.5,
+    "takt": 2
+  },
+  "events": {
+    "keys": ["002", "001"],
+    "hours": [3, 4],
+    "minutes": [180, 240],
+    "mean": 3.5
+  },
+  "capability": {
+    "count": 5,
+    "total": 6,
+    "missing": 1,
+    "mean": 10,
+    "sigma": 1.5811388300841898,
+    "cp": 1.2649110640673518,
+    "cpk": 1.2649110640673518,
+    "z_score": 2.294733192202055,
+    "cp_confidence_interval": [0.44019021210741599, 2.11123535228811487],
+    "cpk_confidence_interval": [0.34097518116756681, 2.18884694696713655]
+  }
+}

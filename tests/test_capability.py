@@ -89,7 +89,11 @@ def test_specification_and_interpretation_metadata(sample_result):
     assert parameters["specification"]["usl"] == 14
     assert parameters["ddof"] == 1
     assert sample_result.provenance.cohort_definition == "Explicitly selected cohort"
-    assert (sample_result.unit, sample_result.target, sample_result.z_score) == ("mm", 10, None)
+    assert (sample_result.unit, sample_result.target, sample_result.z_score) == (
+        "mm",
+        10,
+        sample_result.metadata["z_to_spec"],
+    )
 
 
 def test_sample_diagnostics(sample_result):

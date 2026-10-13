@@ -4,6 +4,12 @@
 **Status:** Draft for Review  
 **Audience:** Maintainers, Ecosystem Partners  
 
+The numerical-delegation recommendation and implementation sketch in section 2
+are historical proposals. Accepted [ADR-0020](0020-delegate-numerical-algorithms-and-own-analytical-contracts.md) now
+governs analytical ownership and numerical reuse alongside ADR-0016/0019. Its
+contracts do not require a kernel registry, raw kernel results, or a wrapper
+workflow for every calculation.
+
 This document recommends approaches for 10 core architectural decisions, scoped to v0.2 (Contract Foundation) through v1.0 (Stable). Decisions are grounded in:
 
 - Existing codebase patterns (dataclass models, pandas current state, validation structure)

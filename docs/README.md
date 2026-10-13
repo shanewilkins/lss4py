@@ -13,7 +13,14 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
   status, priority, and change rules.
 - [Architecture decision records](adr/README.md) record durable technical and
   product-architecture decisions.
+- [Ecosystem integration decisions](adr/0022-ecosystem-integration-contracts-and-journey-gates.md)
+  record the bridge, exchange/evidence contracts and two journey-protection test
+  gates; ADR-0023 resolves plotting, and fishbone renderer ownership remains open.
+- [Ecosystem integration guide](ecosystem-integration.md) documents the implemented
+  first bridge, evidence persistence, plotting contract and installed-wheel journey.
 - [Roadmap](roadmap.md) sequences requirement delivery without promising dates.
+- [Next analytical slices](plans/next-analytical-slices.md) record the current
+  capability-Z and defect/rework-yield plan without changing release ownership.
 - [Analysis journey](analysis-journey.md) describes the end-to-end practitioner
   experience that the requirements cover.
 - [R `SixSigma` compatibility matrix](sixsigma-compatibility.md) tracks the

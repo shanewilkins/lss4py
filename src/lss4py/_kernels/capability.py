@@ -43,6 +43,19 @@ def _confidence_level(level: float) -> None:
         raise ValidationError("confidence_level must be a finite number strictly between 0 and 1.")
 
 
+def _sigma_shift(shift: float) -> float:
+    """Require an explicit finite, nonnegative distance adjustment."""
+    if isinstance(shift, bool) or not isinstance(shift, Real):
+        raise ValidationError("sigma_shift must be a finite nonnegative number.")
+    try:
+        normalized = float(shift)
+    except (ValueError, OverflowError) as exc:
+        raise ValidationError("sigma_shift must be a finite nonnegative number.") from exc
+    if not np.isfinite(normalized) or normalized < 0:
+        raise ValidationError("sigma_shift must be a finite nonnegative number.")
+    return normalized
+
+
 def _warn(result: CapabilityResult, code: str, message: str) -> None:
     """Attach an auditable interpretation or numerical warning."""
     result.provenance.warnings.append(AssumptionNote(code, message, severity="warning"))
@@ -117,6 +130,24 @@ def _intervals(result: CapabilityResult) -> None:
     result.confidence_interval = cpk_bounds
 
 
+def _z_distance(result: CapabilityResult, shift: float) -> None:
+    """Reuse Cpk to express signed distance to the governing specification limit."""
+    if result.cpk is None:
+        return
+    distance = 3 * result.cpk
+    if not np.isfinite(distance):
+        _warn(
+            result, "NUMERICAL_Z_UNAVAILABLE", "Specification distance overflowed; Z unavailable."
+        )
+        return
+    result.metadata["z_to_spec"] = distance
+    adjusted = distance - shift
+    if not np.isfinite(adjusted):
+        _warn(result, "NUMERICAL_Z_UNAVAILABLE", "Shifted specification distance overflowed.")
+        return
+    result.z_score = adjusted
+
+
 def _result(
     frame: nw.DataFrame,
     specification: Specification,
@@ -139,7 +170,11 @@ def _result(
             ],
         ),
         interpretation_context="Overall sample variation; short-term capability is unverified.",
-        metadata={"numpy_version": np.__version__, "scipy_version": scipy.__version__},
+        metadata={
+            "numpy_version": np.__version__,
+            "scipy_version": scipy.__version__,
+            "z_to_spec": None,
+        },
         target=specification.target,
         lsl=specification.lsl,
         usl=specification.usl,
@@ -150,6 +185,13 @@ def _result(
         confidence_level=parameters["confidence_level"],
     )
     result.provenance.cohort_definition = specification.cohort
+    result.provenance.method_version = "1.1"
+    if parameters["sigma_shift"]:
+        _warn(
+            result,
+            "SIGMA_SHIFT_ASSUMED",
+            "The requested sigma shift is a convention, not measured long-term performance.",
+        )
     return result
 
 
@@ -167,7 +209,7 @@ def _result(
         alternatives=("describe",),
         limits=(
             "Does not test normality or stability or estimate within-subgroup variation.",
-            "Z scores, subgroup estimates, and non-normal capability are unavailable.",
+            "Shifts are assumed; subgroup and non-normal capability remain unavailable.",
         ),
         belt_level="yellow",
         design_types=("observational",),
@@ -181,8 +223,9 @@ def capability_indices(
     missing: Literal["omit", "raise"] = "omit",
     ci: bool = False,
     confidence_level: float = 0.95,
+    sigma_shift: float = 0.0,
 ) -> CapabilityResult:
-    """Calculate normal Cp/Cpk and lower/upper components from an eager numeric column.
+    """Calculate normal Cp/Cpk, components, and specification Z distance.
 
     Yellow Belt: suitable for a declared stable, approximately normal process with
     independent measurements and explicit acceptance limits. These assumptions are
@@ -194,11 +237,15 @@ def capability_indices(
     infinity, absent limits, and implicit grouping/window selection are rejected.
     Undefined estimates are None with diagnostics; negative indices are retained.
     ci=True returns chi-square Cp and approximate normal Cpk intervals, using the
-    retained count. No unit conversion, cohort filtering, Z score, plotting, or
-    automatic distribution/stability decision is performed.
+    retained count. z_score is 3*Cpk minus the explicit nonnegative sigma_shift;
+    metadata['z_to_spec'] retains the unshifted distance. A shift of 1.5 follows
+    SixSigma's LT=True convention; it does not measure long-term performance.
+    No unit conversion, cohort filtering, plotting, or automatic distribution/
+    stability decision is performed.
     """
     _specification(specification)
     _options(missing, ci, confidence_level)
+    shift = _sigma_shift(sigma_shift)
     frame = nw.from_native(data, eager_only=True)
     values = measurement_values(frame, column)
     valid = values[~np.isnan(values)]
@@ -210,6 +257,8 @@ def capability_indices(
         "missing": missing,
         "ci": ci,
         "confidence_level": float(confidence_level),
+        "sigma_shift": shift,
+        "z_score_method": "governing_specification_distance",
         "ddof": 1,
         "variation_estimator": "overall_sample_std",
         "cp_interval_method": "chi_square",
@@ -232,6 +281,7 @@ def capability_indices(
             "Capability estimates and intervals are uncertain with fewer than 50 observations.",
         )
     _estimates(result, valid)
+    _z_distance(result, shift)
     if ci:
         _intervals(result)
     return result

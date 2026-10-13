@@ -1,8 +1,9 @@
 # 0003: Own analytical workflows and delegate numerical primitives
 
-- Status: Proposed
+- Status: Superseded
 - Date: 2026-08-09
 - Deciders: Maintainers
+- Superseded by: [ADR-0020](0020-delegate-numerical-algorithms-and-own-analytical-contracts.md) (2026-10-12)
 - Related requirements: UR-005, UR-017, UR-029, UR-033, TR-018, TR-019, TR-020
 
 ## Context

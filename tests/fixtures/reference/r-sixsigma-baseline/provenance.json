@@ -3,7 +3,7 @@
   "package_version": "0.11.1",
   "r_version": "R version 4.6.1 (2026-06-24)",
   "platform": "aarch64-apple-darwin27.0.0",
-  "generated_at": "2026-10-09T13:41:32Z",
+  "generated_at": "2026-10-12T23:10:50Z",
   "jsonlite_version": "2.0.0",
   "command": "Rscript --vanilla tests/fixtures/reference/r-sixsigma-baseline/generate.R",
   "nonfinite_encoding": "jsonlite na=string: NA/NaN/Inf/-Inf are string tokens",

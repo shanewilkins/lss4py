@@ -46,6 +46,12 @@ expected <- list(
   reference("cpk-confidence", "ss.ca.cpk", list(x = x, LSL = 7, USL = 14, ci = TRUE)),
   reference("z-two-sided", "ss.ca.z", list(x = x, LSL = 7, USL = 14)),
   reference("z-long-term", "ss.ca.z", list(x = x, LSL = 7, USL = 14, LT = TRUE)),
+  reference("z-lower-only", "ss.ca.z", list(x = x, LSL = 7)),
+  reference("z-upper-only", "ss.ca.z", list(x = x, USL = 14)),
+  reference("z-negative", "ss.ca.z", list(x = x, LSL = 11, USL = 14)),
+  reference("z-lower-shifted", "ss.ca.z", list(x = x, LSL = 7, LT = TRUE)),
+  reference("z-upper-shifted", "ss.ca.z", list(x = x, USL = 14, LT = TRUE)),
+  reference("z-negative-shifted", "ss.ca.z", list(x = x, LSL = 11, USL = 14, LT = TRUE)),
   reference("yield-with-rework", "ss.ca.yield", list(
     defects = inputs$columns$defects, rework = inputs$columns$rework, opportunities = 100
   )),
