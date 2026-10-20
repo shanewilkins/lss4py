@@ -1,10 +1,10 @@
 # Next analytical slices
 
-- Updated: 2026-10-13
-- Status: Z-distance slice implemented and tested; yield/study work remains planned
+- Updated: 2026-10-19
+- Status: Z-distance and defect/rework yield slices implemented; study-boundary review is next
 - Architecture: [ADR-0020](../adr/0020-delegate-numerical-algorithms-and-own-analytical-contracts.md)
   and [ADR-0021](../adr/0021-reuse-flo-and-established-presentation-libraries.md)
-- Release ownership: [roadmap](../roadmap.md); UR-023/TR-023 primarily target v0.3
+- Release ownership: [roadmap](../roadmap.md); UR-022/UR-023/TR-023 primarily target v0.3
 
 Cp/Cpk, components, and confidence intervals already have typed results and
 passing genuine R references across pandas, duplicate-index pandas, Polars, and
@@ -40,41 +40,25 @@ Acceptance covered by tests:
 - Update suitability, docs, requirements evidence, and the compatibility matrix
   only for passing behavior. Existing Cp/Cpk estimates and intervals remain stable.
 
-## 2. Defect/rework yield contract, then implementation
+## 2. Defect/rework yield contract — implemented
 
-Define a result capable of carrying Yield, FTY, RTY, DPMO, and the underlying counts
-and denominators. The existing scalar `YieldResult` is not a complete study result
-for all of those quantities. Choose an additive typed contract after reviewing
-serialization and existing funnel callers; preserve the binary funnel APIs.
+`process_yield` returns an additive versioned `DefectYieldResult`; binary funnel
+callers retain their existing APIs. Rows are aligned aggregate buckets with a
+shared explicit opportunity population. Defect and rework losses must be disjoint;
+combined losses cannot exceed that population. Optional units supplies actual DPU.
+See [the contract and example](../defect-yield.md) for formulas and limitations.
 
-Resolve these input/result meanings before implementing formulas:
-
-- Are rows units, stages, or aggregate counting records? What population does each
-  denominator describe, and what does the R `opportunities` parameter mean?
-- How are defects and rework counted, aligned, and combined? How are multiple
-  defects on one unit distinguished from defective units?
-- R's returned `DPU` field is the sum of defects in the retained fixture. Document
-  that legacy meaning explicitly; a canonical defects-per-unit result needs an
-  explicit unit denominator. Do not silently relabel the count as a rate.
-- What constraints apply to counts, missingness, zero denominators, and impossible
-  combinations? Prefer typed validation over R vector recycling or infinities,
-  and register each intentional difference.
-
-Acceptance:
-
-- Execute the genuine defect/rework and zero-defect R cases with an explicit
-  field/semantics mapping. Extend reference evidence for the selected contract.
-- Record zero-opportunity and length-mismatch differences already observed in R;
-  add negative/fractional counts, nulls, alignment, and denominator-domain tests.
-- Verify independent denominator calculations and backend-equivalent complete
-  results, provenance, strict JSON, and unchanged funnel behavior.
-- Record the reused primitives and source formulas under ADR-0020; do not add
-  a numerical dependency merely to implement reductions or ratios.
+Acceptance is covered by genuine R with-rework, zero-defect, single-bucket and
+total-loss cases, independent denominator checks, complete neutral backend payloads,
+strict JSON, exact integer reductions, input preservation and invalid domains.
+Zero-opportunity, recycled-length and excess-loss R behavior is retained as reference
+evidence and explicitly differs from Python validation. Python sum/division/product
+implement documented small formulas under ADR-0020 without a new dependency.
 
 ## 3. Review the next study boundary
 
-After the two slices, review reusable validation reporting (UR-016), auditable
-bundles (UR-033/TR-033), and the remaining v0.2 acceptance evidence. Select the
+After the two slices, reuse the implemented validation reports (UR-016) and audited
+bundles (UR-033/TR-033), then review remaining v0.2 acceptance evidence. Select the
 next Yellow Belt stability/control-chart slice against the roadmap and reference
 coverage. Defer full capability-study orchestration until its distribution and
 stability inputs have governed contracts; calculating indices alone is not a

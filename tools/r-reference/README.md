@@ -25,7 +25,7 @@ restores the same lockfile. Verification requires no downloads once restored and
 rejects a different R version or any missing/mismatched locked package.
 
 Verification runs the committed fixture generator against original inputs in a
-temporary directory. It compares all fifteen valid and five invalid-domain cases:
+temporary directory. It compares all seventeen valid and six invalid-domain cases:
 numerical results use each fixture's absolute/relative tolerances; structure,
 parameters, warnings, error messages, classes, and nonfinite string tokens compare
 exactly. It leaves checked-in outputs, hashes, and provenance untouched. The

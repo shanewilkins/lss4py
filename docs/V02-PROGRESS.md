@@ -1,6 +1,6 @@
 # LSS4PY v0.2 Progress & Continuation Guide
 
-**Last updated:** 2026-10-12
+**Last updated:** 2026-10-19
 **Status:** Contract foundation in progress; package version remains 0.1.0.
 
 The [roadmap](roadmap.md) owns release targeting. Requirement CSVs own status and
@@ -43,35 +43,39 @@ it does not declare v0.2 complete.
   a checksummed generator and session provenance. A second run reproduced the
   artifacts exactly. They are reference-only until corresponding Python methods
   are implemented. Cp/Cpk point and interval cases now have passing Python parity
-  tests; eight specification Z cases also pass. Defect/rework yield remains reference-only.
+  tests; eight specification Z cases also pass. Defect/rework yield now passes four retained R cases with explicit counting semantics.
 
 - [Cp/Cpk capability indices](capability-indices.md): explicit Specification,
   overall sample variation, one/two-sided components, confidence intervals,
   exclusions, signed/degenerate diagnostics, and genuine R/backend tests.
   Capability Z distance now reuses Cpk with an explicit sigma shift;
-  defect/rework yield is the next planned contract in the
+  defect/rework yield is implemented as documented in the
   [next analytical slices](plans/next-analytical-slices.md), governed by
   [ADR-0020](adr/0020-delegate-numerical-algorithms-and-own-analytical-contracts.md).
 
+- [Defect/rework yield](defect-yield.md): typed counts and denominator evidence,
+  opportunity Yield/FTY/RTY/DPMO, optional actual DPU, strict validation and R/backend tests.
+
+- [Reusable data-quality reports](data-quality.md): immutable declared schemas,
+  structured row-level findings, key/duplicate and missingness policies, timestamps,
+  domains and unit checks across eager backends. Opt-in normalization retains source
+  positions and before/after evidence; existing calculation policies remain unchanged.
+
+- [Auditable analysis bundles](analysis-bundles.md): v2 source/result/specification
+  links, explicit selections/software context, integrity checks, all five current
+  result families restored with provenance, stdlib-only validation, and explicit
+  legacy context upgrades. The wheel journey verifies inputs and reruns capability.
+
 ## Next work, in order
 
-1. **Reusable validation reporting (UR-016).** Extend the existing input
-   normalization beyond interval logs, with explicit missingness/duplicate/unit
-   policies and structured diagnostics. Avoid changing formula semantics while
-   consolidating validators. Broaden shared backend edge contracts for nulls,
-   nonfinite values, coercion, and uncommon schemas; Arrow offset/fractional
-   timestamp strings remain a documented provisional exception.
-2. **Auditable bundle contract (UR-033) and result gaps (TR-009).** Review current
-   result/bundle models against neutral versioned serialization and rerun
-   requirements; retain input references and software/method context.
-3. **Guidance expansion (UR-017, TR-019).** Add study-design/outcome/predictor
+1. **Guidance expansion (UR-017, TR-019).** Add study-design/outcome/predictor
    metadata as future analyses arrive. Schema suitability checks remain separate
    from catalog filtering. Keep practitioner selection explicit.
-4. **Retained-method parity (TR-007).** Consume the generated Cp/Cpk/Z/yield
+2. **Retained-method parity (TR-007).** Consume the generated Cp/Cpk/Z/yield
    reference baselines as corresponding Python capabilities arrive; extend cases
    and record intentional validation/contract differences. Additional retained R
    method families still need generated fixtures.
-5. **v0.2 acceptance.** Complete requirement evidence, migration/worked examples,
+3. **v0.2 acceptance.** Complete requirement evidence, migration/worked examples,
    packaging checks, and release gates before bumping the version.
 
 ## Deferred scope

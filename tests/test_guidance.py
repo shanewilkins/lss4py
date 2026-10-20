@@ -20,6 +20,7 @@ METHODS = {
     "created_to_booked_yield",
     "booked_to_completed_yield",
     "rolled_yield",
+    "process_yield",
 }
 
 
@@ -81,7 +82,7 @@ def test_guidance_cannot_execute_an_analysis(monkeypatch):
 
     for name in METHODS:
         monkeypatch.setattr(lss4py, name, fail)
-    assert len(get_candidates()) == 9
+    assert len(get_candidates()) == 10
     assert get_analysis("describe").name == "describe"
     assert "data" not in inspect.signature(get_candidates).parameters
 

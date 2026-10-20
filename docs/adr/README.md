@@ -47,6 +47,10 @@ See [ARCHITECTURAL-DECISION-FRAMEWORK.md](ARCHITECTURAL-DECISION-FRAMEWORK.md) f
 | [0022](0022-ecosystem-integration-contracts-and-journey-gates.md) | Ecosystem integration contracts and journey gates | Accepted; plotting resolved by ADR-0023; fishbone ownership open |
 | [0023](0023-matplotlib-contract-with-seaborn-convenience.md) | Matplotlib contract with Seaborn convenience; resolves ADR-0022 decision 10 | Accepted |
 
+| [0024](0024-explicit-data-quality-reports-and-normalization.md) | Explicit data-quality reports and opt-in normalization | Accepted |
+
+| [0025](0025-audited-bundles-and-portable-validation.md) | Audited general bundles, typed restoration and portable validation | Accepted |
+
 ## When to write an ADR
 
 Write an ADR when a choice:

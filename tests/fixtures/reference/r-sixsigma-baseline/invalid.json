@@ -92,6 +92,36 @@
     "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
   },
   {
+    "id": "yield-excess-loss",
+    "method": "ss.ca.yield",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "defects": [6, 3],
+      "rework": [0, 2],
+      "opportunities": 10
+    },
+    "expected": {
+      "status": "returned",
+      "value": [
+        {
+          "Yield": 0.10000000000000001,
+          "FTY": -0.10000000000000001,
+          "RTY": 0.20000000000000001,
+          "DPU": 9,
+          "DPMO": 900000
+        }
+      ],
+      "result_class": "data.frame",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
     "id": "yield-length-mismatch",
     "method": "ss.ca.yield",
     "input_kind": "r_arguments",

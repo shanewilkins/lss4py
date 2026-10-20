@@ -56,7 +56,13 @@ expected <- list(
     defects = inputs$columns$defects, rework = inputs$columns$rework, opportunities = 100
   )),
   reference("yield-zero-defects", "ss.ca.yield", list(defects = c(0, 0),
-                                                      rework = c(0, 0), opportunities = 100))
+                                                      rework = c(0, 0), opportunities = 100)),
+  reference("yield-single-bucket", "ss.ca.yield", list(
+    defects = 2, rework = 1, opportunities = 10
+  )),
+  reference("yield-total-loss", "ss.ca.yield", list(
+    defects = c(6, 3), rework = c(0, 1), opportunities = 10
+  ))
 )
 invalid <- list(
   reference("cp-no-limits", "ss.ca.cp", list(x = x)),
@@ -64,6 +70,9 @@ invalid <- list(
   reference("z-no-limits", "ss.ca.z", list(x = x)),
   reference("yield-zero-opportunities", "ss.ca.yield", list(
     defects = c(1, 2), rework = c(0, 1), opportunities = 0
+  )),
+  reference("yield-excess-loss", "ss.ca.yield", list(
+    defects = c(6, 3), rework = c(0, 2), opportunities = 10
   )),
   reference("yield-length-mismatch", "ss.ca.yield", list(
     defects = c(1, 2, 3), rework = c(0, 1), opportunities = 100

@@ -1,0 +1,33 @@
+{
+  "bundle_type": "AnalysisBundle",
+  "bundle_version": "1.0",
+  "name": "Legacy timing snapshot",
+  "package_version": "0.2.0",
+  "created_at": "2026-10-12T08:00:00",
+  "cohort_definition": "Original synthetic three-case intake cohort",
+  "specification_metadata": {"note": "legacy declaration"},
+  "interpretation_notes": "Original synthetic snapshot in the pre-audit format.",
+  "metadata": {"fixture": "original synthetic data; MIT"},
+  "results": [{
+    "result_type": "TimingResult",
+    "name": "Lead Time",
+    "provenance": {
+      "method": "lead_time",
+      "method_version": "1.0",
+      "package_version": "0.1.0",
+      "backend": "polars",
+      "parameters": {"start_column": "started", "end_column": "completed", "unit": "hours"},
+      "created_at": "2026-10-12T07:59:00",
+      "assumptions": [{"code": "TIMESTAMP_ORDERING", "message": "Completion follows start.", "severity": "info"}],
+      "warnings": [],
+      "input_schema_fingerprint": null,
+      "cohort_definition": null
+    },
+    "interpretation_context": "Elapsed time from explicit timestamps.",
+    "metadata": {},
+    "values": [1.0, 2.0, 3.0],
+    "unit": "hours",
+    "keys": ["a", "b", "c"],
+    "percentiles": null
+  }]
+}

@@ -81,3 +81,15 @@ The suite is scaffolding for broader contracts. Complete timing/yield policies
 for nulls, nonfinite values, coercion, and uncommon schemas still need reusable
 validation work. Broader Arrow compatibility and governed numerical-reference
 fixtures remain open; the relevant requirements are recorded as partial.
+
+
+## Explicit data-quality inspection and preparation
+
+`validate_data` and `normalize_data` share an independently tested eager-backend
+contract for missingness, finite numeric/integer domains, boolean and text roles,
+key/row duplicates, ISO/native timestamps, unit declarations and source preservation.
+See [data quality](data-quality.md) for the complete policies and materialization
+costs. Offset and fractional ISO timestamps are checked by the declared parser;
+normalization can supply native UTC timestamp columns to downstream calculations.
+The existing row-wise Arrow parsing exception above remains a separate contract.
+No calculation silently invokes this preparation or changes its missingness policy.

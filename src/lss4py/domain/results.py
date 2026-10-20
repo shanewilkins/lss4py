@@ -15,10 +15,11 @@ import json
 from abc import ABC
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Literal, TypeVar
+from typing import Any, Literal, Self, TypeVar
 
 import numpy as np
 
+from lss4py.domain.bundles import AnalysisBundle as AnalysisBundle
 from lss4py.domain.models import AssumptionNote
 
 ResultT = TypeVar("ResultT")
@@ -28,7 +29,7 @@ ResultT = TypeVar("ResultT")
 class Provenance:
     """Metadata about how a result was computed.
 
-    Provenance is immutable and captures the method, version, parameters, backend,
+    Provenance captures the method, version, parameters, backend,
     library versions, and assumptions used in analysis. This enables reproducibility
     and auditable analysis chains.
     """
@@ -80,7 +81,7 @@ class Provenance:
 
     def to_json(self) -> str:
         """Serialize provenance to JSON."""
-        return json.dumps(self.to_dict(), indent=2)
+        return json.dumps(self.to_dict(), indent=2, allow_nan=False)
 
 
 @dataclass(slots=True)
@@ -93,7 +94,7 @@ class AnalyticalResult(ABC):
     - interpretation_context: Guidance on when and how to use this result
     - metadata: Arbitrary key-value context (e.g., flags, tags)
 
-    Results are immutable to prevent silent invalidation of provenance.
+    Results are editable; bundle capture takes detached copies for saved evidence.
     """
 
     name: str
@@ -121,9 +122,20 @@ class AnalyticalResult(ABC):
             "metadata": self.metadata,
         }
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        """Restore a supported concrete result with validated arrays and provenance."""
+        from lss4py.domain._result_io import restore_result
+        from lss4py.errors import ValidationError
+
+        result = restore_result(data)
+        if cls is not AnalyticalResult and not isinstance(result, cls):
+            raise ValidationError("Serialized result type differs from requested class.")
+        return result
+
     def to_json(self) -> str:
         """Serialize result to JSON."""
-        return json.dumps(self.to_dict(), indent=2)
+        return json.dumps(self.to_dict(), indent=2, allow_nan=False)
 
 
 @dataclass(slots=True)
@@ -198,6 +210,54 @@ class YieldResult(AnalyticalResult):
                 "numerator": self.numerator,
                 "denominator": self.denominator,
                 "method": self.method,
+            }
+        )
+        return base
+
+
+@dataclass(slots=True)
+class DefectYieldResult(AnalyticalResult):
+    """Opportunity-based defect/rework estimates under a shared counting denominator.
+
+    Fractions follow the retained R counting convention, not inferred unit success.
+    The optional defects_per_unit rate requires an explicitly supplied unit count.
+    """
+
+    schema_version: str = "1.0"
+    yield_fraction: float = 0.0
+    first_time_yield: float = 0.0
+    rolled_throughput_yield: float = 0.0
+    dpmo: float = 0.0
+    defect_count: int = 0
+    rework_count: int = 0
+    opportunities: int = 0
+    units: int | None = None
+    defects_per_unit: float | None = None
+    bucket_defects: tuple[int, ...] = ()
+    bucket_rework: tuple[int, ...] = ()
+    bucket_first_time_yields: tuple[float, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize estimates, aligned buckets, and explicit denominator evidence."""
+        base = AnalyticalResult.to_dict(self)
+        fields = (
+            "schema_version",
+            "yield_fraction",
+            "first_time_yield",
+            "rolled_throughput_yield",
+            "dpmo",
+            "defect_count",
+            "rework_count",
+            "opportunities",
+            "units",
+            "defects_per_unit",
+        )
+        base.update({name: getattr(self, name) for name in fields})
+        base.update(
+            {
+                "bucket_defects": list(self.bucket_defects),
+                "bucket_rework": list(self.bucket_rework),
+                "bucket_first_time_yields": list(self.bucket_first_time_yields),
             }
         )
         return base
@@ -401,94 +461,3 @@ class DescriptiveResult(AnalyticalResult):
             }
         )
         return base
-
-
-@dataclass(slots=True)
-class AnalysisBundle:
-    """Versioned container for one or more related analysis results.
-
-    An AnalysisBundle bundles typed results, shared provenance assumptions,
-    interpretation context, and specifications for serialization and round-tripping.
-    Used in notebooks, reports, and analytical workflows.
-
-    See TR-033, ADR-0002.
-    """
-
-    name: str
-    """Title of the analysis bundle (e.g., 'Q3 Intake Process Baseline')."""
-
-    results: list[AnalyticalResult]
-    """List of analytical results (at least one)."""
-
-    bundle_version: str = "1.0"
-    """Schema version of this bundle format."""
-
-    package_version: str = "0.2.0"
-    """LSS4PY version that created this bundle."""
-
-    created_at: datetime = field(default_factory=datetime.now)
-    """Timestamp when the bundle was created."""
-
-    cohort_definition: str | None = None
-    """Human-readable description of the analyzed population."""
-
-    specification_metadata: dict[str, Any] | None = None
-    """References to CTQ and specification models used in analysis."""
-
-    interpretation_notes: str | None = None
-    """Bundle-level interpretation guidance or caveats."""
-
-    metadata: dict[str, Any] = field(default_factory=dict)
-    """Arbitrary key-value metadata (e.g., project ID, analyst name)."""
-
-    def to_dict(self) -> dict[str, Any]:
-        """Serialize bundle to a dictionary."""
-        return {
-            "bundle_type": "AnalysisBundle",
-            "bundle_version": self.bundle_version,
-            "name": self.name,
-            "package_version": self.package_version,
-            "created_at": self.created_at.isoformat(),
-            "cohort_definition": self.cohort_definition,
-            "specification_metadata": self.specification_metadata,
-            "interpretation_notes": self.interpretation_notes,
-            "metadata": self.metadata,
-            "results": [r.to_dict() for r in self.results],
-        }
-
-    def to_json(self) -> str:
-        """Serialize bundle to JSON."""
-        return json.dumps(self.to_dict(), indent=2)
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> AnalysisBundle:
-        """Deserialize bundle from a dictionary.
-
-        Note: This is a skeleton implementation. Full deserialization with result
-        type dispatch will be implemented in v0.3 workflows.
-        """
-        if data.get("bundle_type") != "AnalysisBundle":
-            raise ValueError("Invalid bundle type")
-
-        # Validate bundle version compatibility
-        bundle_version = data.get("bundle_version", "1.0")
-        if bundle_version != "1.0":
-            raise ValueError(f"Unsupported bundle version: {bundle_version}")
-
-        # Placeholder: results deserialization with type dispatch
-        # Full implementation in v0.3+ with AnalysisRegistry
-        results = data.get("results", [])
-        if not results:
-            raise ValueError("Bundle must contain at least one result")
-
-        return cls(
-            name=data["name"],
-            results=[],  # Stub: would dispatch on result_type
-            bundle_version=bundle_version,
-            package_version=data.get("package_version", "0.2.0"),
-            created_at=datetime.fromisoformat(data.get("created_at", datetime.now().isoformat())),
-            cohort_definition=data.get("cohort_definition"),
-            specification_metadata=data.get("specification_metadata"),
-            interpretation_notes=data.get("interpretation_notes"),
-            metadata=data.get("metadata", {}),
-        )

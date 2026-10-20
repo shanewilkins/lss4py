@@ -1,3 +1,12 @@
+from .bundles import InputReference, validate_bundle
+from .data_quality import (
+    ColumnProfile,
+    ColumnRule,
+    DataContract,
+    DataIssue,
+    DataValidationReport,
+    NormalizedData,
+)
 from .interval_event_log import CANONICAL_INTERVAL_EVENT_COLUMNS, IntervalEventLog
 from .models import (
     AssumptionNote,
@@ -21,6 +30,7 @@ from .results import (
     AnalysisBundle,
     AnalyticalResult,
     CapabilityResult,
+    DefectYieldResult,
     DescriptiveResult,
     Provenance,
     TimingResult,
@@ -30,6 +40,14 @@ from .specification import AnalysisWindow, Specification
 from .validation import validate_event_log
 
 __all__ = [
+    "InputReference",
+    "validate_bundle",
+    "ColumnRule",
+    "ColumnProfile",
+    "DataContract",
+    "DataIssue",
+    "DataValidationReport",
+    "NormalizedData",
     "AnalysisBundle",
     "AnalysisWindow",
     "AnalyticalResult",
@@ -38,6 +56,7 @@ __all__ = [
     "CapabilityResult",
     "ComparisonSlice",
     "DescriptiveResult",
+    "DefectYieldResult",
     "CANONICAL_INTERVAL_EVENT_COLUMNS",
     "EventLogBindingsIR",
     "EventLog",

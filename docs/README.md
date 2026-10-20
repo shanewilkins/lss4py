@@ -20,7 +20,7 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
   first bridge, evidence persistence, plotting contract and installed-wheel journey.
 - [Roadmap](roadmap.md) sequences requirement delivery without promising dates.
 - [Next analytical slices](plans/next-analytical-slices.md) record the current
-  capability-Z and defect/rework-yield plan without changing release ownership.
+  completed capability-Z and defect/rework-yield slices without changing release ownership.
 - [Analysis journey](analysis-journey.md) describes the end-to-end practitioner
   experience that the requirements cover.
 - [R `SixSigma` compatibility matrix](sixsigma-compatibility.md) tracks the
@@ -28,7 +28,12 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 
 ## Current analytical guides
 
+- [Auditable analysis bundles](analysis-bundles.md)
+
+- [Data-quality reports and preparation](data-quality.md)
+
 - [Descriptive statistics](descriptive-statistics.md)
+- [Defect and rework yield](defect-yield.md)
 - [Cp and Cpk](capability-indices.md)
 - [CTQs and specifications](specifications.md)
 - [Analysis guidance](analysis-guidance.md)

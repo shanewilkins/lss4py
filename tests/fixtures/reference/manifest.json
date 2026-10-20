@@ -185,21 +185,21 @@
     },
     {
       "id": "r-sixsigma-baseline",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "purpose": "test_fixture",
       "validation_status": "reference_only",
       "source": {
         "kind": "r_sixsigma",
         "author": "LSS4PY maintainers; R SixSigma authors Emilio L. Cano and contributors",
         "citation": "CRAN SixSigma 0.11.1: https://cran.r-project.org/src/contrib/SixSigma_0.11.1.tar.gz",
-        "version": "SixSigma 0.11.1 reference snapshot 1.1.0",
-        "accessed_on": "2026-10-09",
+        "version": "SixSigma 0.11.1 reference snapshot 1.2.0",
+        "accessed_on": "2026-10-19",
         "derivation": "Executed genuine exported SixSigma functions on original synthetic inputs, capturing returns, errors and warnings. Re-executed generate.R --verify and obtained byte-identical expected and invalid artifacts.",
         "package_source_sha256": "8e2235b7d278d7cdc7984ae704c0c2334448bc1219553033cffae99c707c66bd",
         "package": "SixSigma",
         "package_version": "0.11.1",
         "r_version": "R version 4.6.1 (2026-06-24)",
-        "generated_at": "2026-10-12T23:10:50Z",
+        "generated_at": "2026-10-19T15:37:52Z",
         "command": "Rscript --vanilla tests/fixtures/reference/r-sixsigma-baseline/generate.R"
       },
       "license": {
@@ -232,10 +232,10 @@
         "ss.ca.yield"
       ],
       "semantic_differences": [
-        "Cp/Cpk and specification-Z cases are tested by supported Python capability_indices; defect/rework yield remains reference-only.",
+        "Cp/Cpk and specification-Z cases pass capability_indices tests; defect/rework yield cases pass process_yield tests.",
         "Current LSS4PY binary funnel-stage yields are not equivalents of ss.ca.yield defect/rework vectors.",
         "SixSigma DPU is the sum of defects in this API, not the defect count divided by a unit denominator.",
-        "Zero yield opportunities return nonfinite values; unequal vector lengths recycle values with a warning. Future Python validation may deliberately reject these inputs.",
+        "Python rejects zero opportunities, invalid counts and excess loss; one eager frame requires aligned columns instead of R vector recycling.",
         "R data-frame outputs, warning/error classes and nonfinite string encoding are retained; future Python typed-result and error contracts will differ.",
         "Python sigma_shift is explicit, finite and nonnegative; 1.5 matches R LT=True. Neither shift convention demonstrates measured long-term variation."
       ],
@@ -247,19 +247,19 @@
         },
         "expected": {
           "path": "r-sixsigma-baseline/expected.json",
-          "sha256": "329fb41a51b574412be96546b5dbd20bb7ccea864e98dd6d84904bb8fbec9c6a"
+          "sha256": "f5c73c360c54fd0523d3f2541f6a56570aebec96ed97b4b205919a7ed09c7361"
         },
         "invalid": {
           "path": "r-sixsigma-baseline/invalid.json",
-          "sha256": "8071b72a2688c05397372301cd2418cea78a13ad3accdb0d1613b2cc4477d935"
+          "sha256": "72d903598eed9fa6f3085cbf108d4ba2ed1d2024d8cefba5339261113b0a1ec5"
         },
         "generator": {
           "path": "r-sixsigma-baseline/generate.R",
-          "sha256": "6bb29287f8708ed74bec21708d5dec1a08704945d62caa72c2c4cff91532801c"
+          "sha256": "44e122910c8cc3056e44884dcfaf864f048f44dbfb3557add6c78685fb4d35e6"
         },
         "provenance": {
           "path": "r-sixsigma-baseline/provenance.json",
-          "sha256": "5809846ec988ecec6e65455e8a191ec96c46a0df0a89217b6db97586371bc488"
+          "sha256": "a51038a7c77a9e31b32dc61ed53eb5e05f7e077cb2a39b9b37c88226d9e401de"
         }
       }
     }

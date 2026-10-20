@@ -42,11 +42,18 @@ def unsupported_input(request):
         "rolled_yield",
         "describe",
         "capability_indices",
+        "process_yield",
+        "validate_data",
+        "normalize_data",
     ],
 )
 def test_tabular_methods_require_eager_frames(method, unsupported_input):
     """Reject unsupported/lazy inputs before attempting field resolution or analysis."""
     parameters = {"column": "x"} if method == "describe" else {}
+    if method in ("validate_data", "normalize_data"):
+        parameters = {"contract": lss4py.DataContract((lss4py.ColumnRule("x"),))}
+    if method == "process_yield":
+        parameters = {"opportunities": 10}
     if method == "capability_indices":
         parameters = {
             "column": "x",

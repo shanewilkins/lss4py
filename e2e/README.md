@@ -62,3 +62,17 @@ SixSigma::ss.ca.z(x, LSL = 4, USL = 16, LT = TRUE)
 Normal test runs require no R installation. Reporting bundles and branch-aware
 event-log wait/PCE remain outside these implemented workflows. JSON export uses
 the public results' `to_json()` followed by strict JSON disk serialization.
+
+The defect/rework study reads original synthetic `fixtures/defects.csv` counts,
+checks opportunity Yield/FTY/RTY/DPMO and optional DPU, exports strict JSON with
+explicit denominators, and rejects excess loss. It runs in base and pandas modes.
+
+The data-quality journey reads original synthetic `fixtures/quality.csv`, inspects
+missing durations and repeated keys, explicitly selects complete first-key rows,
+checks timestamp normalization, calls describe, and exports preparation/analysis
+evidence as strict JSON in base and pandas modes.
+
+The audited-bundle journey captures summary/capability results from the checked-in
+measurement CSV, links input hashes and specifications, validates the saved JSON
+using the packaged standard-library script with site-packages disabled, restores
+typed results and explicitly reruns capability after verifying source bytes.

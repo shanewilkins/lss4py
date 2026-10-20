@@ -8,9 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-import numpy as np
-
-from lss4py.domain import AssumptionNote, Provenance, TimingResult
+from lss4py.domain import TimingResult
 from lss4py.errors import ValidationError
 
 from .process import CONTRACT_VERSION, ProcessProjection, fingerprint, nonblank, strict_json
@@ -369,17 +367,4 @@ class EvidenceManifest:
         result = self.to_dict()["evidence"]["results"].get(result_id)
         if not result or result["result_type"] != "TimingResult":
             raise ValidationError("Requested result is not timing evidence.")
-        provenance = result["provenance"]
-        provenance["created_at"] = datetime.fromisoformat(provenance["created_at"])
-        for field in ("assumptions", "warnings"):
-            provenance[field] = [AssumptionNote(**note) for note in provenance[field]]
-        return TimingResult(
-            name=result["name"],
-            provenance=Provenance(**provenance),
-            interpretation_context=result.get("interpretation_context"),
-            metadata=result.get("metadata", {}),
-            values=np.array(result["values"], dtype=float),
-            keys=np.array(result["keys"]) if result["keys"] is not None else None,
-            unit=result["unit"],
-            percentiles=result.get("percentiles"),
-        )
+        return TimingResult.from_dict(result)

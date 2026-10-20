@@ -19,6 +19,7 @@ It includes these public functions:
 - `created_to_booked_yield`
 - `booked_to_completed_yield`
 - `rolled_yield`
+- `process_yield` (defect/rework counts, opportunity Yield/FTY/RTY, and DPMO)
 - `describe` (typed descriptive statistics, optionally grouped)
 
 See the [descriptive statistics guide](docs/descriptive-statistics.md) for examples
@@ -55,6 +56,16 @@ Interval-event calculations are part of the current stable surface for:
 
 `get_candidates` and `get_analysis` expose method requirements, assumptions, and
 limits without executing analyses. See the [analysis guidance guide](docs/analysis-guidance.md).
+
+`validate_data` returns structured, non-mutating data-quality reports against an
+explicit `DataContract`. `normalize_data` prepares declared columns with auditable,
+opt-in row exclusions. See the [data-quality guide](docs/data-quality.md) for
+schema, key, timestamp, unit, missingness and duplicate policies.
+
+`AnalysisBundle.capture` saves typed analyses with source hashes, selections,
+software versions and linked specifications. Bundles restore without recalculation;
+a standalone standard-library validator supports reviewers without analytical
+dependencies. See the [analysis-bundle guide](docs/analysis-bundles.md).
 
 ## Contract
 
@@ -232,6 +243,9 @@ case_lead_time = lead_time(events, process_model=process, unit="hours")
 - `created_to_booked_yield(data, ..., process_model=None)` returns first-stage conversion yield.
 - `booked_to_completed_yield(data, ..., process_model=None)` returns second-stage conversion yield.
 - `rolled_yield(data, ..., process_model=None)` returns end-to-end rolled yield.
+
+See the [defect/rework yield guide](docs/defect-yield.md) for the separate
+`process_yield` counting contract, denominator definitions, R mapping, and example.
 
 ### Process Model IR
 

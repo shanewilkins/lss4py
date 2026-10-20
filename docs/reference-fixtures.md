@@ -10,7 +10,7 @@ Reference-only R snapshots do not claim Python parity.
 | `nist-numacc1` | 1.0.0 | NIST-certified sample mean and sample standard deviation | `describe` |
 | `synthetic-summary` | 1.0.0 | Independently derived five-point moments, spread and quantiles, with one omitted null | `describe` |
 | `synthetic-process` | 1.0.0 | Direct timestamp subtraction, duration ratios, funnel counts and planning pace | Timing, yield, `takt_time` |
-| `r-sixsigma-baseline` | 1.1.0 | Executed SixSigma 0.11.1 on R 4.6.1; reference-only | R Cp, Cpk, Z and defect/rework yield |
+| `r-sixsigma-baseline` | 1.2.0 | Executed SixSigma 0.11.1 on R 4.6.1; reference-only | R Cp, Cpk, Z and defect/rework yield |
 
 All four are **test fixtures**. They are not production evidence, teaching datasets,
 or package-bundled data APIs. The test-only loader is `tests/reference_catalog.py`;
@@ -43,7 +43,7 @@ test runs require neither network access nor R. Reference-only R cases are check
 for governance and integrity, and are excluded from Python numerical regression
 dispatch until corresponding supported methods exist. `tests/test_capability.py`
 now explicitly validates the Cp/Cpk subset, and `tests/test_capability_z.py`
-validates specification Z distances; defect/rework yield remains unsupported.
+validates specification Z distances; defect/rework yield is validated by `tests/test_defect_yield.py`.
 
 ## Published reference
 
@@ -107,16 +107,16 @@ reviewers must inspect the script and actual generation evidence.
 
 The `r-sixsigma-baseline` entry now has this source kind and
 `validation_status="reference_only"`. It was generated using R 4.6.1 and SixSigma
-0.11.1, with complete session information and 17-digit JSON output. Its fifteen valid
+0.11.1, with complete session information and 17-digit JSON output. Its seventeen valid
 cases include two-sided and upper-only Cp, Cp/Cpk confidence limits, offset Cpk,
-short-/long-term Z, and yield with/without rework. Five invalid-domain cases record
+short-/long-term Z, and yield with/without rework. Six invalid-domain cases record
 actual R errors, warnings, or returned values rather than assuming rejection.
 
 Important recorded differences: `ss.ca.yield` returns a data frame; its DPU field
 is the sum of defects. Zero opportunities return infinities, while mismatched
 vectors recycle with a warning. Nonfinite outputs use explicit JSON string tokens
-(`NA`, `NaN`, `Inf`, `-Inf`), not invalid JSON numbers. Future Python APIs may reject
-those domains; that must be documented as an intentional difference.
+(`NA`, `NaN`, `Inf`, `-Inf`), not invalid JSON numbers. Python process_yield rejects those domains explicitly; see
+[defect/rework yield](defect-yield.md) for the intentional differences.
 
 The genuine installed package namespace is called by the original MIT-licensed
 `generate.R` script; no upstream R implementation or bundled dataset is copied.
@@ -142,8 +142,8 @@ review changes, update artifact checksums and source metadata, and increment the
 fixture version when the reference changes substantively. The first generation
 and a second byte-for-byte verification run succeeded locally.
 
-TR-007 is partial: genuine R outputs exist, while numerical Python parity for
-defect/rework yield still requires a corresponding implementation. Cp/Cpk point
-and interval cases and the specification Z cases now pass with documented semantic differences. The R
-compatibility statuses remain unchanged. NIST certification, Python backend equivalence, and
-hand-derived examples must never be relabeled as R parity.
+TR-007 remains partial because additional retained R method families need reference
+coverage. Cp/Cpk estimates and intervals, specification Z distances, and four
+defect/rework yield cases now pass with documented semantic differences. The R
+compatibility statuses remain Partial. NIST certification, Python backend
+equivalence, and hand-derived examples must never be relabeled as R parity.

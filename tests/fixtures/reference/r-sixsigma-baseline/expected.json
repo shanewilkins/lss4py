@@ -345,5 +345,65 @@
     },
     "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
     "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "yield-single-bucket",
+    "method": "ss.ca.yield",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "defects": 2,
+      "rework": 1,
+      "opportunities": 10
+    },
+    "expected": {
+      "status": "returned",
+      "value": [
+        {
+          "Yield": 0.80000000000000004,
+          "FTY": 0.69999999999999996,
+          "RTY": 0.69999999999999996,
+          "DPU": 2,
+          "DPMO": 200000
+        }
+      ],
+      "result_class": "data.frame",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "yield-total-loss",
+    "method": "ss.ca.yield",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "defects": [6, 3],
+      "rework": [0, 1],
+      "opportunities": 10
+    },
+    "expected": {
+      "status": "returned",
+      "value": [
+        {
+          "Yield": 0.10000000000000001,
+          "FTY": 0,
+          "RTY": 0.23999999999999999,
+          "DPU": 9,
+          "DPMO": 900000
+        }
+      ],
+      "result_class": "data.frame",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
   }
 ]
