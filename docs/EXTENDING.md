@@ -40,8 +40,11 @@ Use `load_event_log(...)` for the typed interval contract. Call
 
 External tabular adapters inherit from `TabularAdapter`; event-log adapters inherit
 from `EventLogAdapter`. A tabular adapter returns a Polars frame and an
-`AdapterSchema`. An event-log adapter returns `IntervalEventLog` and
-`AdapterSchema`.
+`AdapterSchema`. A calendar event-log adapter returns `IntervalEventLog` and
+`AdapterSchema`; numeric-clock adapters use the distinct `NumericEventLog` and
+explicit activity/lifecycle bindings. Shared mechanical contract validation lives
+outside kernels, so adapters do not import analytical implementations. See the
+[numeric and tabular ingestion guide](simulation-ingestion.md).
 
 ```python
 from typing import Literal

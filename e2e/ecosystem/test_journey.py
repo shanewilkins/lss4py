@@ -86,7 +86,6 @@ def study(source_path, *, payload=None):
             "lss4py",
             "numpy",
             "scipy",
-            "statsmodels",
             "polars",
             "narwhals",
             "matplotlib",

@@ -10,6 +10,7 @@ import numpy as np
 import scipy
 from scipy import stats
 
+from lss4py._frames import eager_frame
 from lss4py._kernels._helpers import build_provenance, measurement_values
 from lss4py.domain import AssumptionNote, CapabilityResult, Specification
 from lss4py.errors import ValidationError
@@ -198,6 +199,11 @@ def _result(
 @register_analysis(
     AnalysisSuitability(
         name="capability_indices",
+        outcome_types=("numeric_measurement",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="capability",
         question_tags=("process_capability",),
         required_fields=(("column", "specification"),),
@@ -246,7 +252,7 @@ def capability_indices(
     _specification(specification)
     _options(missing, ci, confidence_level)
     shift = _sigma_shift(sigma_shift)
-    frame = nw.from_native(data, eager_only=True)
+    frame = eager_frame(data)
     values = measurement_values(frame, column)
     valid = values[~np.isnan(values)]
     if missing == "raise" and len(valid) != len(values):

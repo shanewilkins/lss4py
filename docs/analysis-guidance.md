@@ -3,7 +3,7 @@
 `get_candidates` lists analytical methods matching caller-declared intent.
 `get_analysis` explains a named method. Both return immutable
 `AnalysisSuitability` metadata, never calculations or observed-data diagnostics.
-The catalog covers nine supported timing, yield, descriptive, and capability functions.
+The catalog covers thirteen supported timing, yield, descriptive, and capability functions.
 
 ```python
 import polars as pl
@@ -29,8 +29,11 @@ assert metadata["belt_level"] == "white"
 
 | Question tag | Candidates | Data type | Design type |
 | --- | --- | --- | --- |
+| `direct_follow_discovery` | `map_process` | `event_stream` | `observational` |
 | `process_capability` | `capability_indices` | `numeric` | `observational` |
 | `summarize_measurements` | `describe` | `numeric` | `observational` |
+| `reconstruct_orders` | `reconstruct_orders` | `numeric_activity_log` | `observational` |
+| `fixed_deadline` | `deadline_performance` | `numeric` | `observational` |
 | `elapsed_time` | `lead_time` | `timestamps`, `interval_event_log` | `observational` |
 | `waiting_time` | `wait_time` | `numeric_duration` | `observational` |
 | `value_add_share` | `process_cycle_efficiency` | `numeric_duration` | `observational` |
@@ -50,7 +53,7 @@ path. These are semantic roles, not literal source column names. Lead time has
 separate timestamp-pair and process-bound interval-log paths. Wait time and
 process-cycle efficiency currently require explicit measurement columns; guidance
 does not advertise branch-aware interval-log inference for those methods.
-There are no predictor requirements for these eight calculations.
+There are no predictor requirements for these calculations.
 
 A match identifies a candidate for review. It does not validate source schema,
 sampling design, units, sample size, or assumptions. Each analysis retains its
@@ -72,3 +75,13 @@ These pre-1.0 tags may evolve as analytical workflows expand. Registry tests
 cover completeness, declared questions, filters, immutable copies, invalid
 metadata, duplicate registrations, and non-execution. Import-linter forbids the
 guidance layer from importing calculations, adapters, workflows, or IO layers.
+
+## Explicit practitioner choice
+
+`select_analysis(name, reason=..., cohort=..., design_type=...)` returns immutable
+`AnalysisSelection` with the reviewed suitability metadata. It does not inspect
+observations or call the method. After explicitly calculating a matching typed
+result, `choice.record(result)` attaches the decision for portable capture.
+Mismatched methods/designs fail. Scalar-result choices can be retained separately
+using `choice.to_dict()`. All registered methods now declare outcome/predictor
+types and sampling requirements; current methods need no predictors.

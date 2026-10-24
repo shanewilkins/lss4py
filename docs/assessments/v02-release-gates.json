@@ -1,0 +1,209 @@
+{
+  "snapshot_version": "1.0",
+  "created_at": "2026-10-24T15:10:44.697089+00:00",
+  "candidate_version": "0.2.0",
+  "publication_status": "Not tagged or published; official-index verification is pending",
+  "checks": [
+    {
+      "name": "pre_push",
+      "status": "passed",
+      "evidence": "All nine locked hooks pass; /tmp/lss4py-v02-final-prepush.log"
+    },
+    {
+      "name": "required_arrow",
+      "status": "passed",
+      "evidence": "1750 passed, 5 deferred xfails, 95.22% coverage; /tmp/lss4py-v02-candidate-tests.log"
+    },
+    {
+      "name": "ruff",
+      "status": "passed",
+      "evidence": "ruff check . passes"
+    },
+    {
+      "name": "ty",
+      "status": "passed",
+      "evidence": "ty check passes with all supported backend types installed in dev"
+    },
+    {
+      "name": "bandit",
+      "status": "passed",
+      "evidence": "bandit -r src/lss4py --skip B101 -q passes"
+    },
+    {
+      "name": "import_boundaries",
+      "status": "passed",
+      "evidence": "All 8 contracts kept"
+    },
+    {
+      "name": "wheel_base",
+      "status": "passed",
+      "evidence": "24 passed; pandas/Arrow absent"
+    },
+    {
+      "name": "wheel_pandas",
+      "status": "passed",
+      "evidence": "33 passed"
+    },
+    {
+      "name": "wheel_storage",
+      "status": "passed",
+      "evidence": "35 passed"
+    },
+    {
+      "name": "wheel_ecosystem",
+      "status": "passed",
+      "evidence": "40 passed including FLO/plotting"
+    },
+    {
+      "name": "build",
+      "status": "passed",
+      "evidence": "Wheel and source distribution built for 0.2.0"
+    },
+    {
+      "name": "twine",
+      "status": "passed",
+      "evidence": "Both distribution metadata checks pass"
+    },
+    {
+      "name": "distribution_identity",
+      "status": "passed",
+      "evidence": "Source/project/tag v0.2.0/wheel/sdist versions agree"
+    },
+    {
+      "name": "dependency_audit",
+      "status": "passed",
+      "evidence": "104 third-party packages; no known vulnerabilities; editable project explicitly skipped"
+    },
+    {
+      "name": "migration_example",
+      "status": "passed",
+      "evidence": "Python preparation example executes"
+    },
+    {
+      "name": "book_examples",
+      "status": "passed",
+      "evidence": "Prepared and reconstructed routes reproduce all four readouts; bundles refreshed for 0.2.0"
+    }
+  ],
+  "source_sha256": {
+    ".github/workflows/ci.yml": "c3e3de4ced412c36e937918efd25a54fa424352fc85ea713a22a0c6d94714c93",
+    ".github/workflows/release.yml": "42682d77bd9c766352906581240bbe918adac5e0bde4327079151b359c7d0190",
+    ".pre-commit-config.yaml": "1129425c77e5a18b01bbf9fe36de2bf83597d16616a932e052c3303ea5c0350b",
+    "README.md": "6266d65dbe52642d15ed2bb4aa298a39f36b912bca0049b46dc0be4acd052605",
+    "docs/requirements/technical-requirements.csv": "3b6b6600e07d2a6785d990851d3953069a64dee0fb5ac818c02facc65655f6d6",
+    "docs/requirements/traceability.csv": "7092e77b740be78343dc287f1f3f7eca76649545145ffc947fdfd6db979d48b2",
+    "docs/requirements/user-requirements.csv": "3403286bbc942c068b9a5889bce1c3e3d7b5f5867136d25838afdadcf2641583",
+    "docs/roadmap.md": "39c7b1a753214344ef84e7c078b727870f4d3b6fcaeec216a2de9305d7a40085",
+    "e2e/conftest.py": "578956c71db24d0286daaf9f6c3ef624332c9f4a56ef135a506644fc7bab6d8b",
+    "e2e/ecosystem/test_journey.py": "bc65f7d392e0948b3eb89733820fdec9bf2bec54a1e56b5f98ab483ad17c79da",
+    "e2e/test_book_preview.py": "899653adeacab0fe92fcac50d54fb5fdd993052755adf060ead685c12bbe2868",
+    "e2e/test_bundles.py": "b363774c746ac1ef616df030c378d77dfc845807ae2380055d6c78362591f139",
+    "e2e/test_contract_repairs.py": "d93ceec0fc80a85f22e386dbe1b5a7e233b55ad8bc92c762ae256b3b4df59d9f",
+    "e2e/test_data_quality.py": "df8d9404ba650726a70482cbbe4e599f3e305c5a443256c15182f9762811fd03",
+    "e2e/test_defect_yield.py": "737e8d8856ee18fb3b47275ed1c56b213b4c508707d65b271fe3ea7ed17cd4cd",
+    "e2e/test_numeric_ingestion.py": "e3d23e2296c0e98e096297813d397c5c6be8f42bf6bab73ac564d4acbf3071d7",
+    "e2e/test_storage.py": "5acc4e577a9012c7753488a4307996f68b440671276ddb0ec5fba29e655b98e2",
+    "e2e/test_studies.py": "d53dc42121849267ac5840896041f8a97909a10ec62edd279218a6611da6a262",
+    "examples/white_belt/preview.py": "90f1e53aea509149a4270d24235d92fda2550899095e3766712c1c0aec443b44",
+    "examples/white_belt/reconstruct.py": "4bfc2db6318241e67c83051bc7621491b6e366fbef41c19f47414878521c4154",
+    "lint_imports_config.ini": "307c5fd293fd4ffb72438eaeaeaf2678033fb1d9c7adf34acd2a376dc67db252",
+    "pyproject.toml": "b74d25c0f79a9c3ae365a3e2c3138ff443c5cf8d544d7c077730f984d92c0329",
+    "src/lss4py/__init__.py": "ea819ad0ccb3888e7d564006c74363f95390ef1f182085770022dbfdb2821418",
+    "src/lss4py/_bundle_schema.py": "20750c60562ee4bda29986037b326e4badc7b35a6405d64ab399d80b34e1f14d",
+    "src/lss4py/_data_quality.py": "70652cc54345f482b082e2a6f91090740a079c40f8e726f8a738a815a521f386",
+    "src/lss4py/_event_log.py": "2a52e19a21537bb68fc73ef44292fb9391fb47ebdfa10921491089306b8502be",
+    "src/lss4py/_frames.py": "1b1ee654de3bbacf7bc7789868df44f84645602b74cfd5dbb4d80ee0fb1f4390",
+    "src/lss4py/_kernels/__init__.py": "bd5c9da83ce0731597ea4f180b4f6b6798dd39b77ad60b97fceac16aeb2757a5",
+    "src/lss4py/_kernels/_calendar.py": "9bc7c2997a19b52f236bf29a0e9e5c6bff95b404b1988b793eab62179091fdc5",
+    "src/lss4py/_kernels/_contracts.py": "a067515ef580fe4c034def6af0500be2545b74987b274804982aeae9e8873d21",
+    "src/lss4py/_kernels/_helpers.py": "fc7090db7a554fc93d3b5bbc2f1644bbd5dd57a1771ca9fce9d9f19fd096d15e",
+    "src/lss4py/_kernels/capability.py": "988bf37146191973d8e51607b4e7b8d79e9668d74576acb380a0d89dd88bf6e2",
+    "src/lss4py/_kernels/data_quality.py": "c196b07d153db3f23827179bbfbc1a2e330ca7c7713914693371d25a57f0acf0",
+    "src/lss4py/_kernels/defect_yield.py": "bd4308f03f6d472b78a7725197b42b135ced323b5dbadebd8f8a5b7b98eb45c9",
+    "src/lss4py/_kernels/descriptive.py": "f4b8c7c1e57d8b05abf0fd5230f6150be295b360b58a0161fae33976131165f5",
+    "src/lss4py/_kernels/orders.py": "7c3e2ffc40d339b92ae413efbdb01dea592b2d4efe38ef43e820a4b81bed61eb",
+    "src/lss4py/_kernels/reconstruction.py": "abec4849b8746d6989088e33af9076c46d2ec35dd2ad237878b37ab9e4e1761b",
+    "src/lss4py/_kernels/timing.py": "06673fd6b792ce16401557f964da2932422bea624921d9bb98f220a5c3b33bcf",
+    "src/lss4py/_kernels/yield_.py": "855173b954a0f4a63a22dd25b02ab06c5599c8d2b5ee5e83ee3c296057e78c71",
+    "src/lss4py/_numeric_log.py": "56210e3e59c89700a6169aa1b1b5f15c5a2dc901c71dfa5b046d7c1b74f10eeb",
+    "src/lss4py/_version.py": "a404a01dc33b523597f90b46530bc6f8ab697384e67737410e5940c955458e13",
+    "src/lss4py/adapters/__init__.py": "a01d391f1a06c6bc7ba2fa37869854824167e2723e4ca46a036895595e3de021",
+    "src/lss4py/adapters/contracts.py": "944a1389ee60a9bd3eab3b659d3ec16a8b86d54490ed32b44aa09ce1a8940ac1",
+    "src/lss4py/adapters/event_log.py": "9fb26bb64e8c753df16cc0db006ce54a79881636f0dd5580b62301a7e7af31af",
+    "src/lss4py/adapters/numeric_log.py": "215d04b8535a8031f2b97af9d96cf7f8705c8a72d2f554958c18720d493ff3e2",
+    "src/lss4py/adapters/tabular.py": "349f50a45f5dc3930ba692e6674735124d145e1f77e9647efe35f3f3008e7e87",
+    "src/lss4py/cli.py": "b133bcb5dfde0fde1e263f29c6e017776e649f3e38a493e8feca9f1dbf2979a6",
+    "src/lss4py/domain/__init__.py": "fe3d4a921d5cc04732307c9a7c3d50cd7ad328a5a3c3bc432c776a56d7b3d21e",
+    "src/lss4py/domain/_result_io.py": "a02dda81bdded7901013327000b02acc57f91990c8028383673033f95b5fa08f",
+    "src/lss4py/domain/bundles.py": "54596299d36b3a0064b6328d5de14a119e8af45416853a58d0d2ed74ace7ed18",
+    "src/lss4py/domain/data_quality.py": "5e570dabdef8448e05472e361f154bffab58ca827ee68a6679bf374871e3bc54",
+    "src/lss4py/domain/interval_event_log.py": "d04000a7fbcf68c3fff0cbdd6f97b7f29099f8ff3179bfa22c74755ccc5243e3",
+    "src/lss4py/domain/models.py": "112e3b233aa116bba9735021a077dcccc0ba9396ce77a4ce11b3b9eb642276ec",
+    "src/lss4py/domain/numeric_log.py": "83eaf0d6be82a60151aeff698ece2d35626a77898d2e041a4fc6be18c9401c35",
+    "src/lss4py/domain/order_summary.py": "7d04888bbf72663579f683af3c43b0bbf484397cc219f960f18d674442d75910",
+    "src/lss4py/domain/reconstruction.py": "148b00e74670258cedae8a95e145e00626ecaf718110256cc573d83e2cb90750",
+    "src/lss4py/domain/results.py": "0a535cc6fc6ff5e3c1c92302e25393d4fcb11f5974cb26b1c847cbf8e53de099",
+    "src/lss4py/domain/specification.py": "fd16168f6d57fe628622121385ff81ff82151cf54e8ece4fbc53d53299699058",
+    "src/lss4py/domain/validation.py": "d2813b49dc01c05ac5eeefea43f4f50c37233a0096dadded3ee19f23fc424a7e",
+    "src/lss4py/errors.py": "01b2526c0f1b28ca08a1bac95e7eb4565c2f4df19ee3e627dbe461aefeb09990",
+    "src/lss4py/guidance/__init__.py": "e41512d9c56ae407116748dd4901403be7d8050762698b34961b66460f55ec5f",
+    "src/lss4py/integration/__init__.py": "37a422fb16924861bbb28aca0aa2bc669cb94032740d22f817e453c37c70787c",
+    "src/lss4py/integration/evidence.py": "7aa99200efca12f42b75b58690b30ec2ad54cb4cffec7b264c91f8df411551e0",
+    "src/lss4py/integration/process.py": "4cc308952fe74c7d6fb477125d9542d9660819be29f6c5c53c33629d51fc273f",
+    "src/lss4py/observability/__init__.py": "9b5e1f253de41bbbcf5133d8d5769d95e0dda49e011b82b179d05ab150807258",
+    "src/lss4py/observability/logging.py": "03ac1a14551878700d2fd1e93e87cdf6232484ad6ef902679ff664f8f045fd37",
+    "src/lss4py/observability/telemetry.py": "676d809c811a053be4fbb563ee9a9c68c352c9c494b943f916a15a3dabccf6ab",
+    "src/lss4py/reporting/__init__.py": "a77fc71d0739ef025475861072cd83f068bdfca0cfdabffdad45cb50b87ae2c1",
+    "src/lss4py/reporting/bundles.py": "3b431ee7ac3e4117dbedaac17cc41846ab1f9c4c9282d2c5a865bfe1f6af7bb9",
+    "src/lss4py/reporting/visualization.py": "9a19f6f817f240e9110380f0a1498b9b74b2dfe5c0540da7b9e41776aa3fd108",
+    "src/lss4py/workflows/__init__.py": "149c5df5663cc17d9da4d6912c3d9558875ff69da11396998097ffad198268d0",
+    "src/lss4py/workflows/bottleneck.py": "eef07a1c1ab71fb3416227e13be3aed4e75d7b7b4a793086907c04473295cd84",
+    "src/lss4py/workflows/comparison.py": "098bf63bfb332c168185e8d6d75b6949bf32464a9ecaa9a4840a3d135451d55f",
+    "src/lss4py/workflows/process_map.py": "e0c382b0efdaeb352d09e8b6c9a85392c1c285b2b3c135f2b584bec24a1ac73b",
+    "src/lss4py/workflows/simulation.py": "4a717f54130e52fed5fe85a461b838b314c8ab7f39e28a675c6bb9f4b547785c",
+    "tests/__init__.py": "35196a72aed9fbff35d8cb5c094811feb4e641efc0b67263a6fd5d2575f1a1c1",
+    "tests/conftest.py": "85064b944ded8bc9105c89e9b5a43a29a74d9e2a29b86a7255e71a1e9e1880b1",
+    "tests/fixtures/reference/manifest.json": "d88b467721bf1e8593365b12f89c16ce5ad6651329ad11bedb4807418d96e07d",
+    "tests/reference_catalog.py": "537b21eafe601f6b306d3eae0de65fd54904a70fc305a28c794e7ceae0ee2a8e",
+    "tests/test_backend_contracts.py": "2962a3b5e47a6023c3d2807527085ad0cb602e21fa8628a1653fa6c151eb69f9",
+    "tests/test_book_fixture.py": "49a2a8b5987a99a46bce4a5a7e484d83cbb373774c448a1d4ab13fe7a3a958f2",
+    "tests/test_bundles.py": "da3019f28522242176587c22577dcdfe5fe82b71d7aa9c3925088409196b7421",
+    "tests/test_capability.py": "213decb7cf5ab317853dee8f8f6ac485d3194c22b18229ed8d2be08c396cb1c4",
+    "tests/test_capability_z.py": "68fcfd37ff683c6c2fe9cb9cacd1b03fa7c93fd6718004bcbe750d4db3321a16",
+    "tests/test_data_contract.py": "3724c75e513ae31d415538243b041e3d85feddb98a039cd796ff451cf332336d",
+    "tests/test_data_quality.py": "2ae5a130c6e0f1e496121387d65a0573a6d9d9f6506d17cc70e04eac4623229a",
+    "tests/test_data_quality_regressions.py": "04f587b1a5c08b119807456fe21d2b96df849fd1cb84098cdd426244823d3f7e",
+    "tests/test_defect_yield.py": "6db975d20a0cf171817d49e08e79d11a8adde4c48a78e1c354903323793778f8",
+    "tests/test_descriptive.py": "6c1f800a82eaaf7a3aaea71d294bb2b8091436b1f23cf8c547ef049a8bd437bc",
+    "tests/test_event_log_ingestion.py": "aaa9bcaa89cfd608e220fba800e7593f2c94df5def8acba468e58df6862aa4aa",
+    "tests/test_guidance.py": "a71ea683f7a7d318cb9ec439d5a716bd110c1abfd080ec82854e85de51c45838",
+    "tests/test_input_contracts.py": "fabea69750419b20592eeee44894d4180997b5d9430a19a357fb9f722c44afea",
+    "tests/test_integration_contracts.py": "e2dc56d59114ec0f0a59ea91f7493aa7760aee2a7227c3319fa064aa5d00f4a6",
+    "tests/test_numeric_ingestion.py": "7460a43f8e078b012086b573e06ef4bf43e1d4efcadfdf199785d60a9e7f218a",
+    "tests/test_prepared_preview.py": "5df599e677aaaa4a8549c896add4563d43181938cf03475dc93e35baa6c9c8d2",
+    "tests/test_process_map.py": "28d4868fbd200db80396d91d2424e67324516adc6cc5fe10880f6c13c66e28a9",
+    "tests/test_reconstruction.py": "3c099167dd2e661180d05d821c0518f07f7d4518ce60b23607eb2b5a77503bb3",
+    "tests/test_reference_catalog.py": "9352485b409b2c527f4f27d2f838285ea32463ef53475ed651fb2fc9c077faa9",
+    "tests/test_reference_results.py": "3b3356846a5f15e2f327cbcd04868760d81dc97773b6c006d9ae05e5b6510ab2",
+    "tests/test_result_contracts.py": "74a4a488f4e4aa280505588c155d74d23b3f4986a917c3edfa2d0eac975cfc4f",
+    "tests/test_scaffold.py": "12432f1e80592541c7c99ba88b06820894da19defbe181b25030a62b6c28e6da",
+    "tests/test_specification.py": "8276bf7f6addf980916f4bb942d68fb16bff26025d1982148dcfe66538090cc6",
+    "tests/test_sprint1_results.py": "ab85e2a7facbacc7224fd5c473713994ff11bed6e2a571b62d7b1a2e4d09dfa1",
+    "tests/test_timing_domains.py": "e7d97a4278b5411c88d527fea28e52b57e7ef69efa323bfecfd51eb3b3e96a67",
+    "tests/test_yellow_belt.py": "8ee2f0f5168362a7fffd580435ca314783876c882d62aca7748533d6a251b4f0",
+    "tools/assess_book_preview.py": "7a06e222d571c8e15a425764685212a456fe18155634531bdd0a7c758e60ef81",
+    "tools/audit_v02_readiness.py": "c40746fc03df19e8c5ca761a83d44e070b8fe83d7b58e52cede857de95aecccd",
+    "tools/check_release.py": "5822488689ae3de61f251e9e50b187aa950c9d36c5e13e2647e1d18f626831f3",
+    "tools/check_wheel.py": "7c901f46dd8fd76245bfbc308356ad3af84bc74498ab054865ca7a85a54cb230",
+    "tools/ingest_book_simulation.py": "53942263370f6e91c37eca67a1b61ef49cbe30fdd27320998d87bcdf3d95ca11",
+    "tools/reconstruct_book_simulation.py": "23ebd4354680f43d228cbecd94d41610f2faed2a453f23b601fdcffd26fb1f1e",
+    "tools/render_book_preview.py": "6ee20eea185fc8f452ec8589f289bf3e1e00e09cdb3c689cdf7ab9c8a77f2430",
+    "tools/verify_published.py": "b7a2a4c5db792b07fc31cc8b75890357ecb916ff1dbb6e575de50e1bd1520e21",
+    "uv.lock": "845c7a26ca6c24bbec8d3891c9c9af83f3edb614c8e8a67554b42d56d8f6ea65"
+  },
+  "artifact_sha256": {
+    "lss4py-0.2.0.tar.gz": "360926f5993147e91f2127d61c61b821bbde82f0a9cfd284760ee870a0d342b4",
+    "lss4py-0.2.0-py3-none-any.whl": "cbcefc9c2e67ac1606c8a9454ea74e80158b9875e2da3370cdc8d856f2311cea"
+  },
+  "note": "Dated local verification record; fingerprints detect changes, not signed attestations. Release automation reruns gates and rebuilds the tagged source."
+}

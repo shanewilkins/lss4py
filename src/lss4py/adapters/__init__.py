@@ -22,9 +22,14 @@ Forbidden imports for external adapters:
 
 from lss4py.adapters.contracts import AdapterSchema, EventLogAdapter, TabularAdapter
 from lss4py.adapters.event_log import EventLogCSVAdapter, load_event_log
-from lss4py.adapters.tabular import load_tabular_records
+from lss4py.adapters.numeric_log import NumericEventLogCSVAdapter, load_numeric_event_log
+from lss4py.adapters.tabular import CSVTabularAdapter, load_csv, load_tabular_records
 
 __all__ = [
+    "CSVTabularAdapter",
+    "load_csv",
+    "NumericEventLogCSVAdapter",
+    "load_numeric_event_log",
     # Public adapter API
     "TabularAdapter",
     "EventLogAdapter",

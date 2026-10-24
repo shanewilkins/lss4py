@@ -15,10 +15,13 @@ def pytest_addoption(parser):
     """Enable the required pandas matrix after installing the optional extra."""
     parser.addoption("--with-pandas", action="store_true")
     parser.addoption("--ecosystem", action="store_true")
+    parser.addoption("--with-storage", action="store_true")
 
 
 def pytest_ignore_collect(collection_path, config):
     """Collect ecosystem tests only in the explicitly installed optional environment."""
+    if collection_path.name == "test_storage.py":
+        return not config.getoption("--with-storage")
     return collection_path.name == "ecosystem" and not config.getoption("--ecosystem")
 
 
@@ -44,6 +47,12 @@ def installed_package(request):
     assert "archive_info" in direct_url
     with pytest.raises(metadata.PackageNotFoundError):
         metadata.version("pytest-cov")
+    if not request.config.getoption("--with-pandas"):
+        with pytest.raises(metadata.PackageNotFoundError):
+            metadata.version("pandas")
+    if not request.config.getoption("--with-storage"):
+        with pytest.raises(metadata.PackageNotFoundError):
+            metadata.version("pyarrow")
     if not request.config.getoption("--ecosystem"):
         for package in ("flo-lang", "matplotlib", "seaborn"):
             with pytest.raises(metadata.PackageNotFoundError):

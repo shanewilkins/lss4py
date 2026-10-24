@@ -88,10 +88,12 @@ and retain the first complete observation for each identifier.
 import polars as pl
 from lss4py import ColumnRule, DataContract, describe, normalize_data, validate_data
 
-observations = pl.DataFrame({
-    "id": ["a", "b", "a", "c"],
-    "hours": [1.0, None, 2.0, 3.0],
-})
+observations = pl.DataFrame(
+    {
+        "id": ["a", "b", "a", "c"],
+        "hours": [1.0, None, 2.0, 3.0],
+    }
+)
 contract = DataContract(
     (ColumnRule("id", "string"), ColumnRule("hours", nullable=True, minimum=0, unit="hours")),
     key_columns=("id",),
@@ -100,8 +102,11 @@ report = validate_data(observations, contract=contract, source_units={"hours": "
 assert report.valid
 assert {issue.code for issue in report.warnings} == {"MISSING_VALUES", "DUPLICATE_ROWS"}
 prepared = normalize_data(
-    observations, contract=contract, source_units={"hours": "hours"},
-    drop_missing=True, drop_duplicates=True,
+    observations,
+    contract=contract,
+    source_units={"hours": "hours"},
+    drop_missing=True,
+    drop_duplicates=True,
 )
 assert prepared.source_rows == (0, 3)
 summary = describe(prepared.to_polars(), column="hours", unit="hours")

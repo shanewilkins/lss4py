@@ -11,10 +11,37 @@ Reference-only R snapshots do not claim Python parity.
 | `synthetic-summary` | 1.0.0 | Independently derived five-point moments, spread and quantiles, with one omitted null | `describe` |
 | `synthetic-process` | 1.0.0 | Direct timestamp subtraction, duration ratios, funnel counts and planning pace | Timing, yield, `takt_time` |
 | `r-sixsigma-baseline` | 1.2.0 | Executed SixSigma 0.11.1 on R 4.6.1; reference-only | R Cp, Cpk, Z and defect/rework yield |
+| `washnfold-friday91` | 1.0.0 | Pinned October 22 split-activity book CSVs and independent Decimal baseline; adopted October 23 | Existing `describe`; separate baseline pins future preview/reconstruction expectations |
 
-All four are **test fixtures**. They are not production evidence, teaching datasets,
+All five are **test fixtures**. They are not production evidence, teaching datasets,
 or package-bundled data APIs. The test-only loader is `tests/reference_catalog.py`;
 no test support or reference files are imported by the runtime library.
+
+## Wash n' Fold adopted book fixture
+
+[`washnfold-friday91` version 1.0.0](../tests/fixtures/reference/washnfold-friday91/conventions.json)
+pins 39 order summaries, 330 activity records, and the completed baseline readout
+from the assessed sibling book. The raw CSVs, source README/license, normalized
+JSON, independent baseline, and declared clock/boundary/VA conventions all have
+catalog checksums. The source is simulated instructional data by Shane M. Wilkins;
+source CSVs are unchanged and retain CC BY 4.0 attribution, rather than inheriting
+the package's MIT license. The source license notice is included in the fixture.
+
+The adopted acceptance values are total VA **3535.3 min**, cohort PCE **13.7%**,
+and WNF-003 VA **82.7 min**. Readiness notification is VA when right first time;
+separate staging is RNVA, and failed packaging attempts/corrections are NVA.
+Superseded values are recorded in the conventions as history. Future fixture
+changes require a new reviewed version and checksum updates, not regeneration
+against a moving book checkout.
+
+`expected.json` certifies existing public `describe` behavior only; `baseline.json`
+records independently derived acceptance targets. `tests/test_book_fixture.py`
+checks source integrity, normalization, arithmetic, correction counts, and the
+WNF-003 VA hand check, plus existing PCE arithmetic on explicit totals. The separate
+`tests/test_prepared_preview.py` verifies the implemented public nearest-rank,
+promise and cohort-PCE slice; full public reconstruction remains future work.
+No sibling checkout, network, or
+simulation engine is required to run them.
 
 ## Evidence and integrity
 

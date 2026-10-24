@@ -259,7 +259,7 @@ def test_r_invalid_inputs_preserve_observed_semantics():
 @pytest.mark.parametrize("mutation", ["runtime", "status"])
 def test_r_runtime_evidence_cannot_be_mislabeled(copied_catalog, mutation):
     manifest = _manifest(copied_catalog)
-    entry = manifest["datasets"][-1]
+    entry = next(e for e in manifest["datasets"] if e["id"] == "r-sixsigma-baseline")
     if mutation == "runtime":
         artifact = entry["artifacts"]["provenance"]
         path = copied_catalog / artifact["path"]

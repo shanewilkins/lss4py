@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import date, datetime
+from decimal import Decimal
+from math import ceil
 from typing import Any, Literal, cast, overload
 
 import narwhals as nw
@@ -11,6 +13,7 @@ import numpy as np
 import scipy
 from scipy import stats
 
+from lss4py._frames import eager_frame
 from lss4py._kernels._helpers import build_provenance, measurement_values, require_columns
 from lss4py.domain import AssumptionNote, DescriptiveResult
 from lss4py.errors import ValidationError
@@ -64,15 +67,26 @@ def _groups(frame: nw.DataFrame, columns: list[str]) -> list[tuple[dict, list[in
     return [(dict(zip(columns, key, strict=True)), indices) for key, indices in groups.items()]
 
 
-def _location(result: DescriptiveResult, values: np.ndarray, levels: list[float]) -> None:
+def _location(
+    result: DescriptiveResult, values: np.ndarray, levels: list[float], method: str
+) -> None:
     """Calculate location, robust spread, percentiles, and frequency summaries."""
+    result.measurement_sum = float(np.sum(values))
     result.mean = float(np.mean(values))
     result.median = float(np.median(values))
     result.min_value = float(np.min(values))
     result.max_value = float(np.max(values))
     result.range = result.max_value - result.min_value
     result.mad = float(np.median(np.abs(values - result.median)))
-    quantiles = np.percentile(values, levels, method="linear")
+    if method == "nearest_rank":
+        # Documented empirical nearest rank: one-based max(1, ceil(p*n)).
+        positions = np.asarray(
+            [max(1, ceil(Decimal(str(level)) * len(values) / 100)) for level in levels],
+            dtype=np.int64,
+        )
+        quantiles = np.sort(values)[positions - 1]
+    else:
+        quantiles = np.percentile(values, levels, method="linear")
     result.percentiles = {
         f"p{level:g}": float(value) for level, value in zip(levels, quantiles, strict=True)
     }
@@ -140,13 +154,20 @@ def _summarize(
         group_keys=group_keys,
         metadata={"numpy_version": np.__version__, "scipy_version": scipy.__version__},
     )
+    result.provenance.method_version = "1.1"
+    if parameters.get("cohort"):
+        result.provenance.cohort_definition = parameters["cohort"]
+    result.metadata.update(
+        {k: parameters[k] for k in ("clock", "boundary", "cohort") if k in parameters}
+    )
+    result.metadata["aggregation"] = "descriptive_summary"
     if result.missing:
         _warn(result, "MISSING_OMITTED", f"Excluded {result.missing} null/NaN measurements.")
     if not len(valid):
         _warn(result, "NO_VALID_DATA", "No valid measurements; statistics are unavailable.")
         return result
     with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
-        _location(result, valid, parameters["percentiles"])
+        _location(result, valid, parameters["percentiles"], parameters["percentile_method"])
         _spread(result, valid, parameters["ddof"], parameters["measurement_scale"])
         _shape(result, valid, parameters["excess_kurtosis"])
     _finite_statistics(result)
@@ -156,6 +177,7 @@ def _summarize(
 def _finite_statistics(result: DescriptiveResult) -> None:
     """Replace numerical overflow or ill-conditioned estimates with explicit diagnostics."""
     fields = (
+        "measurement_sum",
         "mean",
         "median",
         "std",
@@ -181,10 +203,12 @@ def _finite_statistics(result: DescriptiveResult) -> None:
                 _warn(result, "NUMERICAL_UNAVAILABLE", f"{key} overflowed and is unavailable.")
 
 
-def _policies(missing: str, scale: str, excess: bool) -> None:
+def _policies(missing: str, scale: str, excess: bool, percentile_method: str) -> None:
     """Validate explicit interpretation and exclusion policies."""
     if missing not in ("omit", "raise") or scale not in ("ratio", "interval"):
         raise ValidationError("Invalid missing policy or measurement_scale.")
+    if percentile_method not in ("linear", "nearest_rank"):
+        raise ValidationError("percentile_method must be linear or nearest_rank.")
     if not isinstance(excess, bool):
         raise ValidationError("excess_kurtosis must be a boolean.")
 
@@ -207,11 +231,15 @@ def describe(
     column: str,
     group_by: None = None,
     percentiles: Sequence[float] = (90, 95, 99),
+    percentile_method: Literal["linear", "nearest_rank"] = "linear",
     ddof: int = 1,
     missing: Literal["omit", "raise"] = "omit",
     excess_kurtosis: bool = True,
     measurement_scale: Literal["ratio", "interval"] = "ratio",
     unit: str | None = None,
+    cohort: str | None = None,
+    clock: str | None = None,
+    boundary: str | None = None,
 ) -> DescriptiveResult: ...
 
 
@@ -222,17 +250,26 @@ def describe(
     column: str,
     group_by: str | Sequence[str],
     percentiles: Sequence[float] = (90, 95, 99),
+    percentile_method: Literal["linear", "nearest_rank"] = "linear",
     ddof: int = 1,
     missing: Literal["omit", "raise"] = "omit",
     excess_kurtosis: bool = True,
     measurement_scale: Literal["ratio", "interval"] = "ratio",
     unit: str | None = None,
+    cohort: str | None = None,
+    clock: str | None = None,
+    boundary: str | None = None,
 ) -> list[DescriptiveResult]: ...
 
 
 @register_analysis(
     AnalysisSuitability(
         name="describe",
+        outcome_types=("numeric_measurement",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="descriptive",
         question_tags=("summarize_measurements",),
         required_fields=(("column",),),
@@ -257,11 +294,15 @@ def describe(
     column: str,
     group_by: str | Sequence[str] | None = None,
     percentiles: Sequence[float] = (90, 95, 99),
+    percentile_method: Literal["linear", "nearest_rank"] = "linear",
     ddof: int = 1,
     missing: Literal["omit", "raise"] = "omit",
     excess_kurtosis: bool = True,
     measurement_scale: Literal["ratio", "interval"] = "ratio",
     unit: str | None = None,
+    cohort: str | None = None,
+    clock: str | None = None,
+    boundary: str | None = None,
 ) -> DescriptiveResult | list[DescriptiveResult]:
     """Summarize a numeric dataframe column, optionally within groups.
 
@@ -273,7 +314,9 @@ def describe(
 
     Sample variance/std use ddof=1 (0 selects population). Shape estimates are
     bias-corrected; excess kurtosis is the default. Quartiles are always included;
-    additional percentile levels use NumPy's linear interpolation. Mode lists all
+    percentiles default to linear interpolation. nearest_rank sorts ascending and
+    selects one-based max(1, ceil(p*n)); p=0 selects the minimum. The median field
+    always averages the middle two for even samples, independently of p50. Mode lists all
     tied repeated values. MAD is unscaled. CV requires a declared ratio scale and
     positive mean greater than 1e-12 times the largest absolute measurement.
 
@@ -281,9 +324,10 @@ def describe(
     group order, retaining null groups. Empty grouped inputs return an empty list.
     Undefined estimates are None with structured provenance warnings.
     """
+    declared = _summary_context(cohort, clock, boundary)
     levels = _options(ddof, percentiles)
-    _policies(missing, measurement_scale, excess_kurtosis)
-    frame = nw.from_native(data, eager_only=True)
+    _policies(missing, measurement_scale, excess_kurtosis, percentile_method)
+    frame = eager_frame(data)
     values = measurement_values(frame, column)
     if missing == "raise" and np.isnan(values).any():
         raise ValidationError(f"Column '{column}' contains missing measurements.")
@@ -296,15 +340,26 @@ def describe(
         "missing": missing,
         "excess_kurtosis": excess_kurtosis,
         "bias_corrected": True,
-        "percentile_method": "linear",
+        "percentile_method": percentile_method,
         "measurement_scale": measurement_scale,
         "unit": unit,
         "cv_near_zero_relative_tolerance": 1e-12,
         "mad_scale": "unscaled",
     }
+    parameters.update(declared)
     if group_by is None:
         return _summarize(frame, values, parameters, {})
     return [
         _summarize(frame, values[indices], parameters, keys)
         for keys, indices in _groups(frame, columns)
     ]
+
+
+def _summary_context(cohort: str | None, clock: str | None, boundary: str | None) -> dict:
+    """Validate optional semantic declarations independently of numerical summarization."""
+    declared = {"cohort": cohort, "clock": clock, "boundary": boundary}
+    if all(v is None for v in declared.values()):
+        return {}
+    if any(not isinstance(v, str) or not v.strip() for v in declared.values()):
+        raise ValidationError("cohort, clock, and boundary must be declared together.")
+    return declared

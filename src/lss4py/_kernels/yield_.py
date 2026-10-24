@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from typing import Any
 
-import narwhals as nw
-
+from lss4py._frames import eager_frame
+from lss4py._kernels._contracts import boolean_option
 from lss4py._kernels._helpers import (
     build_provenance,
     stage_yield_components,
@@ -20,6 +20,11 @@ from lss4py.guidance import AnalysisSuitability, register_analysis
 @register_analysis(
     AnalysisSuitability(
         name="created_to_booked_yield",
+        outcome_types=("binary_stage_indicator",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="yield",
         question_tags=("stage_conversion",),
         required_fields=(("created", "booked"),),
@@ -56,7 +61,8 @@ def created_to_booked_yield(
     Returns:
         YieldResult with yield fraction/percentage, numerator, denominator, and provenance.
     """
-    frame = nw.from_native(data, eager_only=True)
+    frame = eager_frame(data)
+    boolean_option(as_percentage, "as_percentage")
     yield_value, numerator, denominator = stage_yield_components(
         frame,
         from_column=created_column,
@@ -111,6 +117,11 @@ def created_to_booked_yield(
 @register_analysis(
     AnalysisSuitability(
         name="booked_to_completed_yield",
+        outcome_types=("binary_stage_indicator",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="yield",
         question_tags=("stage_conversion",),
         required_fields=(("booked", "completed"),),
@@ -147,7 +158,8 @@ def booked_to_completed_yield(
     Returns:
         YieldResult with yield fraction/percentage, numerator, denominator, and provenance.
     """
-    frame = nw.from_native(data, eager_only=True)
+    frame = eager_frame(data)
+    boolean_option(as_percentage, "as_percentage")
     yield_value, numerator, denominator = stage_yield_components(
         frame,
         from_column=booked_column,
@@ -201,6 +213,11 @@ def booked_to_completed_yield(
 @register_analysis(
     AnalysisSuitability(
         name="rolled_yield",
+        outcome_types=("binary_stage_indicator",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="yield",
         question_tags=("overall_conversion",),
         required_fields=(("created", "booked", "completed"),),
@@ -238,7 +255,8 @@ def rolled_yield(
     Returns:
         YieldResult with rolled-throughput yield (fraction/percentage) and provenance.
     """
-    frame = nw.from_native(data, eager_only=True)
+    frame = eager_frame(data)
+    boolean_option(as_percentage, "as_percentage")
 
     # Get component yields
     created_to_booked_result = created_to_booked_yield(

@@ -118,6 +118,8 @@ PROVENANCE_FIELDS = {
 }
 BASE_FIELDS = {"result_type", "name", "provenance", "interpretation_context", "metadata"}
 RESULT_FIELDS = {
+    "ProcessMapResult": set(),
+    "OrderReconstructionResult": set(),
     "TimingResult": {"values", "unit", "keys", "percentiles"},
     "YieldResult": {"value", "unit", "numerator", "denominator", "method"},
     "DefectYieldResult": {
@@ -182,8 +184,15 @@ RESULT_FIELDS = {
     },
 }
 METHODS = {
+    "ProcessMapResult": {"map_process"},
+    "OrderReconstructionResult": {"reconstruct_orders"},
     "TimingResult": {"lead_time", "wait_time", "process_cycle_efficiency", "takt_time"},
-    "YieldResult": {"created_to_booked_yield", "booked_to_completed_yield", "rolled_yield"},
+    "YieldResult": {
+        "deadline_performance",
+        "created_to_booked_yield",
+        "booked_to_completed_yield",
+        "rolled_yield",
+    },
     "DefectYieldResult": {"process_yield"},
     "DescriptiveResult": {"describe"},
     "CapabilityResult": {"capability_indices"},
@@ -340,6 +349,8 @@ def _descriptive(result: dict) -> None:
             "coefficient_of_variation",
         ),
     )
+    if "measurement_sum" in result:
+        _numeric_fields(result, ("measurement_sum",))
     _sample_counts(result)
     _count_fields(result, ("mode_frequency", "unique_count"))
     _require(
@@ -376,7 +387,48 @@ def _capability(result: dict) -> None:
         _require(_text(result[name]), f"Invalid capability {name}.")
 
 
+def _reconstruction(result: dict) -> None:
+    """Require inspectable finite reconstruction tables in portable snapshots."""
+    metadata = result["metadata"]
+    for name in ("orders", "activities", "activity_records", "source_records"):
+        table = metadata.get(name)
+        _require(isinstance(table, list) and bool(table), f"Missing reconstruction {name}.")
+        _require(all(isinstance(row, dict) and row for row in table), "Invalid evidence rows.")
+    _require(metadata.get("exclusions") == [], "Reconstruction cannot silently exclude rows.")
+    for name in ("unit", "clock", "boundary"):
+        _require(_text(metadata.get(name)), f"Missing reconstruction {name}.")
+    columns = metadata.get("table_columns")
+    _require(isinstance(columns, dict), "Reconstruction table column order is required.")
+    for name in ("orders", "activities", "activity_records", "source_records"):
+        names = columns.get(name)
+        _require(isinstance(names, list) and all(_text(v) for v in names), "Invalid table columns.")
+        _require(len(set(names)) == len(names), "Duplicate table columns.")
+        _require(all(set(row) == set(names) for row in metadata[name]), "Evidence schema mismatch.")
+    _json_tree(metadata)
+
+
+def _process_map(result: dict) -> None:
+    """Validate typed observed nodes and exact direct-follow counts without rediscovery."""
+    metadata = result["metadata"]
+    nodes, edges = metadata.get("nodes"), metadata.get("edges")
+    _require(isinstance(nodes, list) and all(_text(n) for n in nodes), "Invalid discovered nodes.")
+    _require(len(set(nodes)) == len(nodes), "Duplicate discovered nodes.")
+    _require(isinstance(edges, dict), "Invalid discovered edges.")
+    for source, targets in edges.items():
+        _require(source in nodes and isinstance(targets, dict), "Unknown discovery source.")
+        _require(
+            all(
+                target in nodes and _integer(count) and count > 0
+                for target, count in targets.items()
+            ),
+            "Invalid discovery transition counts.",
+        )
+    _json_tree(metadata)
+
+
 RESULT_CHECKS = {
+    "ProcessMapResult": _process_map,
+    "OrderReconstructionResult": _reconstruction,
     "TimingResult": _timing,
     "YieldResult": _yield,
     "DefectYieldResult": _defect_yield,
@@ -390,7 +442,11 @@ def validate_result(result: Any) -> None:
     _require(isinstance(result, dict), "Result must be an object.")
     kind = result.get("result_type")
     _require(isinstance(kind, str) and kind in RESULT_FIELDS, "Unsupported result type.")
-    _object(result, BASE_FIELDS | RESULT_FIELDS[kind], "result")
+    fields = BASE_FIELDS | RESULT_FIELDS[kind]
+    # Additive describe 1.1 field; older saved results restore with an unavailable sum.
+    if kind == "DescriptiveResult" and "measurement_sum" in result:
+        fields = fields | {"measurement_sum"}
+    _object(result, fields, "result")
     _require(_text(result["name"]), "Result name is required.")
     _require(isinstance(result["metadata"], dict), "Result metadata must be an object.")
     _require(
@@ -560,6 +616,17 @@ def _result_context(entry: dict, body: dict) -> None:
                 body["software_versions"].get(package) == version,
                 f"Missing or conflicting software version: {package}.",
             )
+    parameters = result["provenance"]["parameters"]
+    for package, recorded in parameters.get("runtime_versions", {}).items():
+        _require(
+            body["software_versions"].get(package) == recorded,
+            f"Missing or conflicting software version: {package}.",
+        )
+    if "backend_version" in parameters:
+        _require(
+            body["software_versions"].get(backend) == parameters["backend_version"],
+            "Conflicting backend software version.",
+        )
     _parameter_context(result)
     declared = result["provenance"]["parameters"].get("specification")
     if declared is not None:

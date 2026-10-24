@@ -8,6 +8,9 @@
 - Supersedes: the module-organization sections of ADR-0015
 - Implements: ADR-0016
 - Clarifies: ADR-0017 and ADR-0018
+- Partially superseded by: [ADR-0026](0026-method-specific-input-contracts-and-ocel-interchange.md)
+  for the universal event-log adapter output requirement. The current calendar
+  IntervalEventLog API and layer boundaries remain in force.
 
 ## Context
 

@@ -1,6 +1,12 @@
 # Auditable analysis bundles
 
-`AnalysisBundle.capture(...)` exports the five current analytical result families
+The prepared-data preview adds `deadline_performance` results using `YieldResult`
+and cohort PCE using `TimingResult`, preserving eligibility populations and sum
+derivations in metadata. `DescriptiveResult.measurement_sum` is an additive field:
+older saved descriptive results without it restore with an unavailable sum.
+See the [preview evidence](../examples/white_belt/preview-bundle.json).
+
+`AnalysisBundle.capture(...)` exports the seven current analytical result families
 with explicit source references, selections, software versions and specification
 links. `AnalysisBundle.from_json()` reconstructs their real domain models; loading
 never executes an analysis, resolves a path, imports a named method, or fetches data.
@@ -22,13 +28,19 @@ summary = describe(data, column="hours", unit="hours")
 bundle = AnalysisBundle.capture(
     "Synthetic baseline",
     results={"summary": summary},
-    inputs={"measurements": InputReference.from_bytes(
-        "measurements.csv", source, selection="all three source rows", media_type="text/csv",
-    )},
+    inputs={
+        "measurements": InputReference.from_bytes(
+            "measurements.csv",
+            source,
+            selection="all three source rows",
+            media_type="text/csv",
+        )
+    },
     result_inputs={"summary": ["measurements"]},
     cohort_definition="Original three-observation synthetic example",
-    software_versions={name: version(name) for name in
-                       ("lss4py", "numpy", "scipy", "narwhals", "polars")},
+    software_versions={
+        name: version(name) for name in ("lss4py", "numpy", "scipy", "narwhals", "polars")
+    },
     context={"observation_order": "source row order", "exclusions": []},
 )
 saved_json = bundle.to_json()
@@ -132,3 +144,14 @@ and capability indices, validates the saved bundle in a standard-library-only
 process, restores the typed results, verifies source bytes and explicitly reruns
 the capability calculation. Existing FLO `EvidenceManifest` retains its own
 process/annotation envelope and reuses the shared timing-result restoration path.
+
+`OrderReconstructionResult` also supports portable restoration and audited capture.
+It retains ordered source, per-record timing, collapsed activity/pass and complete
+order tables, along with the explicit accounting policy and ingestion provenance.
+See [order reconstruction](order-reconstruction.md).
+
+`ProcessMapResult` preserves typed direct-follow counts and source evidence, with
+legacy nodes/edges lookup and an explicit `.to_mapping()` export. Current results
+also record runtime and backend versions in provenance; audited capture rejects
+conflicting supplied software context. Historical payloads lacking that additive
+context remain readable without inventing it.

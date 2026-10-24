@@ -39,7 +39,7 @@ See [ARCHITECTURAL-DECISION-FRAMEWORK.md](ARCHITECTURAL-DECISION-FRAMEWORK.md) f
 |---|---|---|
 | [0015](0015-belt-level-governance.md) | Belt-level governance and practitioner progression | Proposed |
 | [0016](0016-private-kernel-architecture.md) | Keep numerical kernels private | Accepted |
-| [0017](0017-format-adapter-registry.md) | Route event-log formats through an adapter registry | Accepted |
+| [0017](0017-format-adapter-registry.md) | Route event-log formats through an adapter registry | Partially superseded by ADR-0019 and ADR-0026 |
 | [0018](0018-use-polars-as-the-canonical-ingestion-backend.md) | Use Polars as the canonical ingestion backend | Accepted |
 | [0019](0019-reconcile-package-boundaries-and-event-log-contracts.md) | Reconcile package boundaries and event-log contracts | Accepted |
 | [0020](0020-delegate-numerical-algorithms-and-own-analytical-contracts.md) | Delegate numerical algorithms while owning analytical contracts | Accepted |
@@ -50,6 +50,8 @@ See [ARCHITECTURAL-DECISION-FRAMEWORK.md](ARCHITECTURAL-DECISION-FRAMEWORK.md) f
 | [0024](0024-explicit-data-quality-reports-and-normalization.md) | Explicit data-quality reports and opt-in normalization | Accepted |
 
 | [0025](0025-audited-bundles-and-portable-validation.md) | Audited general bundles, typed restoration and portable validation | Accepted |
+
+| [0026](0026-method-specific-input-contracts-and-ocel-interchange.md) | Method-specific analytical inputs; OCEL as interchange with explicit projections | Accepted |
 
 ## When to write an ADR
 

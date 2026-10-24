@@ -11,8 +11,11 @@ from lss4py import AnalysisSuitability, ValidationError, get_analysis, get_candi
 from lss4py.guidance import register_analysis
 
 METHODS = {
+    "map_process",
+    "reconstruct_orders",
     "capability_indices",
     "describe",
+    "deadline_performance",
     "lead_time",
     "wait_time",
     "process_cycle_efficiency",
@@ -82,7 +85,7 @@ def test_guidance_cannot_execute_an_analysis(monkeypatch):
 
     for name in METHODS:
         monkeypatch.setattr(lss4py, name, fail)
-    assert len(get_candidates()) == 10
+    assert len(get_candidates()) == 13
     assert get_analysis("describe").name == "describe"
     assert "data" not in inspect.signature(get_candidates).parameters
 

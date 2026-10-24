@@ -1,6 +1,9 @@
 # 0017: Format adapter registry for multi-standard event log support
 
 - Status: Accepted
+- Partially superseded by: [ADR-0026](0026-method-specific-input-contracts-and-ocel-interchange.md)
+  for universal flattening, kernel-driven adaptation, and format rollout promises;
+  ADR-0019 governs current package boundaries. The original decision below is historical.
 - Date: 2026-09-02
 - Deciders: Maintainers
 - Related requirements: UR-028, UR-029, TR-040

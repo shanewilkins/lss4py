@@ -6,6 +6,14 @@ It is focused on repeatable process metrics, yield calculations, and descriptive
 
 It is not yet a full SPC, capability, simulation, or deliverables platform.
 
+## Release status
+
+The working tree prepares the unreleased **0.2.0 candidate**. The
+[v0.2 acceptance follow-through](docs/assessments/v02-release-readiness.md)
+records the completed local fixes and verification. Actual publication and
+verification of the official PyPI package remain pending. See the
+[release notes](docs/releases/v0.2.0.md) and [migration guide](docs/migration-v0.2.md).
+
 ## Stable Today
 
 The current stable surface is intentionally small.
@@ -21,6 +29,16 @@ It includes these public functions:
 - `rolled_yield`
 - `process_yield` (defect/rework counts, opportunity Yield/FTY/RTY, and DPMO)
 - `describe` (typed descriptive statistics, optionally grouped)
+- `capability_indices` (Cp/Cpk/components/intervals and explicit specification Z)
+- `reconstruct_orders` (declared numeric activity-to-order accounting policy)
+- `validate_order_summary` (prepared numeric order contract and consistency checks)
+- `deadline_performance` (fixed-deadline misses with explicit eligible/ineligible cases)
+
+The [White Belt preview](docs/book-preview.md) includes a runnable cell, rendered
+output and inspectable evidence from pinned prepared observations. `describe`
+supports explicit nearest-rank percentiles and measurement sums;
+`process_cycle_efficiency(aggregation="cohort")` returns a ratio of sums with
+cohort identities and denominator evidence.
 
 See the [descriptive statistics guide](docs/descriptive-statistics.md) for examples
 and the statistical conventions.
@@ -47,13 +65,21 @@ It also includes stable event-log contracts and helpers:
 - `IntervalEventLog`
 - `EventLogCSVAdapter`
 - `load_event_log`
+- `CSVTabularAdapter` and `load_csv` for declared-schema CSV inputs
+- `NumericLogContract`, `NumericEventLog`, `NumericEventLogCSVAdapter`, and
+  `load_numeric_event_log` for numeric activity/lifecycle observations
 - `validate_event_log`
 - `map_process`
+
+The [simulation ingestion guide](docs/simulation-ingestion.md) demonstrates all
+current White Belt simulation sources, including numeric operating-clock logs,
+with source hashes, explicit types/identities, and validation evidence.
 
 Interval-event calculations are part of the current stable surface for:
 
 - `lead_time`
 
+`select_analysis` records an explicit practitioner choice without executing it.
 `get_candidates` and `get_analysis` expose method requirements, assumptions, and
 limits without executing analyses. See the [analysis guidance guide](docs/analysis-guidance.md).
 
@@ -78,7 +104,7 @@ Core file ingestion materializes validated Polars frames by default, as recorded
 [ADR-0018](docs/adr/0018-use-polars-as-the-canonical-ingestion-backend.md). pandas
 remains an optional analytical-input backend rather than the package's canonical
 storage contract. See the [backend contract guide](docs/backend-contracts.md)
-for tested equivalence, row/case identity, and provisional PyArrow limits.
+for tested equivalence, row/case identity, and supported eager input shapes.
 
 LSS4PY calculates metrics from both.
 
@@ -357,3 +383,9 @@ LSS4PY is available under the [MIT License](LICENSE.md).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) to contribute and
 [SECURITY.md](SECURITY.md) to report a vulnerability privately.
+
+The White Belt [activity-to-order example](examples/white_belt/reconstruct.py)
+now reconstructs all 39 pinned orders through public numeric contracts, retaining
+load/pass/classification and correction evidence. See the
+[reconstruction guide](docs/order-reconstruction.md) and saved
+[audited bundle](examples/white_belt/reconstruction-bundle.json).

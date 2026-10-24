@@ -12,6 +12,7 @@ from typing import Any
 
 import narwhals as nw
 
+from lss4py._frames import eager_frame
 from lss4py._kernels._helpers import build_provenance, require_columns
 from lss4py.domain import DefectYieldResult
 from lss4py.errors import ValidationError
@@ -59,6 +60,11 @@ def _positive_count(value: Any, label: str) -> int:
 @register_analysis(
     AnalysisSuitability(
         name="process_yield",
+        outcome_types=("aggregate_nonnegative_integer_count",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="yield",
         question_tags=("defect_rework_performance",),
         required_fields=(("defects_column", "opportunities"),),
@@ -99,7 +105,7 @@ def process_yield(
     Returns:
         Versioned DefectYieldResult with fractions, counts, denominators and provenance.
     """
-    frame = nw.from_native(data, eager_only=True)
+    frame = eager_frame(data)
     _columns(defects_column, rework_column)
     denominator = _positive_count(opportunities, "opportunities")
     unit_count = None if units is None else _positive_count(units, "units")

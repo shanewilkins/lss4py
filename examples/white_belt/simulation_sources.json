@@ -1,0 +1,1487 @@
+{
+  "profile_version": "1.0",
+  "clock": "cumulative operating minutes from 07:00; closed hours already omitted",
+  "boundary": "Drop-off queue entry through final Send readiness notification work end",
+  "source": "Modern Process Improvement with Python current White Belt simulation exports; historical batch/pull files deliberately excluded",
+  "profiles": [
+    {
+      "filename": "washnfold_event_log.csv",
+      "category": "numeric_activity",
+      "contract": {
+        "case_id_column": "Order ID",
+        "activity_column": "Activity Name",
+        "pass_column": "Pass",
+        "time_columns": [
+          "Queue Entry (elapsed min)",
+          "Setup Start (elapsed min)",
+          "Work Start (elapsed min)",
+          "Work End (elapsed min)"
+        ],
+        "unit": "minutes",
+        "clock": "cumulative operating minutes from 07:00; closed hours already omitted",
+        "boundary": "Drop-off queue entry through final Send readiness notification work end",
+        "load_id_column": "Load ID",
+        "lifecycle_column": null,
+        "scope_columns": [],
+        "additional_columns": [
+          {
+            "name": "Role / Resource",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Order Weight (lb)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "lb",
+            "minimum": 0,
+            "maximum": null
+          },
+          {
+            "name": "Requires separate wash Y/N",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Compatible Loads",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": 1,
+            "maximum": null
+          },
+          {
+            "name": "P/T (min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": 0,
+            "maximum": null
+          },
+          {
+            "name": "W/T (min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": 0,
+            "maximum": null
+          },
+          {
+            "name": "S/T (min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": 0,
+            "maximum": null
+          },
+          {
+            "name": "Rework Y/N",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Notes",
+            "kind": "string",
+            "nullable": true,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ]
+      },
+      "expected_sha256": "3efcd0b299b96af4d860374a4ad885d44b77b6edb65a853ec07de6d3f9d7af20"
+    },
+    {
+      "filename": "washnfold_representative_current_lifecycle_log.csv",
+      "category": "numeric_lifecycle",
+      "contract": {
+        "case_id_column": "case_id",
+        "activity_column": "activity",
+        "pass_column": "occurrence",
+        "time_columns": [
+          "timestamp_minute"
+        ],
+        "unit": "minutes",
+        "clock": "cumulative operating minutes from 07:00; closed hours already omitted",
+        "boundary": "Drop-off queue entry through final Send readiness notification work end",
+        "load_id_column": "load_id",
+        "lifecycle_column": "lifecycle",
+        "scope_columns": [
+          "scenario",
+          "simulation_run"
+        ],
+        "additional_columns": [
+          {
+            "name": "quantity_lb",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "lb",
+            "minimum": 0,
+            "maximum": null
+          },
+          {
+            "name": "requires_separate_wash",
+            "kind": "boolean",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "load_count",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": 1,
+            "maximum": null
+          },
+          {
+            "name": "resource",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "queue_length",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": 0,
+            "maximum": null
+          }
+        ]
+      }
+    },
+    {
+      "filename": "washnfold_learner_order_summary.csv",
+      "category": "prepared_order",
+      "clock": "cumulative operating minutes from 07:00; closed hours already omitted",
+      "contract": {
+        "columns": [
+          {
+            "name": "Order ID",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Arrival (elapsed min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Ready and notified (elapsed min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Operating L/T (min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Total P/T (min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Total W/T (min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Total S/T (min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "VA time (min)",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Activity records",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Correction occurrences",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Compatible Loads",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Promise eligible Y/N",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Promise missed Y/N/NA",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "Order ID"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      },
+      "expected_sha256": "ae30c7992aafa60304d1fd7bbb59c1d86de02a5b8fa15e27a74d34d8dce6fa86"
+    },
+    {
+      "filename": "washnfold_representative_activity_summary.csv",
+      "category": "aggregate",
+      "clock": "cumulative operating minutes from 07:00; closed hours already omitted",
+      "contract": {
+        "columns": [
+          {
+            "name": "Activity Name",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Activity Records",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "P/T Sum",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "P/T Minimum",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "P/T Median",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "P/T Mean",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "P/T Maximum",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "W/T Sum",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "W/T Minimum",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "W/T Median",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "W/T Mean",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "W/T Maximum",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "S/T Sum",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "S/T Minimum",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "S/T Median",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "S/T Mean",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "S/T Maximum",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "Activity Name"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      }
+    },
+    {
+      "filename": "washnfold_representative_order_metrics.csv",
+      "category": "full_precision_order",
+      "clock": "cumulative operating minutes from 07:00; closed hours already omitted",
+      "contract": {
+        "columns": [
+          {
+            "name": "scenario",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "simulation_run",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "case_id",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "arrival",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "production_complete",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "production_release",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "ready_and_notified",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "processing_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "wait_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "setup_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "rework_occurrences",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "quantity_lb",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "lb",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "requires_separate_wash",
+            "kind": "boolean",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "load_count",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "control_wait",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "ready_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "production_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "policy_eligible",
+            "kind": "boolean",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "policy_violation",
+            "kind": "boolean",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "ready_by_close",
+            "kind": "boolean",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "scenario",
+          "simulation_run",
+          "case_id"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      }
+    },
+    {
+      "filename": "washnfold_replication_metrics.csv",
+      "category": "aggregate",
+      "clock": "cumulative operating minutes from 07:00; closed hours already omitted",
+      "contract": {
+        "columns": [
+          {
+            "name": "scenario",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "simulation_run",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "seed",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "events_recorded",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "simulation_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "orders_arrived",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "orders_policy_eligible",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "orders_ready_by_close",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "backlog_at_close",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "throughput_by_close_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "policy_violations",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "policy_violation_rate",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_ready_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_production_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "median_ready_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "p90_ready_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_wait_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_control_wait",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_processing_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_setup_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "average_open_order_wip",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "average_released_wip",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "full_run_horizon_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "full_run_throughput_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "full_run_average_open_order_wip",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "little_law_open_throughput_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "full_run_average_released_wip",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "little_law_released_throughput_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "scenario",
+          "simulation_run"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      }
+    },
+    {
+      "filename": "washnfold_replication_summary.csv",
+      "category": "aggregate",
+      "clock": null,
+      "contract": {
+        "columns": [
+          {
+            "name": "scenario",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "metric",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "ci95_low",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "ci95_high",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "scenario",
+          "metric"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      }
+    },
+    {
+      "filename": "washnfold_paired_scenario_comparison.csv",
+      "category": "aggregate",
+      "clock": null,
+      "contract": {
+        "columns": [
+          {
+            "name": "comparison",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "metric",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "current_mean",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "scenario_mean",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_difference",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_percent_change",
+            "kind": "numeric",
+            "nullable": true,
+            "unit": "percent",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "replications_lower_pct",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "percent",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "replications_higher_pct",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "percent",
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "comparison",
+          "metric"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      }
+    },
+    {
+      "filename": "washnfold_capacity_summary.csv",
+      "category": "aggregate",
+      "clock": null,
+      "contract": {
+        "columns": [
+          {
+            "name": "scenario",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_orders_per_day",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_demand_orders_per_operating_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "employee_capacity_orders_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "washer_capacity_orders_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "dryer_capacity_orders_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "folding_capacity_orders_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "bottleneck_capacity_orders_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "scenario"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      }
+    },
+    {
+      "filename": "washnfold_simulation_parameters.csv",
+      "category": "parameters",
+      "clock": null,
+      "contract": {
+        "columns": [
+          {
+            "name": "parameter",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "value",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "parameter"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      }
+    },
+    {
+      "filename": "washnfold_representative_run.csv",
+      "category": "selection",
+      "clock": null,
+      "contract": {
+        "columns": [
+          {
+            "name": "simulation_run",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "selection_rule",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "simulation_run"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      },
+      "expected_sha256": "58f266eb44a2fc984e5b5cf5363c56bc15870d4d66b6b901a6ddef5b72c99a4f"
+    },
+    {
+      "filename": "washnfold_calendar_year_metrics.csv",
+      "category": "calendar_year",
+      "clock": "cumulative operating minutes from 07:00; closed hours already omitted",
+      "contract": {
+        "columns": [
+          {
+            "name": "scenario",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "simulation_run",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "seed",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "events_recorded",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "simulation_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "calendar_week",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "seasonal_demand_factor",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "orders_arrived",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "orders_policy_eligible",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "orders_ready_by_close",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "backlog_at_close",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "throughput_by_close_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "policy_violations",
+            "kind": "integer",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "policy_violation_rate",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_ready_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_production_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "median_ready_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "p90_ready_operating_lead_time",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_wait_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_control_wait",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_processing_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "mean_setup_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "average_open_order_wip",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "average_released_wip",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "full_run_horizon_minutes",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": "minutes",
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "full_run_throughput_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "full_run_average_open_order_wip",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "little_law_open_throughput_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "full_run_average_released_wip",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "little_law_released_throughput_per_hour",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "scenario",
+          "simulation_run"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      }
+    },
+    {
+      "filename": "washnfold_baseline_readout.csv",
+      "category": "baseline_readout",
+      "clock": null,
+      "contract": {
+        "columns": [
+          {
+            "name": "Metric",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Value",
+            "kind": "numeric",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Aggregation",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Observation unit",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Physical unit",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Boundary",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Cohort",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Window / clock",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Supported signal",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          },
+          {
+            "name": "Next question / check",
+            "kind": "string",
+            "nullable": false,
+            "unit": null,
+            "minimum": null,
+            "maximum": null
+          }
+        ],
+        "key_columns": [
+          "Metric",
+          "Aggregation",
+          "Cohort"
+        ],
+        "timestamp_order": [],
+        "duplicates": "error",
+        "schema_version": "1.0"
+      },
+      "expected_sha256": "d1657f335cc8bb2166b9b0a8cae7660b2edc4891c5bf355d258636dacd883cad"
+    }
+  ]
+}

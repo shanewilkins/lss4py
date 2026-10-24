@@ -1,110 +1,76 @@
-# LSS4PY v0.2 Progress & Continuation Guide
+# LSS4PY v0.2 progress and continuation
 
-**Last updated:** 2026-10-19
-**Status:** Contract foundation in progress; package version remains 0.1.0.
+Updated 2026-10-24. **Local acceptance corrections are complete.** Package metadata is the
+unreleased 0.2.0 candidate; official publication/verification remains pending. The [dated acceptance audit](assessments/v02-release-readiness.md) and
+[machine-readable requirement matrix](assessments/v02-release-readiness.json) own
+the current verification snapshot. The roadmap continues to own release scope;
+requirement registers own status and criteria.
 
-The [roadmap](roadmap.md) owns release targeting. Requirement CSVs own status and
-acceptance criteria. This guide records current implementation and the next work;
-it does not declare v0.2 complete.
+## Implemented and verified
 
-## Implemented foundation
+The private kernel boundary, explicit root exports, typed calculation results,
+Polars ingestion and optional eager analytical backends are implemented. Shared
+backend contracts cover the original metrics and prepared book calculations;
+PyArrow now passes the supported ISO/native and measurement contracts. [Data quality](data-quality.md),
+[CTQs/specifications](specifications.md), thirteen registered
+[analysis candidates](analysis-guidance.md), and
+[audited bundles](analysis-bundles.md) provide the contract foundation.
 
-- Private `_kernels` and explicit package-root exports, enforced layer boundaries,
-  typed timing/yield results, provenance, and serialization.
-- Supported eager analytical inputs through Narwhals; canonical Polars ingestion
-  per ADR-0018. pandas is an optional analytical backend.
-- CSV interval-log ingestion with schema reporting, field normalization,
-  identifier/timestamp/duration validation, and canonical `IntervalEventLog`.
-- Process-aware per-case event-log lead time, explicit keys, declared parallel
-  and rework topology validation, and pandas/Polars parity cases.
-- [`describe`](descriptive-statistics.md): typed location, spread, shape, tail,
-  missingness, grouping, warnings, provenance, and pandas/Polars tests.
-- [`Specification` and `AnalysisWindow`](specifications.md): immutable CTQ,
-  units, direction, acceptance limits, opportunities, grouping/cohort/window,
-  decision context, validated versioning, and serialization. Declaration does
-  not imply automatic filtering or conformance calculations.
-- [Analysis guidance](analysis-guidance.md): decorator registration for all nine
-  supported calculations, immutable method metadata, deterministic candidate
-  queries, requirements/assumptions/alternatives/limits, and non-execution tests.
+[Descriptive statistics](descriptive-statistics.md),
+[Cp/Cpk and governing-limit Z](capability-indices.md), and
+[defect/rework yield](defect-yield.md) have governed numerical references and
+explicit conventions. The [reference catalog](reference-fixtures.md) contains five
+versioned datasets, including genuine R SixSigma outputs and the pinned book case.
 
-- [Shared backend contracts](backend-contracts.md): all seven tabular calculations
-  across pandas, pandas with duplicate/non-default indexes, Polars, and provisional
-  Arrow; full-payload comparison, input preservation, keys/group ordering, invalid
-  domains, missing fields, and unsupported/lazy input rejection. CI requires Arrow.
-- Parity regressions corrected: row-wise lead time parses Polars timestamp strings
-  and preserves fractional seconds through Narwhals; interval normalization retains
-  pandas nulls rather than turning missing case IDs into string identifiers.
+The dedicated [book preview](book-preview.md) is implemented with supplied data,
+rendered output, an executed notebook, a chapter-ready excerpt and an audited
+bundle. Numeric preparation, nearest-rank P90, fixed-deadline promise evaluation
+and cohort PCE pass their independent acceptance values.
 
-- [Governed numerical references](reference-fixtures.md): four versioned test
-  datasets, NIST-certified location/spread and independent arithmetic for all eight
-  original supported calculations; explicit tolerances, source/license/schema metadata,
-  artifact checksums, invalid-input cases, and offline catalog validation.
-  Genuine SixSigma 0.11.1 Cp/Cpk/Z/yield outputs are now generated with R 4.6.1,
-  a checksummed generator and session provenance. A second run reproduced the
-  artifacts exactly. They are reference-only until corresponding Python methods
-  are implemented. Cp/Cpk point and interval cases now have passing Python parity
-  tests; eight specification Z cases also pass. Defect/rework yield now passes four retained R cases with explicit counting semantics.
+All thirteen selected [simulation sources](simulation-ingestion.md) ingest with
+declared schemas, source hashes and validation evidence. The separate public
+[activity-to-order reconstruction](order-reconstruction.md) is also implemented:
+39 complete orders match the independent prepared summaries, retaining all 330
+source records, load/pass/classification evidence and five corrections across
+five orders. This delivers the declared v0.3-owned reconstruction slice early;
+it does not reassign release ownership or complete the wider v0.3 MVP.
 
-- [Cp/Cpk capability indices](capability-indices.md): explicit Specification,
-  overall sample variation, one/two-sided components, confidence intervals,
-  exclusions, signed/degenerate diagnostics, and genuine R/backend tests.
-  Capability Z distance now reuses Cpk with an explicit sigma shift;
-  defect/rework yield is implemented as documented in the
-  [next analytical slices](plans/next-analytical-slices.md), governed by
-  [ADR-0020](adr/0020-delegate-numerical-algorithms-and-own-analytical-contracts.md).
+## Completed acceptance follow-through
 
-- [Defect/rework yield](defect-yield.md): typed counts and denominator evidence,
-  opportunity Yield/FTY/RTY/DPMO, optional actual DPU, strict validation and R/backend tests.
-
-- [Reusable data-quality reports](data-quality.md): immutable declared schemas,
-  structured row-level findings, key/duplicate and missingness policies, timestamps,
-  domains and unit checks across eager backends. Opt-in normalization retains source
-  positions and before/after evidence; existing calculation policies remain unchanged.
-
-- [Auditable analysis bundles](analysis-bundles.md): v2 source/result/specification
-  links, explicit selections/software context, integrity checks, all five current
-  result families restored with provenance, stdlib-only validation, and explicit
-  legacy context upgrades. The wheel journey verifies inputs and reruns capability.
+The older timing unit/domain defects, exact binary validation, row identity/native
+exports, per-result provenance, Arrow ISO parsing, explicit guidance/selection,
+typed discovery results and core optional-dependency boundary are fixed. Current
+reference and contract criteria are verified against implemented APIs; future
+method families remain unclaimed. The registers now show 36 inherited/current
+requirements Satisfied and only TR-038 Partial for actual publication.
 
 ## Next work, in order
 
-1. **Guidance expansion (UR-017, TR-019).** Add study-design/outcome/predictor
-   metadata as future analyses arrive. Schema suitability checks remain separate
-   from catalog filtering. Keep practitioner selection explicit.
-2. **Retained-method parity (TR-007).** Consume the generated Cp/Cpk/Z/yield
-   reference baselines as corresponding Python capabilities arrive; extend cases
-   and record intentional validation/contract differences. Additional retained R
-   method families still need generated fixtures.
-3. **v0.2 acceptance.** Complete requirement evidence, migration/worked examples,
-   packaging checks, and release gates before bumping the version.
+1. Review the 0.2.0 candidate and its [release notes](releases/v0.2.0.md) and
+   [migration guide](migration-v0.2.md). The dated gate snapshot is source-fingerprinted.
+2. Tag/publish through the governed workflow. It requires source quality/Arrow,
+   metadata/version identity and installed-wheel checks, then verifies the exact
+   official PyPI package in a fresh environment. This has not run for 0.2.0.
+3. Update the sibling book's normal package dependency/lockfile and render Chapter 9
+   after that official package is verified. UR-046/TR-045 retain this book gap;
+   no local source override replaces publication integration.
 
 ## Deferred scope
 
-Branch-aware interval-event wait time and process-cycle efficiency remain future
-work. Those current APIs require explicit measurement columns. Capability, SPC,
-hypothesis testing, simulation, and reporting workflows are not stable merely
-because placeholder modules/result types exist. See the README and roadmap for
-current public scope and later Yellow/Green/Black Belt ownership.
+Branch-aware interval wait/PCE, general branch reconstruction, lifecycle pairing,
+OCEL interchange and later belt workflows remain outside the delivered slice.
+Full R-package parity, complete capability studies, SPC, simulation and reporting
+workflows are not implemented merely because placeholder modules exist. Preserve
+supported claims in the README, compatibility matrix and roadmap.
 
-The old September checklist described adapter and kernel work that has since
-landed. Do not recreate `_adapters` or move canonical ingestion away from Polars
-based on that obsolete plan; current architecture and ADR-0018/0019 govern.
+## Release gates
 
-## Validation
+Run the locked pre-push hooks and additional CI gates; package metadata validation
+currently needs a separate Twine invocation. See the audit for exact commands and
+results. Keep PyArrow installed and require it for the full backend suite. The
+installed-wheel ecosystem journey must pass in an isolated environment. Passing
+these implementation checks does not override open requirement acceptance.
 
-Run the locked pre-push gates and the additional CI checks before a release:
-
-```bash
-uv run --locked pre-commit run --all-files --hook-stage pre-push
-uv run --locked ruff check .
-uv run --locked bandit -r src/lss4py --skip B101
-uv run --locked pip-audit --desc
-uv build
-```
-
-CI also verifies the built wheel outside the source tree. Repository coverage is
-currently configured at 90%; see `pyproject.toml` for covered-slice exclusions.
-Some event-log integration tests retain expected failures for deferred branch
-calculations. Validation outcomes for this change are recorded in the accompanying
-review/chat; commands here are continuation instructions, not a permanent claim
-that future checkouts pass.
+The [audit generator](../tools/audit_v02_readiness.py) re-reads roadmap ownership,
+requirement/traceability catalogs and the timing probes. Regenerate its JSON after
+status or scope changes; it does not publish packages or decide to waive criteria.

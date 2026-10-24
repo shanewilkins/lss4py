@@ -12,7 +12,9 @@ from lss4py import Specification, capability_indices
 spec = Specification("Length", "mm", "target", target=10, lsl=7, usl=14)
 result = capability_indices(
     pl.DataFrame({"length": [8, 9, 10, 11, 12]}),
-    column="length", specification=spec, ci=True,
+    column="length",
+    specification=spec,
+    ci=True,
 )
 assert round(result.cpk, 6) == 0.632456
 print(result.cp, result.cpk, result.cpl, result.cpu)

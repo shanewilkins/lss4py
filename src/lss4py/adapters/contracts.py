@@ -9,6 +9,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from lss4py.domain.data_quality import DataValidationReport
+
 
 @dataclass(slots=True)
 class AdapterSchema:
@@ -42,6 +44,13 @@ class AdapterSchema:
 
     transformations: tuple[str, ...] = ()
     """Ordered, user-visible normalization steps applied while loading."""
+
+    source_reference: str | None = None
+    source_sha256: str | None = None
+    units: dict[str, str] = field(default_factory=dict)
+    clock: str | None = None
+    bindings: dict[str, str] = field(default_factory=dict)
+    validation: DataValidationReport | None = None
 
     def validate_required_fields(self, required: list[str]) -> list[str]:
         """
@@ -108,8 +117,9 @@ class EventLogAdapter(ABC):
     """
     Base class for adapters that produce event-log data.
 
-    Interval event logs have required fields: case_id, step_id, started_at,
-    and completed_at.
+    Calendar interval logs use case_id, step_id, started_at, and completed_at.
+    Numeric event adapters declare their own activity/lifecycle bindings and
+    return the distinct NumericEventLog under ADR-0026.
     External adapter implementations should inherit from this class.
     """
 
@@ -136,13 +146,13 @@ class EventLogAdapter(ABC):
     @abstractmethod
     def load(self, backend: Literal["polars"] = "polars") -> tuple[Any, AdapterSchema]:
         """
-        Load events from source and normalize to IntervalEventLog.
+        Load events into the adapter's declared domain observation contract.
 
         Args:
             backend: Requested dataframe backend. Core adapters materialize Polars.
 
         Returns:
-            An IntervalEventLog backed by Polars and its AdapterSchema.
+            A declared event-log value backed by Polars and its AdapterSchema.
 
         Raises:
             AdapterError: if data cannot be loaded or is invalid.

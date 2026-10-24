@@ -1,0 +1,26 @@
+[
+  {
+    "id": "all-order-lead-time",
+    "method": "describe",
+    "input_kind": "frame",
+    "parameters": {
+      "column": "Operating L/T (min)",
+      "missing": "raise",
+      "unit": "minutes"
+    },
+    "expected": {
+      "count": 39,
+      "total": 39,
+      "missing": 0,
+      "mean": 662.5769230769231,
+      "median": 678.4,
+      "unit": "minutes"
+    },
+    "basis": "Independent Decimal arithmetic on the displayed one-decimal observations: 25840.5/39 minutes; sorted position 20 is 678.4. These are simulated teaching observations, not production measurements. Nearest-rank support and other preview behavior are not claimed by this case.",
+    "tolerance": {
+      "absolute": 1e-10,
+      "relative": 1e-12
+    },
+    "tolerance_reason": "Float64 reductions of one-decimal source observations; counts and labels compare exactly."
+  }
+]

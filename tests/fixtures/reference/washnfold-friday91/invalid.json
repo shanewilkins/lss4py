@@ -1,0 +1,56 @@
+[
+  {
+    "id": "text-lead-time",
+    "method": "describe",
+    "parameters": {
+      "column": "Operating L/T (min)",
+      "missing": "raise",
+      "unit": "minutes"
+    },
+    "columns_override": {
+      "Operating L/T (min)": [
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid",
+        "invalid"
+      ]
+    },
+    "error_type": "ValidationError",
+    "message": "must contain numeric measurements"
+  }
+]

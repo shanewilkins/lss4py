@@ -29,6 +29,11 @@ class AnalysisSuitability:
     assumptions: tuple[str, ...]
     alternatives: tuple[str, ...]
     limits: tuple[str, ...]
+    outcome_types: tuple[str, ...] = ("declared",)
+    predictor_types: tuple[str, ...] = ("none",)
+    sampling_requirements: tuple[str, ...] = (
+        "Caller declares the observed population and design.",
+    )
 
     def __post_init__(self) -> None:
         """Validate labels and defensively freeze all sequence metadata."""
@@ -42,6 +47,9 @@ class AnalysisSuitability:
             "assumptions",
             "alternatives",
             "limits",
+            "outcome_types",
+            "predictor_types",
+            "sampling_requirements",
         ):
             object.__setattr__(self, field, _labels(getattr(self, field)))
         groups = self.required_fields
@@ -122,3 +130,39 @@ def get_candidates(
         for name, entry in sorted(_registry.items())
         if all(value is None or value in getattr(entry, field) for field, value in filters.items())
     )
+
+
+@dataclass(frozen=True)
+class AnalysisSelection:
+    """An explicit practitioner decision; construction and recording never run an analysis."""
+
+    suitability: AnalysisSuitability
+    reason: str
+    cohort: str
+    design_type: str
+
+    def __post_init__(self) -> None:
+        """Require a reason, population and a design supported by the chosen method."""
+        for value in (self.reason, self.cohort, self.design_type):
+            _label(value)
+        if self.design_type not in self.suitability.design_types:
+            raise ValidationError("Selected design is not supported by this method.")
+
+    def to_dict(self) -> dict:
+        """Return detached machine-readable selection and reviewed method guidance."""
+        return asdict(self)
+
+    def record(self, result: Any) -> None:
+        """Attach a caller-authorized decision to its matching already-computed result."""
+        if not hasattr(result, "provenance"):
+            raise ValidationError(
+                "Recording requires an AnalyticalResult; retain scalar choices separately."
+            )
+        if result.provenance.method != self.suitability.name:
+            raise ValidationError("Selection does not match the result method.")
+        result.metadata["analysis_selection"] = self.to_dict()
+
+
+def select_analysis(name: str, *, reason: str, cohort: str, design_type: str) -> AnalysisSelection:
+    """Record the practitioner's declared choice without inspecting data or executing methods."""
+    return AnalysisSelection(get_analysis(name), reason, cohort, design_type)

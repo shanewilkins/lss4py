@@ -74,8 +74,8 @@ Later releases inherit any earlier requirement that is still not satisfied.
 ### User requirements
 
 - **v0.1:** UR-001, UR-002, UR-003, UR-005.
-- **v0.2:** UR-006, UR-015, UR-016, UR-017, UR-018, UR-033, UR-045.
-- **v0.3:** UR-004, UR-007, UR-010, UR-012, UR-014, UR-021, UR-022, UR-023, UR-024, UR-025, UR-027, UR-029, UR-030, UR-041, UR-044.
+- **v0.2:** UR-006, UR-015, UR-016, UR-017, UR-018, UR-033, UR-045, UR-048, UR-049.
+- **v0.3:** UR-004, UR-007, UR-010, UR-012, UR-014, UR-021, UR-022, UR-023, UR-024, UR-025, UR-027, UR-029, UR-030, UR-041, UR-044, UR-046, UR-047.
 - **v0.4:** UR-008, UR-009, UR-013, UR-035, UR-036, UR-037.
 - **v0.5:** UR-010, UR-024, UR-038, UR-039, UR-040, UR-041.
 - **v0.6:** UR-011, UR-028, UR-031, UR-032, UR-039, UR-043.
@@ -84,12 +84,70 @@ Later releases inherit any earlier requirement that is still not satisfied.
 ### Technical requirements
 
 - **v0.1:** TR-001, TR-003, TR-004, TR-005, TR-008, TR-011.
-- **v0.2:** TR-002, TR-007, TR-009, TR-010, TR-014, TR-015, TR-016, TR-017, TR-018, TR-019, TR-020, TR-021, TR-033, TR-037, TR-038.
-- **v0.3:** TR-006, TR-012, TR-013, TR-022, TR-023, TR-024, TR-026, TR-028, TR-030, TR-032, TR-035, TR-036.
-- **v0.4:** TR-025, TR-026, TR-027, TR-028, TR-029, TR-030, TR-031, TR-034.
-- **v0.5:** TR-032, TR-035, TR-036, TR-039, TR-040.
-- **v0.6:** TR-039, TR-040, TR-041, TR-042, TR-043, TR-044.
-- **v0.7:** TR-041, TR-042, TR-043, TR-044, TR-045, TR-046.
+- **v0.2:** TR-002, TR-007, TR-009, TR-010, TR-014, TR-015, TR-016, TR-017, TR-018, TR-019, TR-020, TR-021, TR-033, TR-037, TR-038, TR-039, TR-041, TR-042.
+- **v0.3:** TR-006, TR-012, TR-013, TR-022, TR-023, TR-024, TR-026, TR-028, TR-030, TR-032, TR-035, TR-036, TR-040, TR-043, TR-044, TR-045, TR-046.
+- **v0.4:** TR-025, TR-026, TR-027, TR-028, TR-029, TR-030, TR-031, TR-034, TR-047.
+- **v0.5:** TR-032, TR-035, TR-036.
+- **v0.6:** TR-029, TR-031.
+- **v0.7:** TR-025, TR-027, TR-029, TR-030, TR-031, TR-034.
+
+The former v0.5–v0.7 references to TR-039–TR-045 had no corresponding
+register definitions. TR-039–TR-045 now identify the book requirements and are
+assigned above. Later-release MSA, modeling, simulation, profile, conformance,
+and non-normal capability work remains covered by its existing registered
+families and release scopes. The former undefined placeholder was removed before
+TR-046 and TR-047 were assigned to the ingestion contracts in ADR-0026.
+
+### Ingestion contract delivery
+
+[ADR-0026](adr/0026-method-specific-input-contracts-and-ocel-interchange.md)
+sets the firm boundary at validated, method-specific inputs (TR-046). The v0.2
+book sprint implements its prepared numeric operating-time slice; v0.3 owns
+completion for the declared book reconstruction scope. Future method families
+inherit this boundary without requiring one universal input shape. OCEL is a
+future interchange format, not a requirement for callers of ordinary analyses.
+TR-047 assigns object-preserving OCEL ingestion and explicit analytical projection
+contracts to v0.4 infrastructure; v0.5 completes practitioner workflows. Supported
+OCEL version/profile and serializations must be selected before implementation.
+
+## v0.2.1 integration follow-up
+
+The accepted [FLO-backed White Belt workflow](plans/v021-flo-white-belt.md) is
+Planned for v0.2.1. Ingest the actual book `.flo` through FLO's public producer
+API and the existing projection bridge, explicitly map observations to stable
+step IDs, derive baseline value classes from the model, and reuse observed
+reconstruction/PCE calculations. Preserve the CSV-only route. This increment
+extends the existing UR-003/UR-014/UR-046/UR-047 and
+TR-003/TR-013/TR-040/TR-043/TR-044/TR-045/TR-046 contracts; their current statuses
+do not imply this additional integration is implemented. v0.2.0 retains its
+completed local acceptance scope and candidate version.
+
+## White Belt book delivery slices
+
+The [book sprint plan](plans/white-belt-book-preview.md) sequences delivery of the
+`fromTheBook.md` criteria preserved in the requirement registers. The original sequence assigned assessment and the prepared-summary preview to
+v0.2, with separate reconstruction owned by v0.3. Assessment, preview, numeric
+ingestion and the declared activity-to-order route are now implemented. The
+v0.3 reconstruction slice was delivered early; ownership remains unchanged.
+The [v0.2 audit](assessments/v02-release-readiness.md) identifies the current
+acceptance blockers before an official release and book dependency update.
+
+The adopted book acceptance source is
+[`washnfold-friday91` version 1.0.0](../tests/fixtures/reference/washnfold-friday91/conventions.json),
+pinned from the October 22 split staging/notification case on October 23. Its
+PCE gate is 13.7%, total VA 3535.3 min, and WNF-003 VA 82.7 min. Changes require
+a reviewed fixture version and synchronized requirement/gate updates.
+
+| Release | Book acceptance slice |
+| --- | --- |
+| v0.2 | Prepared-summary bindings and numeric operating clock (TR-039), eligible promise evaluation (UR-048/TR-041), cohort PCE (UR-049/TR-042), and the summary/nearest-rank portion of UR-004/TR-006. Deliver the rendered four-measure cell and prepared-input portions of UR-046, TR-043, TR-044, and TR-045. |
+| v0.3 | Complete UR-046/UR-047 and TR-040/TR-043/TR-044/TR-045 through separately reproducible activity-to-order reconstruction, parallel-load and correction evidence, incomplete-case handling, and the WNF-003 hand check. |
+
+Cross-release requirements keep their full acceptance criteria. They remain
+Planned until implementation evidence exists and Partial while only one route
+passes; delivering the prepared preview does not satisfy the full book contract.
+The v0.2 book gate covers its stated slice. The v0.3 reconstruction gate now has
+passing implementation evidence; official book release integration remains open.
 
 ## Release philosophy
 
@@ -137,3 +195,25 @@ A release is publishable only when:
 - Version is bumped in `pyproject.toml` and tagged in VCS
 - Changelog is updated with release notes and requirement/TR traceability
 - Installation and import verification passes on the published package
+
+### 2026-10-24 reconstruction delivery
+
+The declared White Belt activity-to-order slice is implemented and verified against
+all 39 independent prepared summaries, with raw activity/load/pass evidence,
+parallel envelopes, classification, complete-path validation and correction counts.
+TR-040/TR-043/TR-044/TR-046 and UR-047 are satisfied for this slice. The standalone
+full route is tested from installed wheels. UR-046/TR-045 remain Partial for
+official release and book publication integration. See
+[order reconstruction](order-reconstruction.md).
+
+### 2026-10-24 acceptance corrections
+
+The v0.2 candidate now consistently identifies as 0.2.0. The earlier timing,
+backend, result/provenance, guidance and dependency acceptance gaps are closed
+against current implemented APIs and numerical claims; future method families
+remain outside those claims. Release automation now enforces local acceptance and
+performs clean official-index verification after publication. TR-038 remains
+Partial until that target version is actually published and verified; this is a
+postpublication gate, not an omitted prerelease check. No tag/publication or book
+lockfile change was made. The [source-fingerprinted assessment](assessments/v02-release-readiness.json)
+distinguishes prepublication readiness from completed publication.

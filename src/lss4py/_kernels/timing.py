@@ -5,22 +5,28 @@ Core Yellow Belt timing calculations with full provenance and typed results.
 
 from __future__ import annotations
 
-from typing import Any
+from math import fsum, isfinite
+from numbers import Real
+from typing import Any, Literal, cast
 
-import narwhals as nw
 import numpy as np
 
 from lss4py._event_log import event_log_lead_time
+from lss4py._frames import eager_frame
+from lss4py._kernels._calendar import calendar_seconds
+from lss4py._kernels._contracts import boolean_option, row_identity
 from lss4py._kernels._helpers import (
     TimeUnit,
     build_provenance,
     event_log_bindings_available,
+    measurement_values,
     require_columns,
     resolve_cycle_time_series,
     resolve_lead_time_columns,
     resolve_lead_time_series,
     resolve_value_add_time_series,
 )
+from lss4py._kernels.orders import case_measurements, require_valid, semantic_context
 from lss4py.domain import IntervalEventLog, ProcessModelIR, TimingResult
 from lss4py.errors import ValidationError
 from lss4py.guidance import AnalysisSuitability, register_analysis
@@ -33,22 +39,14 @@ _SECONDS_PER_UNIT: dict[TimeUnit, float] = {
 }
 
 
-def _timestamp_series(frame: nw.DataFrame, column: str) -> nw.Series:
-    """Parse strings explicitly and preserve native datetime timezone semantics."""
-    series = frame[column]
-    try:
-        if series.dtype == nw.String:
-            return series.str.to_datetime()
-        if isinstance(series.dtype, nw.Datetime):
-            return series
-        return series.cast(nw.Datetime)
-    except Exception as exc:
-        raise ValidationError(f"Column '{column}' contains invalid timestamps.") from exc
-
-
 @register_analysis(
     AnalysisSuitability(
         name="lead_time",
+        outcome_types=("calendar_endpoints",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="timing",
         question_tags=("elapsed_time",),
         required_fields=(
@@ -74,6 +72,7 @@ def lead_time(
     end_column: str | None = None,
     process_model: ProcessModelIR | None = None,
     unit: TimeUnit = "hours",
+    key_column: str | None = None,
 ) -> TimingResult:
     """Calculate lead time per row.
 
@@ -97,8 +96,9 @@ def lead_time(
         TimingResult with per-row lead times in requested unit, including full
         provenance, assumptions, and interpretation context.
     """
+    _time_unit(unit)
     native_data = data.to_polars(copy=False) if isinstance(data, IntervalEventLog) else data
-    frame = nw.from_native(native_data, eager_only=True)
+    frame = eager_frame(native_data)
 
     if (
         start_column is None
@@ -156,15 +156,15 @@ def lead_time(
         start_column=start_column,
         end_column=end_column,
     )
+    row_keys, row_metadata = row_identity(frame, key_column)
     require_columns(frame, resolved_start_column, resolved_end_column)
 
-    start = _timestamp_series(frame, resolved_start_column)
-    end = _timestamp_series(frame, resolved_end_column)
-    # Extract fractional seconds through the backend-neutral duration namespace.
-    durations_seconds = (end - start).dt.total_microseconds().to_numpy() / 1_000_000
+    durations_seconds = calendar_seconds(frame, resolved_start_column, resolved_end_column)
 
     result = durations_seconds / _SECONDS_PER_UNIT[unit]
 
+    if not np.isfinite(result).all():
+        raise ValidationError("Lead time requires complete finite timestamps.")
     if np.any(result < 0):
         raise ValidationError("Lead time cannot be negative.")
 
@@ -190,6 +190,8 @@ def lead_time(
         name="Lead Time",
         provenance=provenance,
         values=result,
+        keys=row_keys,
+        metadata=row_metadata,
         unit=unit,
         interpretation_context=(
             "Lead time is the total elapsed time from process start to completion. "
@@ -202,6 +204,11 @@ def lead_time(
 @register_analysis(
     AnalysisSuitability(
         name="wait_time",
+        outcome_types=("nonnegative_duration",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="timing",
         question_tags=("waiting_time",),
         required_fields=(("lead_time_column", "cycle_time_column"),),
@@ -223,6 +230,8 @@ def wait_time(
     lead_time_column: str | None = None,
     cycle_time_column: str | None = None,
     process_model: ProcessModelIR | None = None,
+    unit: TimeUnit = "hours",
+    key_column: str | None = None,
 ) -> TimingResult:
     """Calculate wait time per row (lead time - cycle time).
 
@@ -239,12 +248,15 @@ def wait_time(
         lead_time_column: Explicit lead-time column.
         cycle_time_column: Explicit cycle-time column.
         process_model: Optional ProcessModelIR (v0.3).
+        unit: Common unit of supplied measurements; no implicit conversion. Defaults to hours.
 
     Returns:
         TimingResult with per-row wait times, including full provenance.
     """
-    frame = nw.from_native(data, eager_only=True)
+    _time_unit(unit)
+    frame = eager_frame(data)
 
+    row_keys, row_metadata = row_identity(frame, key_column)
     lead = resolve_lead_time_series(
         frame,
         process_model=process_model,
@@ -265,6 +277,7 @@ def wait_time(
         method_name="wait_time",
         frame=frame,
         parameters={
+            "unit": unit,
             "lead_time_column": lead_time_column,
             "cycle_time_column": cycle_time_column,
             "process_model": process_model is not None,
@@ -283,11 +296,12 @@ def wait_time(
         name="Wait Time",
         provenance=provenance,
         values=waits,
-        unit="hours",
+        keys=row_keys,
+        metadata=row_metadata,
+        unit=unit,
         interpretation_context=(
-            "Wait time is the portion of lead time that is not productive work. "
-            "This represents non-value-adding delay and rework. "
-            "Focus on reducing wait time through process redesign and removal of bottlenecks."
+            "Residual lead minus cycle time on the declared common unit and scope. "
+            "It does not separately identify setup, queues, rework or avoidable waste."
         ),
     )
 
@@ -295,6 +309,11 @@ def wait_time(
 @register_analysis(
     AnalysisSuitability(
         name="process_cycle_efficiency",
+        outcome_types=("nonnegative_duration",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="timing",
         question_tags=("value_add_share",),
         required_fields=(("lead_time_column", "value_add_time_column"),),
@@ -320,8 +339,21 @@ def process_cycle_efficiency(
     value_add_time_column: str | None = None,
     process_model: ProcessModelIR | None = None,
     as_percentage: bool = True,
+    aggregation: Literal["per_row", "cohort"] = "per_row",
+    case_id_column: str | None = None,
+    unit: str | None = None,
+    clock: str | None = None,
+    boundary: str | None = None,
+    cohort: str | None = None,
+    value_add_convention: str | None = None,
+    key_column: str | None = None,
 ) -> TimingResult:
-    """Calculate process cycle efficiency per row (value-add time / lead time).
+    """Calculate per-row PCE, or a cohort ratio of sums with explicit evidence.
+
+    aggregation="cohort" requires unique string case IDs, complete finite numeric
+    lead/VA columns and explicit unit, clock, boundary, cohort and VA convention.
+    Returns one value retaining case identities, observation count and both sums.
+    No rows are excluded; empty cohorts and undefined denominators fail explicitly.
 
     **Belt Level:** Yellow Belt (measure current state)
 
@@ -341,8 +373,23 @@ def process_cycle_efficiency(
     Returns:
         TimingResult with per-row efficiency values (percentage or ratio), including provenance.
     """
-    frame = nw.from_native(data, eager_only=True)
+    _pce_mode(aggregation, key_column, as_percentage)
+    if aggregation == "cohort":
+        return _cohort_pce(
+            data,
+            lead_time_column=lead_time_column,
+            value_add_time_column=value_add_time_column,
+            as_percentage=as_percentage,
+            case_id_column=case_id_column,
+            unit=unit,
+            clock=clock,
+            boundary=boundary,
+            cohort=cohort,
+            value_add_convention=value_add_convention,
+        )
+    frame = eager_frame(data)
 
+    row_keys, row_metadata = row_identity(frame, key_column)
     lead = resolve_lead_time_series(
         frame,
         process_model=process_model,
@@ -390,6 +437,8 @@ def process_cycle_efficiency(
         name="Process Cycle Efficiency",
         provenance=provenance,
         values=efficiency,
+        keys=row_keys,
+        metadata=row_metadata,
         unit=unit,
         interpretation_context=(
             "Process cycle efficiency is the ratio of productive work time to total lead time. "
@@ -399,9 +448,78 @@ def process_cycle_efficiency(
     )
 
 
+def _cohort_pce(
+    data: Any,
+    *,
+    lead_time_column: str | None,
+    value_add_time_column: str | None,
+    as_percentage: bool,
+    case_id_column: str | None,
+    unit: str | None,
+    clock: str | None,
+    boundary: str | None,
+    cohort: str | None,
+    value_add_convention: str | None,
+) -> TimingResult:
+    """Aggregate aligned validated measurements and retain the full cohort derivation."""
+    _cohort_bindings(
+        (case_id_column, lead_time_column, value_add_time_column), value_add_convention
+    )
+    context = semantic_context(unit, clock, boundary, cohort)
+    case_id_column = cast(str, case_id_column)
+    lead_time_column = cast(str, lead_time_column)
+    value_add_time_column = cast(str, value_add_time_column)
+    unit = cast(str, unit)
+    report = case_measurements(
+        data, case_id_column, (lead_time_column, value_add_time_column), unit
+    )
+    require_valid(report)
+    frame = eager_frame(data)
+    lead, va = (measurement_values(frame, col) for col in (lead_time_column, value_add_time_column))
+    lead_sum, va_sum = _cohort_sums(lead, va)
+    parameters = {
+        **context,
+        "aggregation": "ratio_of_sums",
+        "case_id_column": case_id_column,
+        "lead_time_column": lead_time_column,
+        "value_add_time_column": value_add_time_column,
+        "value_add_convention": value_add_convention,
+        "as_percentage": as_percentage,
+        "missing": "raise",
+    }
+    provenance = build_provenance("process_cycle_efficiency", frame, parameters)
+    provenance.method_version = "1.1"
+    provenance.cohort_definition = cohort
+    return TimingResult(
+        name="Cohort Process Cycle Efficiency",
+        provenance=provenance,
+        values=np.array([va_sum / lead_sum * (100 if as_percentage else 1)]),
+        unit="percentage" if as_percentage else "ratio",
+        keys=np.array([cohort], dtype=object),
+        metadata={
+            **parameters,
+            "observation_count": len(lead),
+            "case_ids": frame[case_id_column].to_list(),
+            "lead_time_sum": lead_sum,
+            "value_add_time_sum": va_sum,
+            "exclusions": [],
+        },
+        interpretation_context=(
+            "Ratio of VA and lead-time sums for the same cases. "
+            "Non-VA includes required support as classified; "
+            "it is not automatically avoidable waste."
+        ),
+    )
+
+
 @register_analysis(
     AnalysisSuitability(
         name="takt_time",
+        outcome_types=("positive_scalar_quantity",),
+        predictor_types=("none",),
+        sampling_requirements=(
+            "Caller declares a comparable population; no random sampling is inferred.",
+        ),
         family="timing",
         question_tags=("demand_pace",),
         required_fields=(("available_time", "customer_demand"),),
@@ -435,10 +553,59 @@ def takt_time(*, available_time: float, customer_demand: float) -> float:
     Raises:
         ValidationError: if demand is zero or non-positive.
     """
+    _positive_scalar(available_time, "Available time")
+    _positive_scalar(customer_demand, "Customer demand")
     if available_time <= 0:
         raise ValidationError("Available time must be greater than zero.")
 
     if customer_demand <= 0:
         raise ValidationError("Customer demand must be greater than zero.")
 
-    return available_time / customer_demand
+    result = available_time / customer_demand
+    if not isfinite(result):
+        raise ValidationError("Takt time overflow; rescale the supplied measurements.")
+    return result
+
+
+def _cohort_bindings(bindings: tuple, value_add_convention: str | None) -> None:
+    """Require explicit field roles and the user-declared VA convention."""
+    if any(not isinstance(v, str) or not v.strip() for v in bindings):
+        raise ValidationError("Cohort PCE requires explicit case, lead-time and VA bindings.")
+    if not isinstance(value_add_convention, str) or not value_add_convention.strip():
+        raise ValidationError("Cohort PCE requires an explicit value_add_convention.")
+
+
+def _cohort_sums(lead: np.ndarray, va: np.ndarray) -> tuple[float, float]:
+    """Validate aligned VA durations and a finite positive cohort denominator."""
+    if not len(lead) or np.any(va > lead):
+        raise ValidationError("Cohort PCE needs nonempty orders with VA <= lead time.")
+    try:
+        lead_sum, va_sum = fsum(lead), fsum(va)
+    except OverflowError as exc:
+        raise ValidationError("Cohort PCE sums overflowed.") from exc
+    if lead_sum <= 0:
+        raise ValidationError("Cohort operating lead-time denominator must be greater than zero.")
+    return lead_sum, va_sum
+
+
+def _positive_scalar(value: float, label: str) -> None:
+    """Require real finite positive scalar timing quantities before division."""
+    if isinstance(value, bool) or not isinstance(value, Real):
+        raise ValidationError(f"{label} must be a real number.")
+    if not isfinite(value) or value <= 0:
+        raise ValidationError(f"{label} must be greater than zero and finite.")
+
+
+def _time_unit(unit: str) -> None:
+    """Reject unsupported units before indexing conversion factors or labeling results."""
+    if not isinstance(unit, str) or unit not in _SECONDS_PER_UNIT:
+        raise ValidationError("unit must be seconds, minutes, hours, or days.")
+
+
+def _pce_mode(aggregation: str, key_column: str | None, as_percentage: bool) -> None:
+    """Keep row and cohort identity roles distinct and option domains explicit."""
+    if aggregation not in ("per_row", "cohort"):
+        raise ValidationError("aggregation must be per_row or cohort.")
+    if aggregation == "cohort" and key_column is not None:
+        raise ValidationError("Cohort PCE uses case_id_column, not a per-row key_column.")
+    boolean_option(as_percentage, "as_percentage")

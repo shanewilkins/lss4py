@@ -5,6 +5,13 @@
 - Deciders: Maintainers
 - Related requirements: TR-012, TR-033
 
+Implementation note (2026-10-24): this remains a historical proposal. Illustrative
+APIs and automatic upgrades below are not current guarantees. Accepted
+[ADR-0019](0019-reconcile-package-boundaries-and-event-log-contracts.md) and
+[ADR-0025](0025-audited-bundles-and-portable-validation.md) govern the implemented
+public boundary and explicit legacy bundle upgrades. Use the current
+[migration guide](../migration-v0.2.md) for executable behavior.
+
 ## Context
 
 LSS4PY is pre-1.0 and will undergo significant changes across v0.2–v0.9 (roadmap).

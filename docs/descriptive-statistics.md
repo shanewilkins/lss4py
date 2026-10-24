@@ -32,7 +32,7 @@ payload = summary.to_dict()  # Also available as summary.to_json().
 
 ## Included statistics
 
-- Mean, median, all tied repeated-value modes and their frequency.
+- Measurement sum, mean, median, all tied repeated-value modes and their frequency.
 - Minimum, maximum, range, variance, and standard deviation.
 - Bias-corrected skewness and kurtosis.
 - Coefficient of variation (CV), expressed as a ratio, not a percentage.
@@ -57,7 +57,12 @@ Constant or numerically near-constant data have unavailable shape estimates.
 
 Quartiles are always included as `p25`, `p50`, and `p75`. Supply additional levels
 with `percentiles=[5, 90, 99]`; levels must be finite and between 0 and 100.
-All quantiles use linear interpolation. MAD is the median of absolute deviations
+The default quantile method is linear interpolation. Explicit
+`percentile_method="nearest_rank"` sorts ascending and selects one-based
+`max(1, ceil(p*n))`; P0 selects the minimum. The ordinary median field still averages
+the middle two for even samples. `measurement_sum` sums valid measurements;
+`total` remains the original observation count. Empty/overflowed sums are
+unavailable with diagnostics. MAD is the median of absolute deviations
 from the median, without normal-consistency scaling.
 
 `measurement_scale="ratio"` declares a meaningful zero, such as elapsed time.

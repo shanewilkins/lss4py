@@ -27,6 +27,9 @@ def main() -> None:
     parser.add_argument(
         "--ecosystem", action="store_true", help="Also test released FLO and plotting extras"
     )
+    parser.add_argument(
+        "--storage", action="store_true", help="Also exercise installed Arrow/storage contracts"
+    )
     parser.add_argument("--artifacts-dir", type=Path, help="Retain ecosystem evidence and graphics")
     args = parser.parse_args()
     if args.artifacts_dir:
@@ -47,6 +50,8 @@ def main() -> None:
             "integration",
             "--extra",
             "visualization",
+            "--extra",
+            "storage",
             "--no-emit-project",
             "--no-hashes",
             "--quiet",
@@ -61,6 +66,7 @@ def main() -> None:
         python = str(executable_dir / ("python.exe" if os.name == "nt" else "python"))
         suite = workspace / "e2e"
         shutil.copytree(root / "e2e", suite)
+        shutil.copytree(root / "examples" / "white_belt", suite / "fixtures" / "white_belt")
         shutil.copytree(root / "tests" / "fixtures" / "ecosystem", suite / "ecosystem" / "fixtures")
         install = ("uv", "pip", "install", "--python", python, "--constraint", str(constraints))
         run(*install, str(wheel), "pytest", cwd=workspace)
@@ -68,9 +74,12 @@ def main() -> None:
         run(*test, cwd=workspace)
         run(*install, f"{wheel}[pandas]", cwd=workspace)
         run(*test, "--with-pandas", cwd=workspace)
+        if args.storage or args.ecosystem:
+            run(*install, f"{wheel}[pandas,storage]", cwd=workspace)
+            run(*test, "--with-pandas", "--with-storage", cwd=workspace)
         if args.ecosystem:
             run(*install, f"{wheel}[integration,visualization]", cwd=workspace)
-            run(*test, "--with-pandas", "--ecosystem", cwd=workspace)
+            run(*test, "--with-pandas", "--with-storage", "--ecosystem", cwd=workspace)
 
 
 if __name__ == "__main__":

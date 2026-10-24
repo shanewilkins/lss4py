@@ -11,6 +11,9 @@ from typing import Any, Literal, cast
 import narwhals as nw
 import numpy as np
 
+from lss4py._frames import detect_backend as detect_backend
+from lss4py._kernels._contracts import input_context, schema_fingerprint
+from lss4py._version import __version__
 from lss4py.domain import AssumptionNote, ProcessModelIR, Provenance
 from lss4py.errors import ValidationError
 
@@ -23,28 +26,6 @@ _SECONDS_PER_UNIT: dict[TimeUnit, float] = {
     "days": 86400.0,
 }
 
-__version__ = "0.1.0"  # Matches pyproject.toml
-
-
-def detect_backend(frame: nw.DataFrame) -> Literal["pandas", "polars", "pyarrow", "unknown"]:
-    """Detect the backend type of a Narwhals DataFrame."""
-    native_frame = frame.to_native()
-    if hasattr(native_frame, "__class__"):
-        module_name = native_frame.__class__.__module__
-        class_name = native_frame.__class__.__name__
-
-        # pandas
-        if "pandas" in module_name and class_name == "DataFrame":
-            return "pandas"
-        # polars
-        elif "polars" in module_name and class_name == "DataFrame":
-            return "polars"
-        # pyarrow
-        elif "pyarrow" in module_name and class_name == "Table":
-            return "pyarrow"
-
-    return "unknown"
-
 
 def build_provenance(
     method_name: str,
@@ -56,10 +37,13 @@ def build_provenance(
     """Build provenance metadata for an analytical kernel."""
     return Provenance(
         method=method_name,
-        method_version="1.0",  # Analytical kernel v0.2
+        method_version="1.1",  # Explicit input domains and per-result audit context
         package_version=__version__,
         backend=detect_backend(frame),
-        parameters=parameters,
+        parameters=input_context(frame, parameters),
+        input_schema_fingerprint=schema_fingerprint(frame),
+        cohort_definition=parameters.get("cohort")
+        or f"All {len(frame)} supplied source rows; no implicit cohort filter",
         assumptions=[
             AssumptionNote(
                 code=a["code"],
@@ -94,23 +78,24 @@ def require_columns(frame: nw.DataFrame, *columns: str) -> None:
 
 def numeric_series(frame: nw.DataFrame, column: str) -> np.ndarray:
     """Extract numeric column as NumPy array."""
-    require_columns(frame, column)
-    series = frame[column].cast(nw.Float64)
-    native = series.to_native()
-    return np.asarray(native, dtype=np.float64)
+    values = measurement_values(frame, column)
+    if not np.isfinite(values).all() or np.any(values < 0):
+        raise ValidationError(f"Column '{column}' requires finite nonnegative measurements.")
+    return values
 
 
 def binary_stage_series(frame: nw.DataFrame, column: str) -> np.ndarray:
-    """Extract and validate binary (0/1) stage column."""
+    """Validate exact binary measurements before integer conversion; never truncate."""
     require_columns(frame, column)
-    series = frame[column].cast(nw.Int64)
-    native = series.to_native()
-    values = np.asarray(native, dtype=np.int64)
-
+    series = frame[column]
+    if series.dtype == nw.Boolean:
+        if series.null_count():
+            raise ValidationError(f"Column '{column}' contains missing stage values.")
+        return np.asarray(series.to_numpy(), dtype=np.int64)
+    values = measurement_values(frame, column)
     if not np.all(np.isin(values, [0, 1])):
         raise ValidationError(f"Column '{column}' contains non-binary values; expected 0 or 1.")
-
-    return values
+    return values.astype(np.int64)
 
 
 def resolve_stage_column(

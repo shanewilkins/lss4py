@@ -1,0 +1,97 @@
+"""Runnable prepared-data White Belt preview; no sibling checkout or simulation needed."""
+
+from pathlib import Path
+from typing import Any
+
+import polars as pl
+
+from lss4py import (
+    ColumnRule,
+    CSVTabularAdapter,
+    DataContract,
+    OrderSummaryContract,
+    ValidationError,
+    deadline_performance,
+    describe,
+    process_cycle_efficiency,
+    validate_order_summary,
+)
+
+# Book preparation: supplied file and explicit bindings, not event-log reconstruction.
+source = Path(__file__).with_name("order_summary.csv")
+source_sha256 = "ae30c7992aafa60304d1fd7bbb59c1d86de02a5b8fa15e27a74d34d8dce6fa86"
+contract = OrderSummaryContract(
+    case_id_column="Order ID",
+    arrival_column="Arrival (elapsed min)",
+    readiness_column="Ready and notified (elapsed min)",
+    lead_time_column="Operating L/T (min)",
+    value_add_time_column="VA time (min)",
+    processing_time_column="Total P/T (min)",
+    wait_time_column="Total W/T (min)",
+    setup_time_column="Total S/T (min)",
+    unit="minutes",
+    clock="cumulative operating minutes from 07:00; closed hours excluded",
+    boundary="Drop-off queue entry through final readiness notification work end",
+    cohort="all 39 orders, simulated representative Friday 91",
+    value_add_convention=(
+        "Right-first-time Wash, Dry, Fold and package, and readiness notification; "
+        "staging RNVA, failed packaging and correction NVA; setup/wait excluded"
+    ),
+)
+csv_contract = DataContract(
+    columns=(ColumnRule(contract.case_id_column, kind="string"),)
+    + tuple(ColumnRule(name, minimum=0, unit=contract.unit) for name in contract.time_columns),
+    key_columns=(contract.case_id_column,),
+    duplicates="error",
+)
+orders, ingestion = CSVTabularAdapter(
+    source,
+    contract=csv_contract,
+    expected_sha256=source_sha256,
+    clock=contract.clock,
+).load()
+validation = validate_order_summary(orders, contract=contract)
+if not validation.valid:
+    raise ValidationError(validation.to_json())
+context: dict[str, Any] = {
+    key: getattr(contract, key) for key in ("unit", "clock", "boundary", "cohort")
+}
+eligible_context: dict[str, Any] = {
+    **context,
+    "cohort": "21 orders arriving at or before operating minute 120",
+}
+promise_bindings = {
+    key: getattr(contract, key) for key in ("case_id_column", "arrival_column", "readiness_column")
+}
+pce_bindings = {
+    key: getattr(contract, key)
+    for key in (
+        "case_id_column",
+        "lead_time_column",
+        "value_add_time_column",
+        "value_add_convention",
+    )
+}
+
+# Preview cell: public lss4py calculations on identified prepared observations.
+mean_lead = describe(orders, column=contract.lead_time_column, missing="raise", **context)
+eligible = orders.filter(pl.col(contract.arrival_column) <= 120)
+p90 = describe(
+    eligible,
+    column=contract.lead_time_column,
+    missing="raise",
+    percentile_method="nearest_rank",
+    **eligible_context,
+)
+promise = deadline_performance(
+    orders, **promise_bindings, eligibility_cutoff=120, deadline=600, **context
+)
+pce = process_cycle_efficiency(orders, **pce_bindings, aggregation="cohort", **context)
+print("Measure                              Result")
+print(f"Mean lead time (all 39 orders)        {mean_lead.mean:.1f} min")
+print(f"Nearest-rank P90 (21 eligible)        {p90.percentiles['p90']:.1f} min")
+print(
+    f"Promise misses (eligible orders)      {promise.numerator}/{promise.denominator} "
+    f"({100 * promise.value:.1f}%)"
+)
+print(f"Cohort PCE (all 39 orders)            {pce.values[0]:.1f}%")

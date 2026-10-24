@@ -16,6 +16,7 @@ from lss4py._bundle_schema import (
 from lss4py._bundle_schema import (
     validate_bundle as _validate_bundle,
 )
+from lss4py._version import __version__
 from lss4py.errors import ValidationError
 
 from ._result_io import restore_result
@@ -85,7 +86,7 @@ class AnalysisBundle:
     name: str
     results: list[AnalyticalResult]
     bundle_version: str = "1.0"
-    package_version: str = "0.1.0"
+    package_version: str = __version__
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     cohort_definition: str | None = None
     specification_metadata: dict[str, Any] | None = None

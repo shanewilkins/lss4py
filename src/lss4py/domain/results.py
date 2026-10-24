@@ -162,6 +162,21 @@ class TimingResult(AnalyticalResult):
         """Extract values as a NumPy array."""
         return self.values.copy()
 
+    def to_frame(self, backend: str = "polars"):
+        """Return an independent native table with explicit source positions and keys.
+
+        Pandas/Arrow conversions require their optional backend dependencies.
+        No pandas index is used as analytical identity. Legacy unkeyed results
+        expose their existing positional identity as the key column.
+        """
+        rows = {
+            "row_position": list(range(len(self.values))),
+            "key": self.keys.tolist() if self.keys is not None else list(range(len(self.values))),
+            "value": self.values.tolist(),
+            "unit": [self.unit] * len(self.values),
+        }
+        return _native_result_frame(rows, backend)
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize timing result to a dictionary."""
         base = super().to_dict()
@@ -369,6 +384,9 @@ class DescriptiveResult(AnalyticalResult):
     kurtosis, and other distribution characteristics.
     """
 
+    measurement_sum: float | None = None
+    """Sum of valid measurements; unavailable for empty/overflowed observations."""
+
     mean: float | None = None
     """Mean (average)."""
 
@@ -437,6 +455,7 @@ class DescriptiveResult(AnalyticalResult):
         base = super().to_dict()
         base.update(
             {
+                "measurement_sum": self.measurement_sum,
                 "mean": self.mean,
                 "median": self.median,
                 "std": self.std,
@@ -461,3 +480,52 @@ class DescriptiveResult(AnalyticalResult):
             }
         )
         return base
+
+
+class OrderReconstructionResult(AnalyticalResult):
+    """Inspectable order, activity/pass and source evidence under one declared policy.
+
+    Tables retain scope columns. Filter to one scope before calling methods that
+    require a single unique case column. Bundle snapshots detach this evidence.
+    """
+
+    def to_polars(self, table: str = "orders"):
+        """Return a fresh frame of orders, collapsed activities, or source records."""
+        import polars as pl
+
+        if table not in ("orders", "activities", "activity_records", "source_records"):
+            raise ValueError("Unknown reconstruction evidence table.")
+        return pl.DataFrame(self.metadata[table]).select(self.metadata["table_columns"][table])
+
+
+def _native_result_frame(rows: dict, backend: str):
+    """Materialize a detached native result table without mandatory optional imports."""
+    if backend == "polars":
+        import polars as pl
+
+        return pl.DataFrame(rows)
+    if backend == "pandas":
+        import pandas as pd
+
+        return pd.DataFrame(rows)
+    if backend == "pyarrow":
+        import pyarrow as pa
+
+        return pa.table(rows)
+    raise ValueError("backend must be polars, pandas, or pyarrow.")
+
+
+class ProcessMapResult(AnalyticalResult):
+    """Typed direct-follow discovery counts with legacy read access to nodes and edges."""
+
+    def __getitem__(self, key: str):
+        """Retain existing nodes/edges lookup while returning detached observations."""
+        from copy import deepcopy
+
+        if key not in ("nodes", "edges"):
+            raise KeyError(key)
+        return deepcopy(self.metadata[key])
+
+    def to_mapping(self) -> dict:
+        """Export the original node/transition mapping for existing discovery consumers."""
+        return {key: self[key] for key in ("nodes", "edges")}

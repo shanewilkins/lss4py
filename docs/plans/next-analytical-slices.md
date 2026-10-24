@@ -1,7 +1,7 @@
 # Next analytical slices
 
-- Updated: 2026-10-19
-- Status: Z-distance and defect/rework yield slices implemented; study-boundary review is next
+- Updated: 2026-10-24
+- Status: Z-distance, defect/rework yield and prepared-data preview implemented; activity-to-order reconstruction implemented; book publication integration remains
 - Architecture: [ADR-0020](../adr/0020-delegate-numerical-algorithms-and-own-analytical-contracts.md)
   and [ADR-0021](../adr/0021-reuse-flo-and-established-presentation-libraries.md)
 - Release ownership: [roadmap](../roadmap.md); UR-022/UR-023/TR-023 primarily target v0.3
@@ -57,13 +57,21 @@ implement documented small formulas under ADR-0020 without a new dependency.
 
 ## 3. Review the next study boundary
 
-After the two slices, reuse the implemented validation reports (UR-016) and audited
-bundles (UR-033/TR-033), then review remaining v0.2 acceptance evidence. Select the
-next Yellow Belt stability/control-chart slice against the roadmap and reference
-coverage. Defer full capability-study orchestration until its distribution and
-stability inputs have governed contracts; calculating indices alone is not a
-complete study. No automatic method selection or plotting layer is needed for
-these next two calculations.
+The Z/yield, prepared preview, numeric ingestion and book activity-to-order
+reconstruction slices are implemented. The next task is the
+[v0.2 acceptance audit follow-through](../assessments/v02-release-readiness.md):
+the older timing and contract corrections are now implemented and release
+controls are enforced. Review/tag the candidate, publish, then verify the official
+package and integrate the book. See the
+[continuation guide](../V02-PROGRESS.md), draft
+[release notes](../releases/v0.2.0.md) and [migration guide](../migration-v0.2.md).
+
+After release readiness and book integration, select the next Yellow Belt
+stability/control-chart slice against the roadmap and reference coverage. Defer
+full capability-study orchestration until distribution and stability inputs have
+governed contracts. Calculating capability indices alone is not a complete study.
+No automatic method selection or plotting layer is needed to close the current
+contract gaps.
 
 ## Completion gate for each slice
 
@@ -79,3 +87,10 @@ Run the locked quality gates, the required Arrow matrix, targeted R verification
 when reference artifacts change, and built-wheel smoke checks. Review documentation
 and requirement traceability alongside code. Promote only the covered compatibility
 claims; passing tests do not by themselves declare a release ready.
+
+## Accepted v0.2.1 follow-up
+
+The next integration increment is the [FLO-backed White Belt workflow](v021-flo-white-belt.md):
+actual model ingestion, explicit activity/step mapping, model-derived baseline
+classes, observed-data calculations and evidence containing both sources. It is
+Planned for v0.2.1 and does not change the current v0.2.0 candidate.

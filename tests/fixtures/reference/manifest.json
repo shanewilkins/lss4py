@@ -262,6 +262,134 @@
           "sha256": "a51038a7c77a9e31b32dc61ed53eb5e05f7e077cb2a39b9b37c88226d9e401de"
         }
       }
+    },
+    {
+      "id": "washnfold-friday91",
+      "version": "1.0.0",
+      "purpose": "test_fixture",
+      "source": {
+        "author": "Shane M. Wilkins",
+        "citation": "Modern Process Improvement with Python, Wash n' Fold synthetic White Belt case: https://github.com/shanewilkins/modern-process-improvement/tree/a10b7ecbc33908cffcafd4bbc3783b3447163406/data/washnfold; source-byte hashes in conventions.json identify the exact assessed snapshot.",
+        "version": "2026-10-22 split staging/notification case; Friday 91; adopted 2026-10-23",
+        "derivation": "Raw CSV files are copied byte-for-byte from the assessed source. inputs.json converts prepared CSV numeric fields to JSON numbers. Public describe expectations and separate baseline values derive from independent Decimal arithmetic; no lss4py method generates expected answers.",
+        "kind": "independently_derived",
+        "accessed_on": "2026-10-23"
+      },
+      "license": {
+        "identifier": "CC-BY-4.0",
+        "attribution": "Shane M. Wilkins, Modern Process Improvement with Python, https://github.com/shanewilkins/modern-process-improvement. Original synthetic instructional data; source CSVs unchanged. JSON normalization, independent expectations and metadata added by LSS4PY.",
+        "redistribution": "permitted",
+        "notice": "Source mixed-license notice retained in SOURCE_LICENSE.md: original instructional non-code content is CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), original source code is MIT, local third-party notices control. This snapshot redistributes synthetic instructional CSVs, not the simulation source or chapter prose; do not relabel source data as MIT."
+      },
+      "schema": {
+        "rows": 39,
+        "fields": {
+          "Order ID": {
+            "type": "string",
+            "nullable": false
+          },
+          "Arrival (elapsed min)": {
+            "type": "number",
+            "nullable": false
+          },
+          "Ready and notified (elapsed min)": {
+            "type": "number",
+            "nullable": false
+          },
+          "Operating L/T (min)": {
+            "type": "number",
+            "nullable": false
+          },
+          "Total P/T (min)": {
+            "type": "number",
+            "nullable": false
+          },
+          "Total W/T (min)": {
+            "type": "number",
+            "nullable": false
+          },
+          "Total S/T (min)": {
+            "type": "number",
+            "nullable": false
+          },
+          "VA time (min)": {
+            "type": "number",
+            "nullable": false
+          },
+          "Activity records": {
+            "type": "integer",
+            "nullable": false
+          },
+          "Correction occurrences": {
+            "type": "integer",
+            "nullable": false
+          },
+          "Compatible Loads": {
+            "type": "integer",
+            "nullable": false
+          },
+          "Promise eligible Y/N": {
+            "type": "string",
+            "nullable": false
+          },
+          "Promise missed Y/N/NA": {
+            "type": "string",
+            "nullable": false
+          }
+        }
+      },
+      "intended_analyses": [
+        "describe"
+      ],
+      "semantic_differences": [
+        "This is a test fixture from simulated teaching data, not production evidence or a package-bundled dataset API.",
+        "Catalog numerical cases certify only existing public describe behavior; baseline.json pins future preview/reconstruction expectations without claiming implementation.",
+        "Current VA includes right-first-time readiness notification; staging is RNVA and failed packaging attempts plus corrections are NVA.",
+        "Numeric operating minutes are not calendar timestamps; historical combined Stage and notify outputs are outside this version."
+      ],
+      "invalid_cases_required": true,
+      "artifacts": {
+        "inputs": {
+          "path": "washnfold-friday91/inputs.json",
+          "sha256": "480753153e7e06c779139ee1448f951a121a1c00c2dc0ac491c6babc5e5c0a23"
+        },
+        "expected": {
+          "path": "washnfold-friday91/expected.json",
+          "sha256": "1cc0d034cc898b6d7a8f35dd98eafbfb22df2184cf383903a441e925c8722718"
+        },
+        "invalid": {
+          "path": "washnfold-friday91/invalid.json",
+          "sha256": "bf24d24ff9f4308738a5e51492e3e75029b38082283f97f33f23818a5b37000b"
+        },
+        "order_summary": {
+          "path": "washnfold-friday91/order_summary.csv",
+          "sha256": "ae30c7992aafa60304d1fd7bbb59c1d86de02a5b8fa15e27a74d34d8dce6fa86"
+        },
+        "event_log": {
+          "path": "washnfold-friday91/event_log.csv",
+          "sha256": "3efcd0b299b96af4d860374a4ad885d44b77b6edb65a853ec07de6d3f9d7af20"
+        },
+        "readout": {
+          "path": "washnfold-friday91/baseline_readout.csv",
+          "sha256": "d1657f335cc8bb2166b9b0a8cae7660b2edc4891c5bf355d258636dacd883cad"
+        },
+        "baseline": {
+          "path": "washnfold-friday91/baseline.json",
+          "sha256": "798fd150b6ad801d362877d2cdcb098127d95539c55f0e55effaf40603b5057e"
+        },
+        "conventions": {
+          "path": "washnfold-friday91/conventions.json",
+          "sha256": "e4572fd0fc2aedb7743c9609a11d7815902452ab4b1cc9ae9b0142e6b27af7f2"
+        },
+        "source_license": {
+          "path": "washnfold-friday91/SOURCE_LICENSE.md",
+          "sha256": "1a2838df9a99f9a9b1dcd7a7c76eb9d767a0c88b122a5f921065b7ad2fd1337e"
+        },
+        "source_readme": {
+          "path": "washnfold-friday91/SOURCE_README.md",
+          "sha256": "84be6bb6961d026f697e177c8923b9ebe3cacc4704f781fac8e8e8819ae8b88e"
+        }
+      }
     }
   ]
 }

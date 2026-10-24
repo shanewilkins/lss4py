@@ -1,0 +1,125 @@
+<!doctype html><html lang="en"><meta charset="utf-8">
+<title>White Belt · Wash n’ Fold baseline</title>
+<style>body{font:17px/1.6 system-ui;margin:48px auto;padding:0 24px;
+max-width:1000px;color:#193038;background:#f7faf9}
+h1{line-height:1.2}table{width:100%;border-collapse:collapse;background:white;margin:28px 0}
+th,td{padding:16px;text-align:left;border-bottom:1px solid #d9e5e0}
+td{font-weight:650;color:#12634f}
+pre{overflow:auto;background:#132c32;color:#e2f4ec;padding:24px;font-size:13px;border-radius:8px}
+small{color:#4d6468}summary{cursor:pointer}a{color:#12634f}</style>
+<h1>Wash n’ Fold baseline</h1><p>Four familiar measures from simulated representative Friday 91.</p>
+<p><strong>Prepared inputs:</strong> washnfold-friday91 v1.0.0, 39 supplied order summaries.
+Activity-to-order reconstruction is outside this preview. All times use cumulative operating minutes
+from 07:00 with closed hours excluded.</p>
+<table><caption>Drop-off queue entry through final readiness notification</caption><tr><th>Mean lead time (all 39 orders)</th><td>662.6 min</td></tr><tr><th>Nearest-rank P90 (21 eligible)</th><td>676.2 min</td></tr><tr><th>Promise misses (eligible orders)</th><td>6/21 (28.6%)</td></tr><tr><th>Cohort PCE (all 39 orders)</th><td>13.7%</td></tr></table>
+<p><small>PCE uses 3,535.3 VA / 25,840.5 lead-time minutes across the same 39 orders.
+VA includes right-first-time Wash, Dry, Fold and package, and notification. Staging is RNVA;
+failed packaging and corrections are NVA.</small></p>
+<h2>Runnable preview cell</h2>
+<p>The book supplies the data and declarations below; learners need no setup cell.</p>
+<pre>mean_lead = describe(orders, column=contract.lead_time_column, missing=&quot;raise&quot;, **context)
+eligible = orders.filter(pl.col(contract.arrival_column) &lt;= 120)
+p90 = describe(
+    eligible,
+    column=contract.lead_time_column,
+    missing=&quot;raise&quot;,
+    percentile_method=&quot;nearest_rank&quot;,
+    **eligible_context,
+)
+promise = deadline_performance(
+    orders, **promise_bindings, eligibility_cutoff=120, deadline=600, **context
+)
+pce = process_cycle_efficiency(orders, **pce_bindings, aggregation=&quot;cohort&quot;, **context)
+print(&quot;Measure                              Result&quot;)
+print(f&quot;Mean lead time (all 39 orders)        {mean_lead.mean:.1f} min&quot;)
+print(f&quot;Nearest-rank P90 (21 eligible)        {p90.percentiles[&#x27;p90&#x27;]:.1f} min&quot;)
+print(
+    f&quot;Promise misses (eligible orders)      {promise.numerator}/{promise.denominator} &quot;
+    f&quot;({100 * promise.value:.1f}%)&quot;
+)
+print(f&quot;Cohort PCE (all 39 orders)            {pce.values[0]:.1f}%&quot;)
+</pre><details><summary>Inspect supplied data bindings and validation</summary>
+<pre>&quot;&quot;&quot;Runnable prepared-data White Belt preview; no sibling checkout or simulation needed.&quot;&quot;&quot;
+
+from pathlib import Path
+from typing import Any
+
+import polars as pl
+
+from lss4py import (
+    ColumnRule,
+    CSVTabularAdapter,
+    DataContract,
+    OrderSummaryContract,
+    ValidationError,
+    deadline_performance,
+    describe,
+    process_cycle_efficiency,
+    validate_order_summary,
+)
+
+# Book preparation: supplied file and explicit bindings, not event-log reconstruction.
+source = Path(__file__).with_name(&quot;order_summary.csv&quot;)
+source_sha256 = &quot;ae30c7992aafa60304d1fd7bbb59c1d86de02a5b8fa15e27a74d34d8dce6fa86&quot;
+contract = OrderSummaryContract(
+    case_id_column=&quot;Order ID&quot;,
+    arrival_column=&quot;Arrival (elapsed min)&quot;,
+    readiness_column=&quot;Ready and notified (elapsed min)&quot;,
+    lead_time_column=&quot;Operating L/T (min)&quot;,
+    value_add_time_column=&quot;VA time (min)&quot;,
+    processing_time_column=&quot;Total P/T (min)&quot;,
+    wait_time_column=&quot;Total W/T (min)&quot;,
+    setup_time_column=&quot;Total S/T (min)&quot;,
+    unit=&quot;minutes&quot;,
+    clock=&quot;cumulative operating minutes from 07:00; closed hours excluded&quot;,
+    boundary=&quot;Drop-off queue entry through final readiness notification work end&quot;,
+    cohort=&quot;all 39 orders, simulated representative Friday 91&quot;,
+    value_add_convention=(
+        &quot;Right-first-time Wash, Dry, Fold and package, and readiness notification; &quot;
+        &quot;staging RNVA, failed packaging and correction NVA; setup/wait excluded&quot;
+    ),
+)
+csv_contract = DataContract(
+    columns=(ColumnRule(contract.case_id_column, kind=&quot;string&quot;),)
+    + tuple(ColumnRule(name, minimum=0, unit=contract.unit) for name in contract.time_columns),
+    key_columns=(contract.case_id_column,),
+    duplicates=&quot;error&quot;,
+)
+orders, ingestion = CSVTabularAdapter(
+    source,
+    contract=csv_contract,
+    expected_sha256=source_sha256,
+    clock=contract.clock,
+).load()
+validation = validate_order_summary(orders, contract=contract)
+if not validation.valid:
+    raise ValidationError(validation.to_json())
+context: dict[str, Any] = {
+    key: getattr(contract, key) for key in (&quot;unit&quot;, &quot;clock&quot;, &quot;boundary&quot;, &quot;cohort&quot;)
+}
+eligible_context: dict[str, Any] = {
+    **context,
+    &quot;cohort&quot;: &quot;21 orders arriving at or before operating minute 120&quot;,
+}
+promise_bindings = {
+    key: getattr(contract, key) for key in (&quot;case_id_column&quot;, &quot;arrival_column&quot;, &quot;readiness_column&quot;)
+}
+pce_bindings = {
+    key: getattr(contract, key)
+    for key in (
+        &quot;case_id_column&quot;,
+        &quot;lead_time_column&quot;,
+        &quot;value_add_time_column&quot;,
+        &quot;value_add_convention&quot;,
+    )
+}
+
+</pre></details>
+<p><a href="preview-bundle.json">Inspect analytical evidence</a> ·
+<a href="preview.ipynb">Executed notebook</a> · <a href="preview.py">Full runnable source</a> ·
+<a href="order_summary.csv">Prepared observations</a></p>
+<p><small>Data: Shane M. Wilkins, <em>Modern Process Improvement with Python</em>,
+<a href="https://github.com/shanewilkins/modern-process-improvement">source</a>,
+<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. CSV unchanged;
+LSS4PY analysis and formatting added.
+<a href="SOURCE_LICENSE.md">Source notice</a>.</small></p></html>

@@ -110,6 +110,7 @@ def neutral_payload():
         payload = deepcopy(result.to_dict())
         payload["provenance"].pop("backend")
         payload["provenance"].pop("created_at")
+        payload["provenance"]["parameters"].pop("backend_version", None)
         return payload
 
     return normalize

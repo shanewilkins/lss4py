@@ -11,6 +11,8 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
   testable constraints used to deliver those outcomes.
 - [Requirements conventions and traceability](requirements/README.md) define IDs,
   status, priority, and change rules.
+- [Ingestion boundary decision](adr/0026-method-specific-input-contracts-and-ocel-interchange.md)
+  separates method-specific analytical inputs, adapter formatting, and future OCEL interchange.
 - [Architecture decision records](adr/README.md) record durable technical and
   product-architecture decisions.
 - [Ecosystem integration decisions](adr/0022-ecosystem-integration-contracts-and-journey-gates.md)
@@ -21,12 +23,22 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 - [Roadmap](roadmap.md) sequences requirement delivery without promising dates.
 - [Next analytical slices](plans/next-analytical-slices.md) record the current
   completed capability-Z and defect/rework-yield slices without changing release ownership.
+- [v0.2 release-readiness audit](assessments/v02-release-readiness.md) records acceptance blockers and verified release gates.
+- [Draft release notes](releases/v0.2.0.md) and [migration guide](migration-v0.2.md) describe the unreleased contract.
+- [v0.2.1 FLO-backed White Belt plan](plans/v021-flo-white-belt.md) defines the accepted next integration increment.
+- [White Belt book sprint plan](plans/white-belt-book-preview.md) splits current
+  fixture assessment, the v0.2 preview, and v0.3-owned reconstruction; these slices are implemented ahead of book publication.
+- [Book fixture/API assessment](assessments/book-preview.md) records current
+  numerical evidence, fixture-version drift, public API gaps, and the preview checklist.
 - [Analysis journey](analysis-journey.md) describes the end-to-end practitioner
   experience that the requirements cover.
 - [R `SixSigma` compatibility matrix](sixsigma-compatibility.md) tracks the
   reference package surface and parity gaps.
 
 ## Current analytical guides
+
+- [White Belt prepared-data preview](book-preview.md)
+- [White Belt simulation ingestion](simulation-ingestion.md)
 
 - [Auditable analysis bundles](analysis-bundles.md)
 
@@ -76,3 +88,5 @@ When behavior or scope changes:
 
 Maintainers review these documents with the same change as the code whenever
 practical. A separate governance ceremony is not required.
+
+- [Numeric activity-to-order reconstruction](order-reconstruction.md): explicit book policy, complete orders and inspectable source/load/pass evidence.

@@ -2,7 +2,7 @@
 
 **Document status:** Approved
 
-**Last updated:** 2026-10-13
+**Last updated:** 2026-10-23
 
 **Audience:** Maintainers, contributors, and auditors
 
@@ -112,6 +112,30 @@ statistical calculations or select analytical methods.
 The current implementation supports CSV interval logs. A future private registry
 may route OCEL, XES, database, or telemetry sources without changing kernel APIs.
 
+Declared tabular CSVs now use `CSVTabularAdapter`; numeric-clock activity and
+lifecycle sources use `NumericEventLogCSVAdapter` and the distinct
+`NumericEventLog`/`NumericLogContract` domain contract. Adapters share mechanical
+schema inspection and normalization through `_data_quality`, outside analytical
+kernels. `_frames` provides shared backend identity. Source order, extra columns,
+source hashes and validation findings remain inspectable. Lifecycle pairing and
+order reconstruction are separate analytical operations.
+
+[ADR-0026](adr/0026-method-specific-input-contracts-and-ocel-interchange.md)
+defines the planned ingestion boundary: validated inputs specific to each method.
+Users supply structured observations and declare identities, units, clocks,
+cohorts, boundaries, and aggregation/classification policies. Adapters handle
+documented mapping, parsing, and validation; methods still enforce preconditions
+for direct callers. Prepared measurements can enter analyses directly without
+conversion to event logs.
+
+The implemented IntervalEventLog is a calendar-datetime interval contract.
+Numeric operating-time inputs need a distinct explicit clock contract; fabricated
+timestamps are not a valid conversion. Future OCEL adapters preserve objects and
+relationships, then use explicit analytical projection policies where a method
+needs one case or interval population. OCEL support remains planned, and is not
+required for prepared measurements or the book preview. Kernels do not load files
+or invoke format adapters.
+
 ### Private kernels
 
 **Location:** `lss4py/_kernels/`
@@ -181,7 +205,7 @@ See the [integration guide](ecosystem-integration.md) for supported semantics.
 - Core file adapters materialize eager Polars frames.
 - Public tabular analyses accept governed eager inputs through Narwhals.
 - pandas and Polars require parity tests for every claimed tabular method.
-- PyArrow support is provisional until the same contract suite covers it.
+- PyArrow passes the declared current eager contracts, including ISO/native timestamp precision. Unsupported shapes remain outside the accepted boundary.
 - Lazy, streaming, and distributed inputs are out of scope until a separate ADR
   defines explicit collection and execution semantics.
 - Public analytical results use LSS4PY types with explicit values, keys, units,
@@ -202,8 +226,8 @@ module names or create separate Yellow, Green, or Black Belt implementation tree
 
 | Area | Current contract | Planned extension |
 | --- | --- | --- |
-| File ingestion | CSV interval logs | General tabular, OCEL, XES, database, telemetry |
-| Dataframes | Eager pandas and Polars tested; PyArrow provisional | Broader parity after contract tests |
+| File ingestion | Calendar interval, declared tabular, and numeric activity/lifecycle CSVs | OCEL, XES, database, telemetry |
+| Dataframes | Eager pandas, Polars and PyArrow tested | Additional shapes require explicit contract tests |
 | Timing | Row timing plus per-case interval-log lead time | Branch-aware event-log wait time and PCE |
 | Yield | Binary stage and rolled funnel yield | Defect, rework, FTY, RTY, DPMO |
 | Workflows | Lightweight process discovery | Bottleneck, comparison, simulation |

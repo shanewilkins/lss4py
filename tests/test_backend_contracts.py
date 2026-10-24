@@ -184,15 +184,6 @@ def test_timestamp_precision_and_timezone(backend, frame_factory, native_timesta
     """Preserve subsecond elapsed time and timezone-aware instants across backends."""
     from datetime import UTC, datetime, timedelta
 
-    if backend == "pyarrow" and not native_timestamps:
-        request.node.add_marker(
-            pytest.mark.xfail(
-                strict=True,
-                raises=ValidationError,
-                reason="Arrow parsing cannot handle these offset/fractional ISO strings; "
-                "supply native timezone-aware timestamp columns.",
-            )
-        )
     start = datetime(2026, 1, 1, 8, tzinfo=UTC)
     end = start + timedelta(seconds=1, microseconds=250000)
     if not native_timestamps:

@@ -1,95 +1,76 @@
 # Analytical backend contracts
 
-The shared suite exercises the original seven public tabular calculations with eager
-pandas and Polars frames. `takt_time` accepts scalar arguments and has no
-dataframe backend. `EventStream` discovery and validation use their own domain
-contract; they are not tabular-input APIs.
+Current native-frame APIs accept eager pandas DataFrames, Polars DataFrames and
+PyArrow Tables through a shared Narwhals boundary. Unsupported inputs raise
+`UnsupportedInputError`, both `ValidationError` and TypeError-compatible. Duplicate
+or non-string column identities fail explicitly. Lazy/distributed plans are never
+collected. Canonical CSV/domain ingestion still materializes Polars.
 
-## Shared fixtures and comparisons
+Typed `NumericEventLog` reconstruction has its own method-specific observation
+contract and canonical frame; it does not pretend to accept arbitrary native
+summary tables. Scalar `takt_time` accepts finite positive real quantities.
 
-`tests/conftest.py` supplies frame factories, aligned measurement/stage records,
-interleaved interval records, process bindings, and neutral-payload comparisons.
-The default factory matrix includes pandas with a normal index, pandas with
-non-default duplicate labels, and Polars. Existing descriptive tests reuse it.
-`tests/test_backend_contracts.py` extends that matrix with provisional PyArrow
-Tables. Frames are built independently from records; test construction does not
-convert pandas to Polars or Arrow.
+## Equivalence and identity
 
-The shared suite checks hand-calculated estimates and compares the complete
-serialized result against the Polars result. It removes only computation time
-and backend identity, which necessarily differ. Numerical comparisons use
-`rtol=1e-12` and `atol=1e-12`; identifiers, ordering, counts, warnings, units,
-parameters, and method metadata must match. These synthetic fixtures are not R
-SixSigma reference cases and make no cross-language parity claim. The additional
-`capability_indices` API has the same four-backend contract in
-`tests/test_capability.py`, including separately governed genuine R Cp/Cpk cases.
+Shared and method-specific suites check values, neutral serialized results,
+source preservation, invalid domains, missingness, dtype roles, key/group ordering
+and repeated pandas indexes across all three backends. Comparison removes only
+creation time, backend identity and backend library version. Semantic schema
+fingerprints and all other numerical/context evidence must agree. Numerical
+comparisons use declared tolerances; genuine R comparisons use their separately
+versioned fixture tolerances.
 
-Row-wise timing results use positions (`keys=None`), without carrying pandas
-index labels into the result. Interval results use explicit case identifiers in
-first-observed case order, even when event rows are interleaved or step order is
-reversed. Grouped descriptive results retain first-observed group order and
-missing-key groups. Calls preserve the input frame, including pandas indexes.
+Row-wise timing retains explicit `metadata["row_positions"]`. An optional
+`key_column` binds unique portable scalar identities; duplicate, missing, blank
+or nonfinite keys fail. Unkeyed legacy results retain `keys=None` and explicit
+positional identity. `TimingResult.to_frame("polars" | "pandas" | "pyarrow")`
+allocates an independent table with row_position, key, value and unit columns.
+Interval lead times use declared case keys in first-observed order. No pandas
+index is used as analytical identity. Grouped summaries retain first-observed
+keys, including missing-key groups.
 
-Missing fields and tested invalid domains raise `ValidationError` on each tested
-backend. Interval identifiers and timestamps cannot be null; unknown steps and
-blank identifiers fail validation. Descriptive missingness follows its explicit
-policy. `tests/test_input_contracts.py` checks that all eight tabular methods
-reject raw dictionaries, record lists, NumPy arrays, pandas/Polars Series, and
-Polars LazyFrames with `TypeError`; input rejection does not collect a lazy plan.
+## Domains and missingness
 
-## Timestamp calculations
+Measured timing operands must be real numeric, finite and nonnegative. Per-row
+PCE requires strictly positive lead; VA cannot exceed lead. Wait inputs use a
+single declared common unit, defaulting to hours. No text/boolean duration
+coercion or implicit unit conversion occurs. Exact binary stages may be numeric
+0/1 or declared booleans; fractional stages are never truncated. Missing timing
+or stage values fail. Empty/undefined aggregate denominators fail explicitly.
 
-Row-wise `lead_time` explicitly parses string columns through Narwhals and uses
-its duration namespace to extract microseconds, preserving fractional seconds.
-Native datetime columns retain timezone information. ISO string parsing infers
-formats through the backend; arbitrary mixed formats and mixed timezone
-awareness are not guaranteed equivalent. Prefer native datetime columns for
-complex timestamp data. The shared tests cover ordinary ISO strings and native
-timezone-aware values, with a 1.25-second precision regression.
+Descriptive and capability calculations retain their explicit omit/raise missing
+policy and inspectable exclusions. Infinity is invalid. Strict prepared-order,
+deadline and numeric activity contracts reject missing endpoints and invalid
+identities; declared normalization remains opt-in. No calculation silently drops
+records or invokes preparation on the caller's behalf.
 
-Interval ingestion materializes Polars, and validates source null masks before
-string identifiers can be inferred from missing pandas values. Source pandas
-and Arrow frames are copied into the canonical frame; no pandas index is used.
+Calendar endpoints are native datetimes or ISO date/time strings, handled at
+microsecond precision. Aware instants normalize to UTC; naive instants remain
+naive, and mixed awareness fails. Date-only strings and numeric operating times
+are rejected. Fractional/timezone-offset ISO inputs now pass on Arrow as well as
+pandas/Polars; the former strict xfail is removed. Non-ISO formats and arbitrary
+nested/distributed frames are outside the contract.
 
-## Provisional PyArrow scope
+## Allocations and provenance
 
-The current shared cases pass for numeric duration calculations, binary stage
-yields, descriptive statistics and grouping, per-case interval lead time, and
-row-wise lead time with basic ISO strings or native timestamp columns. This is
-case-by-case evidence, not a guarantee for every Arrow schema or timestamp format.
+Native inputs are read eagerly without mutation. Inspection/parsing and numeric
+extraction allocate O(n) observations/arrays; normalization and native exports
+allocate detached frames. Numeric log `.to_polars(copy=False)` deliberately exposes
+its underlying frame, so reconstruction revalidates it before analysis. Retained
+reconstruction evidence adds O(n) storage; these costs are not lazy execution.
 
-**Known exception:** Arrow's inferred parsing of the tested timezone-offset ISO
-strings (including a fractional completion time) raises `ValidationError`.
-Supply native Arrow timestamp columns for that case. The test is marked strict
-`xfail`, restricted to `ValidationError`: a successful future implementation
-produces an XPASS failure and requires revisiting this exception. Unrelated errors
-remain failures.
+Results retain schema identity, source order, missing policy, measurement context,
+core/backend software versions and parameters. Audited bundles add exact source
+bytes, selections, linked specifications and version checks. These records
+identify a calculation; they do not automatically choose its question or cohort.
 
-Install the locked optional storage extras to run Arrow cases:
+Run the required backend matrix with the locked storage extra:
 
-```bash
-uv sync --locked --group dev --extra storage
-uv run --locked pytest tests/test_backend_contracts.py --require-pyarrow
+```sh
+uv run --locked --extra storage pytest --require-pyarrow
 ```
 
-Without PyArrow, local Arrow cases skip explicitly. CI installs the storage extra
-and passes `--require-pyarrow` so absence is an error rather than a silent skip.
-Polars remains the canonical file-ingestion backend; pandas and Arrow remain
-optional analytical-input backends.
-
-The suite is scaffolding for broader contracts. Complete timing/yield policies
-for nulls, nonfinite values, coercion, and uncommon schemas still need reusable
-validation work. Broader Arrow compatibility and governed numerical-reference
-fixtures remain open; the relevant requirements are recorded as partial.
-
-
-## Explicit data-quality inspection and preparation
-
-`validate_data` and `normalize_data` share an independently tested eager-backend
-contract for missingness, finite numeric/integer domains, boolean and text roles,
-key/row duplicates, ISO/native timestamps, unit declarations and source preservation.
-See [data quality](data-quality.md) for the complete policies and materialization
-costs. Offset and fractional ISO timestamps are checked by the declared parser;
-normalization can supply native UTC timestamp columns to downstream calculations.
-The existing row-wise Arrow parsing exception above remains a separate contract.
-No calculation silently invokes this preparation or changes its missingness policy.
+CI requires Arrow rather than silently skipping it. Installed-wheel storage tests
+also verify ISO/native timing, domain rejection, explicit choices and Arrow result
+exports. Optional process-mining, simulation and optimization declarations do not
+claim implemented LSS4PY workflows for those engines.

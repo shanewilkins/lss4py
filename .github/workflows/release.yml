@@ -33,8 +33,28 @@ jobs:
           version: "0.12.3"
           enable-cache: true
 
+      - name: Sync locked release tooling
+        run: uv sync --locked --group dev
+
+      - name: Require locked source quality gates
+        run: |
+          uv run --locked pre-commit run --all-files --hook-stage pre-push
+          uv run --locked ruff check .
+          uv run --locked bandit -r src/lss4py --skip B101 -q
+          uv run --locked pip-audit --desc
+
+      - name: Require Arrow backend acceptance
+        run: uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-fail-under=90
+
       - name: Build distributions
         run: uv build
+
+      - name: Validate distribution metadata and release identity
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          uv run --locked twine check dist/*
+          uv run --locked python tools/check_release.py --dist dist --tag "$RELEASE_TAG"
 
       - name: Require installed-package ecosystem journey
         run: python tools/check_wheel.py --ecosystem
@@ -63,3 +83,22 @@ jobs:
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+
+  verify-published:
+    name: Verify official PyPI installation
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          version: "0.12.3"
+      - name: Verify the exact published artifact outside the checkout
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: python tools/verify_published.py "$RELEASE_TAG"

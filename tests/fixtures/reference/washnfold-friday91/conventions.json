@@ -1,0 +1,179 @@
+{
+  "dataset_id": "washnfold-friday91",
+  "version": "1.0.0",
+  "accepted_on": "2026-10-23",
+  "purpose": "test_fixture",
+  "source_case": "simulated representative current-state Friday 91",
+  "source_revision": "a10b7ecbc33908cffcafd4bbc3783b3447163406",
+  "source_revision_note": "Chapter had uncommitted edits when assessed; exact source byte hashes, not HEAD alone, identify the adopted snapshot.",
+  "source_sha256": {
+    "data/washnfold/README.md": "84be6bb6961d026f697e177c8923b9ebe3cacc4704f781fac8e8e8819ae8b88e",
+    "data/washnfold/washnfold_event_log.csv": "3efcd0b299b96af4d860374a4ad885d44b77b6edb65a853ec07de6d3f9d7af20",
+    "data/washnfold/washnfold_learner_order_summary.csv": "ae30c7992aafa60304d1fd7bbb59c1d86de02a5b8fa15e27a74d34d8dce6fa86",
+    "data/washnfold/washnfold_baseline_readout.csv": "d1657f335cc8bb2166b9b0a8cae7660b2edc4891c5bf355d258636dacd883cad",
+    "data/washnfold/washnfold_simulation.py": "61039ed09c4fbe6644522a05d0a932dc123fd897f6f3f53c274714e62b412912",
+    "data/washnfold/washnfold_representative_run.csv": "58f266eb44a2fc984e5b5cf5363c56bc15870d4d66b6b901a6ddef5b72c99a4f",
+    "book/content/white_belt/measuring_process.qmd": "4b475c9b330a6f1bd99fc2308b82074cf9049e03ad1ea13385ecfdb5b9e5406d",
+    "LICENSE.md": "1a2838df9a99f9a9b1dcd7a7c76eb9d767a0c88b122a5f921065b7ad2fd1337e"
+  },
+  "raw_artifact_source_paths": {
+    "order_summary.csv": "data/washnfold/washnfold_learner_order_summary.csv",
+    "event_log.csv": "data/washnfold/washnfold_event_log.csv",
+    "baseline_readout.csv": "data/washnfold/washnfold_baseline_readout.csv",
+    "SOURCE_LICENSE.md": "LICENSE.md",
+    "SOURCE_README.md": "data/washnfold/README.md"
+  },
+  "clock": {
+    "kind": "cumulative_operating",
+    "unit": "minutes",
+    "origin": "07:00",
+    "minute_120": "09:00",
+    "minute_600": "17:00",
+    "closing_minute": 690,
+    "closed_hours": "already excluded",
+    "calendar_conversion": "none"
+  },
+  "boundary": {
+    "case": "Order ID",
+    "arrival_activity": "Drop-off and ticket",
+    "arrival_field": "Queue Entry (elapsed min)",
+    "completion_activity": "Send readiness notification",
+    "completion_field": "Work End (elapsed min)",
+    "excluded": "customer pickup and payment"
+  },
+  "observation_keys": [
+    "Order ID",
+    "Load ID",
+    "Activity Name",
+    "Pass"
+  ],
+  "parallel_collapse": {
+    "scope": "within Order ID / Activity Name / Pass, Wash and Dry only",
+    "queue_entry": "minimum",
+    "setup_start": "minimum",
+    "work_start": "maximum",
+    "work_end": "maximum",
+    "universality": "case-specific declared elapsed-time partition, not a general parallel workflow algorithm"
+  },
+  "va": {
+    "activities": [
+      "Wash",
+      "Dry",
+      "Fold and package",
+      "Send readiness notification"
+    ],
+    "right_first_time": "exclude an activity/pass group when any record has Rework Y/N=Y",
+    "staging": "RNVA",
+    "failed_packaging_attempts": "NVA",
+    "corrections": "NVA",
+    "other_exclusions": [
+      "intake",
+      "sorting",
+      "setup",
+      "waiting"
+    ],
+    "cohort_pce": "100 * sum(order VA) / sum(order operating lead time)"
+  },
+  "percentile": "nearest rank: ascending sort, one-based ceil(0.90*n); even-sample median averages middle two",
+  "corrections": "count Fold correction activity occurrences, not all Rework Y/N flags",
+  "supersedes": {
+    "source": "original fromTheBook.md criteria",
+    "total_va_min": "3582.3",
+    "pce_display_percent": "13.9",
+    "wnf003_va_min": "94.4",
+    "final_activity": "Stage and notify"
+  },
+  "schema": {
+    "order_summary": {
+      "rows": 39,
+      "columns": {
+        "Order ID": {
+          "type": "string",
+          "nullable": false
+        },
+        "Arrival (elapsed min)": {
+          "type": "number",
+          "nullable": false
+        },
+        "Ready and notified (elapsed min)": {
+          "type": "number",
+          "nullable": false
+        },
+        "Operating L/T (min)": {
+          "type": "number",
+          "nullable": false
+        },
+        "Total P/T (min)": {
+          "type": "number",
+          "nullable": false
+        },
+        "Total W/T (min)": {
+          "type": "number",
+          "nullable": false
+        },
+        "Total S/T (min)": {
+          "type": "number",
+          "nullable": false
+        },
+        "VA time (min)": {
+          "type": "number",
+          "nullable": false
+        },
+        "Activity records": {
+          "type": "integer",
+          "nullable": false
+        },
+        "Correction occurrences": {
+          "type": "integer",
+          "nullable": false
+        },
+        "Compatible Loads": {
+          "type": "integer",
+          "nullable": false
+        },
+        "Promise eligible Y/N": {
+          "type": "string",
+          "nullable": false
+        },
+        "Promise missed Y/N/NA": {
+          "type": "string",
+          "nullable": false
+        }
+      }
+    },
+    "event_log": {
+      "rows": 330,
+      "columns": [
+        "Order ID",
+        "Load ID",
+        "Activity Name",
+        "Pass",
+        "Role / Resource",
+        "Order Weight (lb)",
+        "Requires separate wash Y/N",
+        "Compatible Loads",
+        "Queue Entry (elapsed min)",
+        "Setup Start (elapsed min)",
+        "Work Start (elapsed min)",
+        "Work End (elapsed min)",
+        "P/T (min)",
+        "W/T (min)",
+        "S/T (min)",
+        "Rework Y/N",
+        "Notes"
+      ],
+      "nullable_columns": [
+        "Load ID",
+        "Notes"
+      ],
+      "endpoint_columns": [
+        "Queue Entry (elapsed min)",
+        "Setup Start (elapsed min)",
+        "Work Start (elapsed min)",
+        "Work End (elapsed min)"
+      ],
+      "endpoint_unit": "operating minutes"
+    }
+  },
+  "incomplete_case_policy": "not established by this complete source fixture; requires explicit public contract and invalid-input tests in implementation sprint"
+}

@@ -19,3 +19,7 @@ class AdapterError(LSS4PyError):
 
 class WorkflowError(LSS4PyError):
     """Raised when workflow orchestration fails."""
+
+
+class UnsupportedInputError(ValidationError, TypeError):
+    """Unsupported eager-frame input; retains TypeError compatibility and LSS4PY handling."""
