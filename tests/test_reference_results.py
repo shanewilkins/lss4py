@@ -88,8 +88,6 @@ def test_governed_invalid_input_reference(frame_factory, entry, case):
     columns = deepcopy(entry["inputs"]["columns"])
     columns.update(case["columns_override"])
     method = METHODS[case["method"]]
+    args = () if case["method"] == "takt_time" else (frame_factory(columns),)
     with pytest.raises(ValidationError, match=case["message"]):
-        if case["method"] == "takt_time":
-            method(**case["parameters"])
-        else:
-            method(frame_factory(columns), **case["parameters"])
+        method(*args, **case["parameters"])

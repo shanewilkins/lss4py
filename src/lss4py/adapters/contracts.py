@@ -1,5 +1,4 @@
-"""
-Adapter contracts for LSS4PY data ingestion.
+"""Adapter contracts for LSS4PY data ingestion.
 
 All adapters (internal and external) must conform to these contracts.
 This module is part of LSS4PY's public API and is stable across releases.
@@ -14,8 +13,7 @@ from lss4py.domain.data_quality import DataValidationReport
 
 @dataclass(slots=True)
 class AdapterSchema:
-    """
-    Schema information about data loaded by an adapter.
+    """Schema information about data loaded by an adapter.
 
     Used to document what an adapter produces and validate before
     analytics are run.
@@ -53,8 +51,7 @@ class AdapterSchema:
     validation: DataValidationReport | None = None
 
     def validate_required_fields(self, required: list[str]) -> list[str]:
-        """
-        Check which required fields are missing.
+        """Check which required fields are missing.
 
         Returns:
             List of field names that are missing from the schema.
@@ -63,15 +60,15 @@ class AdapterSchema:
 
 
 class TabularAdapter(ABC):
-    """
-    Base class for adapters that produce tabular (DataFrame) data.
+    """Base class for adapters that produce tabular (DataFrame) data.
 
     External adapter implementations should inherit from this class.
     See docs/EXTENDING.md for examples.
     """
 
     def __init__(self, source_reference: str):
-        """
+        """Declare the tabular data source.
+
         Args:
             source_reference: Path, URI, connection string, or identifier
                 identifying the data source.
@@ -80,8 +77,7 @@ class TabularAdapter(ABC):
 
     @abstractmethod
     def schema(self) -> AdapterSchema:
-        """
-        Inspect and return the normalized source schema.
+        """Inspect and return the normalized source schema.
 
         Implementations may scan or materialize the source when exact row counts
         or post-normalization types cannot otherwise be determined.
@@ -98,8 +94,7 @@ class TabularAdapter(ABC):
         self,
         backend: Literal["polars"] = "polars",
     ) -> tuple[Any, AdapterSchema]:
-        """
-        Load data from source and normalize to eager DataFrame.
+        """Load data from source and normalize to eager DataFrame.
 
         Args:
             backend: Requested dataframe backend. Core adapters materialize Polars.
@@ -114,8 +109,7 @@ class TabularAdapter(ABC):
 
 
 class EventLogAdapter(ABC):
-    """
-    Base class for adapters that produce event-log data.
+    """Base class for adapters that produce event-log data.
 
     Calendar interval logs use case_id, step_id, started_at, and completed_at.
     Numeric event adapters declare their own activity/lifecycle bindings and
@@ -124,7 +118,8 @@ class EventLogAdapter(ABC):
     """
 
     def __init__(self, source_reference: str):
-        """
+        """Declare the event-log data source.
+
         Args:
             source_reference: Path, URI, connection string, or identifier
                 identifying the data source.
@@ -133,8 +128,7 @@ class EventLogAdapter(ABC):
 
     @abstractmethod
     def schema(self) -> AdapterSchema:
-        """
-        Inspect and return the normalized event-log schema.
+        """Inspect and return the normalized event-log schema.
 
         Returns:
             AdapterSchema describing the canonical interval-event fields.
@@ -145,8 +139,7 @@ class EventLogAdapter(ABC):
 
     @abstractmethod
     def load(self, backend: Literal["polars"] = "polars") -> tuple[Any, AdapterSchema]:
-        """
-        Load events into the adapter's declared domain observation contract.
+        """Load events into the adapter's declared domain observation contract.
 
         Args:
             backend: Requested dataframe backend. Core adapters materialize Polars.

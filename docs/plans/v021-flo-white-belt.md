@@ -12,6 +12,93 @@ Demonstrate the book's actual process model and observed activity data working
 through FLO and lss4py together. Keep the CSV-only route independently usable.
 Do not change v0.2.0 package metadata or fold this integration into its candidate.
 
+## Sprint draft: 2026-10-26
+
+**Goal:** Run the book's actual FLO model and observed CSV through an installed
+package to reproduce the governed baseline, with inspectable model-derived
+classifications, explicit measurement conventions and saved audit evidence.
+
+This draft combines the accepted FLO workflow, Pydantic pilot and planned Pint
+unit support with targeted test hardening. Sprint dates, capacity and task owners are not assigned yet.
+Implementation of these planned items has not started.
+
+### Starting evidence
+
+- Full-package statement coverage is now enabled in `pyproject.toml`, including
+  adapters, CLI, observability, reporting, legacy event-log code and unfinished
+  workflows. The local CI-command run recorded in this chat passed 1,750 tests
+  with five expected failures and **93.19% coverage** against the unchanged 90%
+  gate. Branch coverage is not enabled.
+- The previously excluded CLI and observability modules measured 0%; integration
+  evidence measured 87%, the FLO bridge 92%, and reporting visualization 83%.
+  These identify test priorities, not evidence that the implemented calculations
+  fail. Unimplemented workflow stubs remain visible in the denominator.
+- Existing reconstruction and independent baseline fixtures are reusable. The
+  supported FLO producer profile is currently pinned to 0.4.2; compatibility with
+  the actual book model still needs verification.
+- The dated v0.2.0 readiness assessment records publication and book dependency
+  integration as pending. Verify their current state before release work; do not
+  treat that historical assessment as proof of current publication status.
+
+### Ordered backlog
+
+| Item | Deliverable | Completion evidence | Dependency |
+| --- | --- | --- | --- |
+| S1: Freeze source and producer contract | Govern the actual `.flo`, public producer export, source revision/hashes, attribution and explicit activity-to-step mapping. Record supported and unsupported semantics. | Actual book export is representable by the bridge, or a specific incompatibility and required producer/bridge change is documented before downstream work proceeds. | None |
+| S2: Pilot Pydantic at the JSON boundary | Replace repetitive structural checks in `integration/process.py` with explicit schemas, preserving semantic checks and public errors. Document dependency placement and compatibility decisions. | Existing bridge contracts pass; nested errors identify field locations; coercion and applicable unknown fields are rejected; accepted snapshots and fingerprints remain unchanged. Record validation-code reduction, error examples and dependency impact. | S1 schema/profile decision |
+| S2a: Add Pint for explicit unit handling | Define a bounded unit contract, verify Python 3.14/dependency compatibility, add Pint to the appropriate dependency group and lockfile, and implement explicit duration-unit validation/conversion at a declared boundary. | Seconds/minutes/hours conversions preserve physical quantities; incompatible dimensions and unknown units fail with governed errors; existing numeric + unit APIs, serialized payloads and baseline results remain compatible. Test registry isolation, backend parity, installed dependencies and conversion provenance. | S1 unit inventory; dependency and registry decisions below |
+| S3: Derive declared measurement policy | Translate projected model classifications and explicit analyst conventions into the existing reconstruction policy. Select an orchestration location that satisfies layer rules. | Missing/conflicting classifications and ambiguous mappings fail clearly; display-name changes preserve identity; model classification changes affect policy/results or fail the pinned profile. | S1; S2 validates the final integration path |
+| S4: Demonstrate and preserve the full route | Add an installed-package model + CSV example using existing reconstruction/measurement APIs, FLO rendering and saved audit evidence. | All 39 order expectations and the WNF-003 hand check pass; source hashes, model/producer revisions, mapping, classifications and remaining conventions survive export/restoration. Modeled durations do not alter observed metrics. | S2, S2a, S3 |
+| S5: Harden coverage of supported behavior | Add CLI doctor/debug tests, isolated structured-logging and telemetry tests, integration evidence rejection tests, and reporting success/error-path tests. Prioritize adapter failures relevant to the new route. | Tests assert observable behavior and governed errors, avoid global telemetry/logging leakage, and run in the normal CI suite. Full-package coverage stays at least 90% without exclusions or a reduced threshold. | Can start after S1; final integration cases depend on S4 |
+| S6: Close acceptance and document the pilot | Run quality and installed-package gates, document the runnable workflow and compatibility decisions, and record a recommendation on further Pydantic adoption. | Gate results identify the tested revision; requirements evidence reflects only demonstrated behavior; release notes describe the delivered scope and dependency changes. | S2–S5 |
+
+### Decisions to settle during S1/S2/S2a
+
+1. Pin the actual book model revision and verify access and redistribution
+   attribution. Keep the existing numerical fixture expectations unchanged unless
+   a separately reviewed fixture revision is necessary.
+2. Establish the Pydantic dependency location before changing imports. Core
+   calculations must remain usable without FLO; preserve existing bridge import
+   and installation contracts or explicitly document a required compatibility
+   decision. Preserve the standalone standard-library bundle validator.
+3. Separate producer fields that are intentionally extensible from closed
+   envelopes. Match current accepted payload behavior rather than applying
+   `extra="forbid"` indiscriminately. Preserve original producer data used in
+   canonical snapshots and fingerprints when validating it.
+4. Choose the public policy-derivation surface and orchestration location.
+   `lss4py.integration` currently depends only on domain contracts; it must not
+   start importing adapters, kernels or workflows to run the demonstration.
+5. Decide whether Pint belongs in core or an optional extra based on the actual
+   unit API and import path. Document one registry ownership policy without
+   changing a caller's application registry. Keep numerical kernels operating on
+   normalized magnitudes and explicit units; preserve portable JSON rather than
+   storing registry-bound quantity objects in bundles.
+6. Define accepted unit spellings and explicit conversion requests. Duration
+   dimensions do not establish clock semantics: calendar elapsed time and numeric
+   operating time remain distinct. An operating day requires a declared work
+   calendar/conversion rule; do not silently interpret it as 24 operating hours.
+   Counts, opportunities and percent/ratio meanings remain analytical contracts.
+   Offset-temperature support and general custom-unit contexts are deferred.
+
+### Sprint exit and scope control
+
+The primary acceptance criteria below remain the numerical and behavioral gate.
+In addition, run the locked source quality checks, the full-package coverage
+command, and `tools/check_wheel.py --ecosystem --storage` for the final revision.
+The source suite measures coverage; the isolated wheel suite independently
+checks installation boundaries and does not contribute to that percentage.
+
+The five expected v0.3 failures remain explicitly deferred. Do not implement
+unfinished bottleneck/comparison/simulation/report rendering workflows merely
+to improve coverage. Broad Pydantic conversion, specification migration and
+branch-coverage gating are outside this sprint's committed scope.
+
+If capacity is constrained, preserve S1–S4 (including S2a) and the tests required to demonstrate
+them; additional unrelated adapter/reporting error cases are the first candidates
+to defer. Record any deferred work explicitly. Publication/tagging and sibling
+book lockfile changes remain separate release steps after acceptance, not
+assumed outcomes of this planning draft.
+
 ## Inputs and responsibilities
 
 Use the book's `book/diagrams/washnfold.flo` and the governed Friday 91 activity

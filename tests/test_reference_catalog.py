@@ -173,7 +173,7 @@ def test_sixsigma_claim_requires_the_governed_package_version(copied_catalog, ve
     source = manifest["datasets"][0]["source"]
     source.update(kind="r_sixsigma", package="SixSigma", package_version=version)
     _write_manifest(copied_catalog, manifest)
-    with pytest.raises(ValueError, match="SixSigma 0.11.1"):
+    with pytest.raises(ValueError, match=r"SixSigma 0\.11\.1"):
         load_catalog(copied_catalog)
 
 

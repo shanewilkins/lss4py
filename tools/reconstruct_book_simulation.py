@@ -71,7 +71,7 @@ def main() -> None:
                 media_type="text/csv",
             )
         },
-        result_inputs={name: ("events",) for name in results},
+        result_inputs=dict.fromkeys(results, ("events",)),
         cohort_definition=policy.cohort,
         software_versions={
             name: version(name) for name in ("lss4py", "numpy", "narwhals", "polars", "scipy")

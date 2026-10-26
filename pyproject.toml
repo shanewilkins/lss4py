@@ -51,28 +51,24 @@ storage = [
 lss4py = "lss4py.cli:main"
 
 [build-system]
-requires = ["uv_build>=0.10.0,<0.13.0"]
+requires = ["uv_build>=0.13.5,<0.14.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
-    "bandit>=1.8.0",  # Security scanning
     "import-linter>=2.1",
     "matplotlib>=3.10.0",  # Optional plotting contract development and typing
-    "interrogate>=1.5.0",  # Docstring coverage
     "pandas>=2.2.0",  # Backend parity tests
     "pip-audit>=2.6.0",  # Dependency vulnerabilities
     "pre-commit>=4.1.0",
-    "pydocstyle>=6.3.0",  # Docstring formatting
     "pyarrow>=19.0.0",  # Type and contract checks for every supported backend
     "pytest>=8.3.0",
     "pytest-cov>=6.0.0",
-    "ruff>=0.9.0",
+    "ruff>=0.17.2",  # Lint, formatting, docstrings and function complexity
     "seaborn>=0.13.0",  # Optional plotting contract development and typing
     "twine>=6.0.0",  # Distribution metadata validation
     "ty>=0.0.77",  # Astral type checker
     "vulture>=2.13",
-    "xenon>=0.9.3",
 ]
 
 [tool.ruff]
@@ -80,7 +76,26 @@ line-length = 100
 target-version = "py314"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
+select = [
+    "E", "F", "I", "UP", "B",
+    "C901", "D", "C4", "PIE",
+    "RUF100", "RUF043", "PT012", "SIM102", "SIM114",
+    "S", "PLE2502",  # Security and bidirectional Unicode source checks
+]
+ignore = ["D100", "D101", "D104", "S101"]  # Preserve the former Bandit B101 exemption
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D", "S"]
+"e2e/**" = ["D", "S"]
+# Match the former security scan's production-source scope.
+"tools/**" = ["S"]
+"examples/**" = ["S"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -88,35 +103,11 @@ addopts = "-q"
 
 [tool.coverage.run]
 source = ["src/lss4py"]
-omit = [
-    "src/lss4py/_event_log.py",  # v0.3 refactor
-    "src/lss4py/adapters/*",
-    "src/lss4py/cli.py",
-    "src/lss4py/observability/*",
-    "src/lss4py/reporting/*",
-    "src/lss4py/workflows/bottleneck.py",
-    "src/lss4py/workflows/comparison.py",
-    "src/lss4py/workflows/simulation.py",
-]
 
 [tool.coverage.report]
 fail_under = 90
 show_missing = true
 skip_covered = true
-
-[tool.pydocstyle]
-convention = "google"
-add-ignore = ["D100", "D101", "D104"]  # Ignore module, class, and package docstrings (will enforce later)
-
-[tool.interrogate]
-ignore-init-method = true
-ignore-init-module = true
-ignore-magic = true
-ignore-semiprivate = false
-ignore-private = false
-fail-under = 80
-verbose = 2
-exclude = ["src/lss4py/adapters", "src/lss4py/observability", "src/lss4py/reporting", "src/lss4py/workflows", "tests"]
 
 [tool.vulture]
 paths = ["src", "tests"]

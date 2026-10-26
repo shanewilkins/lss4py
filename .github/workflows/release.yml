@@ -30,7 +30,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          version: "0.12.3"
+          version: "0.13.5"
           enable-cache: true
 
       - name: Sync locked release tooling
@@ -39,12 +39,7 @@ jobs:
       - name: Require locked source quality gates
         run: |
           uv run --locked pre-commit run --all-files --hook-stage pre-push
-          uv run --locked ruff check .
-          uv run --locked bandit -r src/lss4py --skip B101 -q
           uv run --locked pip-audit --desc
-
-      - name: Require Arrow backend acceptance
-        run: uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-fail-under=90
 
       - name: Build distributions
         run: uv build
@@ -97,7 +92,7 @@ jobs:
           python-version: "3.14"
       - uses: astral-sh/setup-uv@v9.0.0
         with:
-          version: "0.12.3"
+          version: "0.13.5"
       - name: Verify the exact published artifact outside the checkout
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}

@@ -33,6 +33,7 @@ ENDPOINTS = (
 
 
 def read_csv(path):
+    """Read the supplied CSV as text records without modifying its values."""
     with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
@@ -43,6 +44,46 @@ def probe(operation):
         return {"returned": operation()}
     except Exception as exc:  # Diagnostic evidence must retain backend failures too.
         return {"error_type": type(exc).__name__, "message": str(exc)}
+
+
+def _activity_timings(rows, order_id, invalid):
+    """Audit activity formulas and aggregate each declared activity/pass group."""
+    groups = defaultdict(list)
+    for row in rows:
+        endpoints = [D(row[name]) for name in ENDPOINTS]
+        if endpoints != sorted(endpoints):
+            invalid.append([order_id, row["Activity Name"], "ordering"])
+        p, w, s = (D(row[name]) for name in COMPONENTS)
+        q, setup, start, end = endpoints
+        if (p, w, s) != (end - start, setup - q, start - setup):
+            invalid.append([order_id, row["Activity Name"], "activity formula"])
+        groups[row["Activity Name"], row["Pass"]].append(row)
+    timings = []
+    for (activity, activity_pass), records in groups.items():
+        if activity in {"Wash", "Dry"}:
+            q, setup = (min(D(r[name]) for r in records) for name in ENDPOINTS[:2])
+            start, end = (max(D(r[name]) for r in records) for name in ENDPOINTS[2:])
+            p, w, s = end - start, setup - q, start - setup
+        else:
+            p, w, s = (sum(D(r[name]) for r in records) for name in COMPONENTS)
+        right_first_time = all(r["Rework Y/N"] != "Y" for r in records)
+        is_va = right_first_time and activity in {
+            "Wash",
+            "Dry",
+            "Fold and package",
+            "Send readiness notification",
+        }
+        timings.append(
+            {
+                "activity": activity,
+                "pass": activity_pass,
+                "pt": p,
+                "wt": w,
+                "st": s,
+                "va": p if is_va else D(0),
+            }
+        )
+    return timings
 
 
 def reference_audit(events, summaries):
@@ -60,42 +101,8 @@ def reference_audit(events, summaries):
     spot = []
     for order in summaries:
         order_id = order["Order ID"]
-        groups = defaultdict(list)
         rows = by_order[order_id]
-        for row in rows:
-            endpoints = [D(row[name]) for name in ENDPOINTS]
-            if endpoints != sorted(endpoints):
-                invalid.append([order_id, row["Activity Name"], "ordering"])
-            p, w, s = (D(row[name]) for name in COMPONENTS)
-            q, setup, start, end = endpoints
-            if (p, w, s) != (end - start, setup - q, start - setup):
-                invalid.append([order_id, row["Activity Name"], "activity formula"])
-            groups[row["Activity Name"], row["Pass"]].append(row)
-        timings = []
-        for (activity, activity_pass), records in groups.items():
-            if activity in {"Wash", "Dry"}:
-                q, setup = (min(D(r[name]) for r in records) for name in ENDPOINTS[:2])
-                start, end = (max(D(r[name]) for r in records) for name in ENDPOINTS[2:])
-                p, w, s = end - start, setup - q, start - setup
-            else:
-                p, w, s = (sum(D(r[name]) for r in records) for name in COMPONENTS)
-            right_first_time = all(r["Rework Y/N"] != "Y" for r in records)
-            is_va = right_first_time and activity in {
-                "Wash",
-                "Dry",
-                "Fold and package",
-                "Send readiness notification",
-            }
-            timings.append(
-                {
-                    "activity": activity,
-                    "pass": activity_pass,
-                    "pt": p,
-                    "wt": w,
-                    "st": s,
-                    "va": p if is_va else D(0),
-                }
-            )
+        timings = _activity_timings(rows, order_id, invalid)
         starts = [D(r[ENDPOINTS[0]]) for r in rows if r["Activity Name"] == "Drop-off and ticket"]
         ends = [
             D(r[ENDPOINTS[3]]) for r in rows if r["Activity Name"] == "Send readiness notification"
@@ -133,6 +140,7 @@ def reference_audit(events, summaries):
 
 
 def public_probes(frame, eligible, data_dir):
+    """Capture public API behavior for the supplied baseline and invalid inputs."""
     summary = lss.describe(frame, column=LEAD, missing="raise", unit="minutes")
     eligible_summary = lss.describe(eligible, column=LEAD, missing="raise", unit="minutes")
     counterexample = lss.describe(pl.DataFrame({"x": [1, 2, 3, 4]}), column="x")

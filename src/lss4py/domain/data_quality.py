@@ -67,9 +67,8 @@ def _domain(rule: ColumnRule) -> None:
             _bound(value)
             if rule.kind not in ("numeric", "integer"):
                 raise ValidationError("Bounds require a numeric kind.")
-    if rule.minimum is not None and rule.maximum is not None:
-        if rule.minimum > rule.maximum:
-            raise ValidationError("minimum cannot exceed maximum.")
+    if rule.minimum is not None and rule.maximum is not None and rule.minimum > rule.maximum:
+        raise ValidationError("minimum cannot exceed maximum.")
 
 
 def _sequence(value: Any) -> tuple:

@@ -100,7 +100,7 @@ def test_incomplete_orders_fail_without_exclusions(log, activity):
     frame = log.frame.filter(
         ~((pl.col("Order ID") == "WNF-003") & (pl.col("Activity Name") == activity))
     )
-    with pytest.raises(ValidationError, match="Incomplete order.*WNF-003"):
+    with pytest.raises(ValidationError, match=r"Incomplete order.*WNF-003"):
         reconstruct_orders(NumericEventLog(frame, log.contract), policy=EXAMPLE.POLICY)
 
 
@@ -112,7 +112,7 @@ def test_gaps_and_overlaps_are_not_zero_filled(log):
         .otherwise(pl.col(q))
         .alias(q)
     )
-    with pytest.raises(ValidationError, match="Gap/overlap.*WNF-003.*rows="):
+    with pytest.raises(ValidationError, match=r"Gap/overlap.*WNF-003.*rows="):
         reconstruct_orders(NumericEventLog(frame, log.contract), policy=EXAMPLE.POLICY)
 
 

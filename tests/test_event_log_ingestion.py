@@ -166,5 +166,5 @@ def test_csv_adapter_rejects_non_polars_materialization(tmp_path: Path) -> None:
         "C1,intake,2026-09-01T08:00:00,2026-09-01T09:00:00\n",
     )
 
-    with pytest.raises(ValueError, match="materialize.*polars"):
+    with pytest.raises(ValueError, match=r"materialize.*polars"):
         EventLogCSVAdapter(path).load(backend="pandas")

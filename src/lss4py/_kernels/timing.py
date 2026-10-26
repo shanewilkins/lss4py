@@ -91,6 +91,7 @@ def lead_time(
         end_column: Timestamp column for process end.
         process_model: Optional ProcessModelIR with lead-time bindings.
         unit: Time unit for results ("seconds", "minutes", "hours", "days").
+        key_column: Optional unique scalar column identifying each observation.
 
     Returns:
         TimingResult with per-row lead times in requested unit, including full
@@ -249,6 +250,7 @@ def wait_time(
         cycle_time_column: Explicit cycle-time column.
         process_model: Optional ProcessModelIR (v0.3).
         unit: Common unit of supplied measurements; no implicit conversion. Defaults to hours.
+        key_column: Optional unique scalar column identifying each observation.
 
     Returns:
         TimingResult with per-row wait times, including full provenance.
@@ -369,6 +371,14 @@ def process_cycle_efficiency(
         value_add_time_column: Explicit value-add time column.
         process_model: Optional ProcessModelIR (v0.3).
         as_percentage: Return as percentage (default) or ratio.
+        key_column: Optional unique scalar key for per-row results.
+        aggregation: Per-row efficiency or a cohort ratio of sums.
+        case_id_column: Unique case identity column required for cohort aggregation.
+        unit: Common unit of supplied cohort durations; no implicit conversion.
+        clock: Declared operating or calendar clock for the cohort.
+        boundary: Declared start and end of the measured process.
+        cohort: Description of the population included in the calculation.
+        value_add_convention: Explicit rule identifying value-adding duration.
 
     Returns:
         TimingResult with per-row efficiency values (percentage or ratio), including provenance.

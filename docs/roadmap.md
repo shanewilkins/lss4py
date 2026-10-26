@@ -122,6 +122,41 @@ TR-003/TR-013/TR-040/TR-043/TR-044/TR-045/TR-046 contracts; their current status
 do not imply this additional integration is implemented. v0.2.0 retains its
 completed local acceptance scope and candidate version.
 
+The [2026-10-26 sprint draft](plans/v021-flo-white-belt.md#sprint-draft-2026-10-26)
+orders source/profile verification, the Pydantic pilot, model-derived measurement
+policy, an installed-package demonstration, targeted coverage hardening and final
+acceptance. Dates, capacity and owners remain unset. Full-package coverage is
+already enabled; new sprint tests target supported behavior and failure paths.
+
+Pint unit support is also planned for this sprint: add the dependency after
+deciding core versus optional placement, and deliver bounded, explicit duration
+validation/conversion with registry ownership, conversion provenance and portable
+serialization. Preserve existing numeric + unit APIs and distinguish operating
+clocks from calendar durations. See task S2a in the sprint draft.
+
+### Next sprint: Pydantic integration-boundary pilot
+
+- **Status:** Planned; accepted 2026-10-25 for the next sprint alongside the
+  v0.2.1 FLO integration follow-up.
+- **Scope:** Pilot Pydantic on the external FLO JSON payloads consumed by
+  `src/lss4py/integration/process.py`. Replace repetitive structural checks for
+  nested objects, required text, supported literals and boolean fields with
+  explicit schemas. Retain custom graph-reference and routing-semantic checks.
+- **Contract:** Use strict validation and reject unknown fields where the
+  existing contract requires it. Preserve accepted payloads, canonical snapshots,
+  fingerprints and public `lss4py.errors.ValidationError` behavior; improve
+  field-level error locations without introducing silent coercion.
+- **Boundaries:** Keep internal dataclasses, numerical kernels and dataframe
+  validation unchanged. Preserve the standard-library-only standalone bundle
+  validator in `src/lss4py/_bundle_schema.py`. Decide and document dependency
+  placement so the pilot respects optional integration boundaries.
+- **Acceptance:** Pass existing integration and installed-package contract tests;
+  cover nested invalid fields, coercion rejection and applicable unknown-field
+  rejection. Compare validation-code reduction and error clarity, document the
+  dependency impact, and use that evidence to decide whether broader adoption
+  is worthwhile. Serialized specifications are a possible later candidate,
+  outside this pilot's scope.
+
 ## White Belt book delivery slices
 
 The [book sprint plan](plans/white-belt-book-preview.md) sequences delivery of the

@@ -1,5 +1,4 @@
-"""
-LSS4PY Adapter Layer
+"""LSS4PY Adapter Layer.
 
 Adapters normalize file data and future external sources into LSS4PY's canonical
 Polars tabular contracts.

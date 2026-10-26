@@ -144,4 +144,5 @@ __all__ = [
 
 
 def main() -> None:
+    """Print the package's lightweight readiness message."""
     print("lss4py scaffold ready")

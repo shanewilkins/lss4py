@@ -303,19 +303,22 @@ def test_invalid_intake_study(fixtures, tmp_path, read_csv, failure, message):
     source = tmp_path / "invalid-intake.csv"
     source.write_text(contents)
     frame = read_csv(source)
-    with pytest.raises(ValidationError, match=message):
-        if failure == "invalid-funnel":
+    if failure == "invalid-funnel":
+        with pytest.raises(ValidationError, match=message):
             rolled_yield(
                 frame,
                 created_column="created",
                 booked_column="booked",
                 completed_column="completed",
             )
-        else:
+    elif failure == "negative-lead":
+        with pytest.raises(ValidationError, match=message):
             lead = lead_time(frame, start_column="created_at", end_column="closed_at")
-            if failure == "too-much-work":
-                prepared = pl.DataFrame({"lead": lead.values, "active": frame["active_hours"]})
-                wait_time(prepared, lead_time_column="lead", cycle_time_column="active")
+    else:
+        lead = lead_time(frame, start_column="created_at", end_column="closed_at")
+        prepared = pl.DataFrame({"lead": lead.values, "active": frame["active_hours"]})
+        with pytest.raises(ValidationError, match=message):
+            wait_time(prepared, lead_time_column="lead", cycle_time_column="active")
 
 
 def test_strict_measurement_policy(fixtures, read_csv):

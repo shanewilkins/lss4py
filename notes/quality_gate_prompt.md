@@ -214,7 +214,6 @@ uv run --locked import-linter lint --config lint_imports_config.ini
 uv run --locked vulture src tests --min-confidence 80
 uv run --locked xenon --max-absolute B --max-modules A --max-average A src/lss4py tests
 uv run --locked ty check
-uv run --locked interrogate -vv src/lss4py
 uv run --locked pydocstyle src/lss4py/_event_log.py src/lss4py/_kernels src/lss4py/domain src/lss4py/guidance
 uv run --locked bandit -r src/lss4py --skip B101
 uv run --locked pip-audit --desc

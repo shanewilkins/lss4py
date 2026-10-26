@@ -25,12 +25,12 @@ pytestmark = pytest.mark.parametrize(
     "backend", ["pandas", "pandas-indexed", "polars", "pyarrow"], indirect=True
 )
 FIXTURE = Path(__file__).parent / "fixtures/reference/washnfold-friday91"
-CONTEXT: dict[str, Any] = dict(
-    unit="minutes",
-    clock="cumulative operating minutes; closed hours excluded",
-    boundary="Drop-off through final readiness notification",
-    cohort="all orders",
-)
+CONTEXT: dict[str, Any] = {
+    "unit": "minutes",
+    "clock": "cumulative operating minutes; closed hours excluded",
+    "boundary": "Drop-off through final readiness notification",
+    "cohort": "all orders",
+}
 CONTRACT = OrderSummaryContract(
     case_id_column="id",
     arrival_column="arrival",
@@ -47,16 +47,16 @@ CONTRACT = OrderSummaryContract(
 
 def observations():
     """Supply unequal leads and a case ready at the exact deadline."""
-    return dict(
-        id=["A", "B"],
-        arrival=[0.0, 120.0],
-        ready=[600.0, 700.0],
-        lead=[600.0, 580.0],
-        va=[60.0, 116.0],
-        pt=[90.0, 150.0],
-        wt=[500.0, 420.0],
-        st=[10.0, 10.0],
-    )
+    return {
+        "id": ["A", "B"],
+        "arrival": [0.0, 120.0],
+        "ready": [600.0, 700.0],
+        "lead": [600.0, 580.0],
+        "va": [60.0, 116.0],
+        "pt": [90.0, 150.0],
+        "wt": [500.0, 420.0],
+        "st": [10.0, 10.0],
+    }
 
 
 def test_valid_prepared_contract_preserves_semantics_and_source(frame_factory):
@@ -126,11 +126,11 @@ def test_descriptive_sum_roundtrip_and_legacy_result(frame_factory):
 
 def test_fixed_deadline_equality_and_distinct_ineligible_cases(frame_factory):
     data = frame_factory(
-        dict(
-            id=["A", "B", "C", "D"],
-            arrival=[120.0, 120.0, 120.1, 0.0],
-            ready=[600.0, 600.1, 700.0, 601.0],
-        )
+        {
+            "id": ["A", "B", "C", "D"],
+            "arrival": [120.0, 120.0, 120.1, 0.0],
+            "ready": [600.0, 600.1, 700.0, 601.0],
+        }
     )
     result = deadline_performance(
         data,
@@ -186,7 +186,7 @@ def test_deadline_invalid_or_undefined_populations_fail(frame_factory, change):
 
 
 def test_ratio_of_sums_retains_aligned_case_evidence(frame_factory):
-    data = frame_factory(dict(id=["A", "B"], lead=[10.0, 90.0], va=[5.0, 9.0]))
+    data = frame_factory({"id": ["A", "B"], "lead": [10.0, 90.0], "va": [5.0, 9.0]})
     result = process_cycle_efficiency(
         data,
         lead_time_column="lead",
@@ -215,7 +215,7 @@ def test_ratio_of_sums_retains_aligned_case_evidence(frame_factory):
 
 def test_cohort_result_bundle_roundtrip(frame_factory):
     result = process_cycle_efficiency(
-        frame_factory(dict(id=["A", "B"], lead=[10.0, 90.0], va=[5.0, 9.0])),
+        frame_factory({"id": ["A", "B"], "lead": [10.0, 90.0], "va": [5.0, 9.0]}),
         lead_time_column="lead",
         value_add_time_column="va",
         aggregation="cohort",

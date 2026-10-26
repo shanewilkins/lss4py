@@ -3,25 +3,42 @@ default_install_hook_types:
   - pre-push
 
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.1
+  - repo: local
     hooks:
       - id: ruff-check
+        name: Ruff (locked)
+        entry: uv run --locked ruff check
+        language: system
+        types_or: [python, pyi, jupyter]
         args: [--fix]
         stages: [pre-commit]
       - id: ruff-format
+        name: Ruff format (locked)
+        entry: uv run --locked ruff format
+        language: system
+        types_or: [python, pyi, jupyter]
         stages: [pre-commit]
-
-  - repo: https://github.com/jendrikseipp/vulture
-    rev: v2.14
-    hooks:
-      - id: vulture
-        args: [src, tests, --min-confidence, "80"]
+      - id: ruff-check-all
+        name: Ruff (all files)
+        entry: uv run --locked ruff check .
+        language: system
+        pass_filenames: false
         stages: [pre-push]
         always_run: true
-
-  - repo: local
-    hooks:
+      - id: ruff-format-check
+        name: Ruff format (all files)
+        entry: uv run --locked ruff format --check .
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        always_run: true
+      - id: vulture
+        name: Vulture (locked)
+        entry: uv run --locked vulture src tests --min-confidence 80
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        always_run: true
       - id: lock-check
         name: uv lock --check
         entry: uv lock --check
@@ -30,25 +47,9 @@ repos:
         stages: [pre-push]
         always_run: true
 
-      - id: interrogate
-        name: interrogate (docstring coverage 80%)
-        entry: uv run --locked interrogate -vv src/lss4py
-        language: system
-        pass_filenames: false
-        stages: [pre-push]
-        always_run: true
-
-      - id: pydocstyle
-        name: pydocstyle (docstring format)
-        entry: uv run --locked pydocstyle src/lss4py/_event_log.py src/lss4py/_kernels src/lss4py/domain src/lss4py/guidance
-        language: system
-        pass_filenames: false
-        stages: [pre-push]
-        always_run: true
-
       - id: coverage
         name: coverage (90% minimum)
-        entry: uv run --locked pytest --cov=src/lss4py --cov-fail-under=90
+        entry: uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-fail-under=90
         language: system
         pass_filenames: false
         stages: [pre-push]
@@ -70,18 +71,10 @@ repos:
         stages: [pre-push]
         always_run: true
 
-      - id: xenon
-        name: xenon
-        entry: uv run --locked xenon --max-absolute B --max-modules A --max-average A src/lss4py tests
-        language: system
-        pass_filenames: false
-        stages: [pre-push]
-        always_run: true
-
       - id: pytest
         name: pytest
         entry: uv run --locked pytest
         language: system
         pass_filenames: false
-        stages: [pre-commit, pre-push]
+        stages: [pre-commit]
         always_run: true

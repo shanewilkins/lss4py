@@ -339,13 +339,14 @@ tests use only the Python environment.
 The repository is currently validated with:
 
 - `uv lock --check`
-- `uv run --locked lint-imports`
-- `uv sync`
+- `uv sync --locked --group dev --extra storage`
 - `uv run --locked ruff check .`
+- `uv run --locked ruff format --check .`
 - `uv run --locked ty check`
-- `uv run --locked xenon --max-absolute B --max-modules A --max-average A src/lss4py tests`
-- `uv run --locked pytest`
+- `uv run --locked import-linter lint --config lint_imports_config.ini`
+- `uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-fail-under=90`
 - `uv run --locked vulture src tests --min-confidence 80`
+- `uv run --locked pip-audit --desc`
 
 Install both local hook stages with:
 
@@ -356,8 +357,14 @@ uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre
 The `pre-commit` stage runs Ruff on changed files and the locked test suite without coverage.
 
 The `pre-push` stage and CI run the full locked repository-wide gates.
+Pre-push runs the suite once with coverage and requires the Arrow backend;
+Ruff includes production-source security checks; CI and release builds additionally
+require the dependency vulnerability audit.
+Ruff and Vulture hooks use the project's locked tools rather than separate hook
+environments. See [toolchain policy](docs/toolchain.md) for rule selection and
+the distinct checks retained alongside Ruff.
 
-CI additionally enforces 90% coverage on the current supported slice and runs
+CI enforces 90% statement coverage across the full package and runs
 [installed-wheel end-to-end studies](e2e/README.md) outside the source tree.
 These exercise CSV ingestion, timing/yield analyses, capability studies, JSON
 exports, and failure scenarios in base and pandas-extra installations. Run them

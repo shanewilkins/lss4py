@@ -9,6 +9,7 @@ DEFAULT_SERVICE_NAME: Final[str] = "lss4py"
 
 
 def configure_telemetry(service_name: str = DEFAULT_SERVICE_NAME) -> None:
+    """Install a tracer provider with batched console export for the named service."""
     resource = Resource.create({SERVICE_NAME: service_name})
     provider = TracerProvider(resource=resource)
     provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
@@ -16,4 +17,5 @@ def configure_telemetry(service_name: str = DEFAULT_SERVICE_NAME) -> None:
 
 
 def get_tracer(name: str = DEFAULT_SERVICE_NAME):
+    """Return a tracer for the named instrumentation scope."""
     return trace.get_tracer(name)

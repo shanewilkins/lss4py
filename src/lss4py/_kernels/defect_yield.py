@@ -23,9 +23,7 @@ def _count(value: Any, label: str) -> int:
     """Validate exact nonnegative counts without coercing text, booleans, or nulls."""
     if isinstance(value, bool) or not isinstance(value, Real):
         raise ValidationError(f"{label} must contain nonnegative integer counts.")
-    if isinstance(value, Integral):
-        count = int(value)
-    elif isfinite(value) and value == int(value) and value <= 2**53:
+    if isinstance(value, Integral) or isfinite(value) and value == int(value) and value <= 2**53:
         count = int(value)
     else:
         raise ValidationError(f"{label} must contain finite, exact integer counts.")

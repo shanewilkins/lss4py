@@ -101,7 +101,7 @@ class EventLogCSVAdapter(EventLogAdapter):
 
     def _read_and_normalize(self, source_path: Path) -> pl.DataFrame:
         """Read the CSV and apply canonical names, types, and validation."""
-        schema_overrides = {source_name: pl.String for source_name in self._source_columns.values()}
+        schema_overrides = dict.fromkeys(self._source_columns.values(), pl.String)
         try:
             source = pl.read_csv(
                 source_path,

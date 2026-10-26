@@ -6,6 +6,7 @@ import structlog
 
 
 def configure_logging(debug: bool = False) -> None:
+    """Configure structured JSON logging to stdout at the requested verbosity."""
     log_level = logging.DEBUG if debug else logging.INFO
 
     logging.basicConfig(
@@ -32,4 +33,5 @@ def configure_logging(debug: bool = False) -> None:
 
 
 def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
+    """Return a structured logger with an optional name."""
     return structlog.get_logger(name)

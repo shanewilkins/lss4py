@@ -10,5 +10,6 @@ class AnalysisBundle:
 
 
 def to_markdown(bundle: AnalysisBundle) -> str:
+    """Reject Markdown rendering until the bundle renderer is implemented."""
     _ = bundle
     raise NotImplementedError("Markdown bundle rendering is not implemented yet.")

@@ -288,9 +288,12 @@ class EvidenceManifest:
             _validate_result(identifier, result)
             if result["provenance"]["package_version"] != body["software_versions"].get("lss4py"):
                 raise ValidationError("Analytical package version differs from manifest.")
-            if result["result_type"] == "TimingResult" and result.get("keys") is not None:
-                if result["keys"] != body["included_case_ids"]:
-                    raise ValidationError("Timing case identity/order differs from cohort.")
+            if (
+                result["result_type"] == "TimingResult"
+                and result.get("keys") is not None
+                and result["keys"] != body["included_case_ids"]
+            ):
+                raise ValidationError("Timing case identity/order differs from cohort.")
         if body["software_versions"].get("flo-lang") != body["process"]["flo_version"]:
             raise ValidationError("FLO version differs from process projection.")
 

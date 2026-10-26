@@ -251,6 +251,5 @@ def test_invalid_evidence_cannot_emit_a_successful_study(tmp_path, failure):
     from lss4py import AdapterError
 
     with pytest.raises((ValidationError, AdapterError)):
-        _, manifest = study(source, payload=payload)
-        (tmp_path / "success.json").write_text(manifest.to_json())
+        study(source, payload=payload)
     assert not (tmp_path / "success.json").exists()

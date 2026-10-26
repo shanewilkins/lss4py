@@ -17,7 +17,7 @@ def run(*command: str, cwd: Path) -> None:
         environment.pop(key, None)
     environment["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
     environment["MPLCONFIGDIR"] = str(cwd / ".matplotlib")
-    subprocess.run(command, cwd=cwd, env=environment, check=True)  # noqa: S603
+    subprocess.run(command, cwd=cwd, env=environment, check=True)
 
 
 def main() -> None:
