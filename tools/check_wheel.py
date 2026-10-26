@@ -1,6 +1,8 @@
-"""Build a wheel and exercise customer workflows in an isolated installation."""
+"""Exercise a supplied or newly built wheel in an isolated installation."""
 
 import argparse
+import hashlib
+import json
 import os
 import shutil
 import subprocess
@@ -20,10 +22,53 @@ def run(*command: str, cwd: Path) -> None:
     subprocess.run(command, cwd=cwd, env=environment, check=True)
 
 
+def _select_wheel(supplied: Path | None, workspace: Path, root: Path) -> Path:
+    """Use the exact supplied artifact, building only when none was provided."""
+    if supplied is not None:
+        return supplied
+    run("uv", "build", "--wheel", "--out-dir", str(workspace / "dist"), cwd=root)
+    (wheel,) = (workspace / "dist").glob("*.whl")
+    return wheel
+
+
+def _study_matrix(
+    test: tuple[str, ...],
+    install: tuple[str, ...],
+    wheel: Path,
+    workspace: Path,
+    args: argparse.Namespace,
+) -> None:
+    """Run base and optional installs, retaining a distinct report for each pass."""
+    stages: list[tuple[str, tuple[str, ...], tuple[str, ...]]] = [
+        ("base", (), ()),
+        ("pandas", ("pandas",), ("--with-pandas",)),
+    ]
+    if args.storage or args.ecosystem:
+        stages.append(("storage", ("pandas", "storage"), ("--with-pandas", "--with-storage")))
+    if args.ecosystem:
+        stages.append(
+            (
+                "ecosystem",
+                ("pandas", "storage", "integration", "visualization"),
+                ("--with-pandas", "--with-storage", "--ecosystem"),
+            )
+        )
+    for name, extras, options in stages:
+        requirement = f"{wheel}[{','.join(extras)}]" if extras else str(wheel)
+        run(*install, requirement, "pytest", cwd=workspace)
+        report = (
+            (f"--junitxml={args.artifacts_dir / 'tests' / f'{name}.xml'}",)
+            if args.artifacts_dir
+            else ()
+        )
+        run(*test, *options, *report, cwd=workspace)
+
+
 def main() -> None:
     """Test base and pandas-extra installs outside the checkout using locked dependencies."""
     root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--wheel", type=Path, help="Test this exact wheel without rebuilding it")
     parser.add_argument(
         "--ecosystem", action="store_true", help="Also test released FLO and plotting extras"
     )
@@ -32,11 +77,22 @@ def main() -> None:
     )
     parser.add_argument("--artifacts-dir", type=Path, help="Retain ecosystem evidence and graphics")
     args = parser.parse_args()
+    if args.wheel:
+        args.wheel = args.wheel.resolve()
+        if not args.wheel.is_file() or args.wheel.suffix != ".whl":
+            parser.error("--wheel must name an existing .whl file")
     if args.artifacts_dir:
-        os.environ["LSS4PY_E2E_ARTIFACTS"] = str(args.artifacts_dir.resolve())
+        args.artifacts_dir = args.artifacts_dir.resolve()
+        args.artifacts_dir.mkdir(parents=True, exist_ok=True)
+        os.environ["LSS4PY_E2E_ARTIFACTS"] = str(args.artifacts_dir)
     with TemporaryDirectory(prefix="lss4py-wheel-") as directory:
         workspace = Path(directory)
-        run("uv", "build", "--wheel", "--out-dir", str(workspace / "dist"), cwd=root)
+        wheel = _select_wheel(args.wheel, workspace, root)
+        digest = hashlib.sha256(wheel.read_bytes()).hexdigest()
+        if args.artifacts_dir:
+            (args.artifacts_dir / "wheel.json").write_text(
+                json.dumps({"wheel": wheel.name, "sha256": digest}, indent=2) + "\n"
+            )
         constraints = workspace / "constraints.txt"
         run(
             "uv",
@@ -59,7 +115,6 @@ def main() -> None:
             str(constraints),
             cwd=root,
         )
-        (wheel,) = (workspace / "dist").glob("*.whl")
         environment = workspace / "venv"
         run("uv", "venv", "--python", sys.executable, str(environment), cwd=workspace)
         executable_dir = environment / ("Scripts" if os.name == "nt" else "bin")
@@ -69,17 +124,21 @@ def main() -> None:
         shutil.copytree(root / "examples" / "white_belt", suite / "fixtures" / "white_belt")
         shutil.copytree(root / "tests" / "fixtures" / "ecosystem", suite / "ecosystem" / "fixtures")
         install = ("uv", "pip", "install", "--python", python, "--constraint", str(constraints))
-        run(*install, str(wheel), "pytest", cwd=workspace)
-        test = (python, "-I", "-m", "pytest", "-q", "--strict-markers", str(suite))
-        run(*test, cwd=workspace)
-        run(*install, f"{wheel}[pandas]", cwd=workspace)
-        run(*test, "--with-pandas", cwd=workspace)
-        if args.storage or args.ecosystem:
-            run(*install, f"{wheel}[pandas,storage]", cwd=workspace)
-            run(*test, "--with-pandas", "--with-storage", cwd=workspace)
-        if args.ecosystem:
-            run(*install, f"{wheel}[integration,visualization]", cwd=workspace)
-            run(*test, "--with-pandas", "--with-storage", "--ecosystem", cwd=workspace)
+        test = (
+            python,
+            "-I",
+            "-m",
+            "pytest",
+            "-q",
+            "--strict-config",
+            "--strict-markers",
+            "-o",
+            "xfail_strict=true",
+            str(suite),
+        )
+        _study_matrix(test, install, wheel, workspace, args)
+        if hashlib.sha256(wheel.read_bytes()).hexdigest() != digest:
+            raise ValueError("The tested wheel changed during verification")
 
 
 if __name__ == "__main__":

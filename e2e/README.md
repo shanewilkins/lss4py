@@ -12,7 +12,15 @@ Add `--artifacts-dir /tmp/lss4py-ecosystem-artifacts` to retain the source snaps
 manifest, observed annotation JSON, modeled value-stream SVG and observed SVG/PNG
 chart. See the [integration guide](../docs/ecosystem-integration.md).
 
-The runner builds the current checkout, creates a fresh temporary virtual
+Pass `--wheel /absolute/path/to/lss4py-0.2.0-py3-none-any.whl` to test an existing
+artifact without rebuilding it. The release workflow uses the exact wheel in
+`dist/` that it later publishes. With `--artifacts-dir`, the runner also saves
+`wheel.json` (filename and SHA-256) and separate `tests/base.xml`, `pandas.xml`,
+`storage.xml` and `ecosystem.xml` JUnit reports for the enabled installation
+stages, including reports produced by failed test runs. A wheel changed during
+verification is rejected.
+
+By default the runner builds the current checkout, creates a fresh temporary virtual
 environment, installs the wheel and pytest, and copies this suite outside the
 checkout. Python runs in isolated mode; the suite rejects editable/source imports
 and leaked development plugins. It then installs the

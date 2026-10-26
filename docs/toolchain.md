@@ -69,10 +69,18 @@ coverage evidence.
 
 ## Test and installation gates
 
-Commit hooks run ordinary tests without coverage. Pre-push runs the suite once,
+Commit hooks run only locked Ruff lint/format on changed files. Pre-push runs the suite once,
 with required PyArrow and full-package coverage; it no longer repeats a plain
 pytest run. The release workflow consumes that same pre-push gate instead of
 repeating the coverage suite. CI runs the equivalent coverage command directly.
+Source and installed-wheel tests use strict configuration, registered markers and
+strict expected failures. A passing test still marked xfail fails the gate until
+its obsolete marker is removed.
+
+The source suite writes JUnit and coverage XML under `artifacts/tests`; the wheel
+runner writes one JUnit report per enabled installation stage when given
+`--artifacts-dir`. CI/release upload available reports even after a failed gate,
+with a 14-day retention period. Generated artifacts are ignored by Git.
 
 Installed-wheel studies remain separate: they reject source/editable imports and
 development-plugin leakage, and exercise base, pandas, storage and ecosystem
@@ -80,3 +88,26 @@ installations. They do not contribute to the source coverage percentage. Neither
 branch coverage nor coverage of an unfinished stub implies that its feature is
 implemented. Historical release assessments retain the tools and measurements
 that were actually used when their evidence was captured.
+
+The release gate passes its already built wheel to `tools/check_wheel.py --wheel`.
+That option never rebuilds the package; all installation stages use the supplied
+artifact. Retained `wheel.json` records its SHA-256, and the runner rejects an
+artifact changed during verification. The no-option path still builds a wheel
+for ordinary development checks.
+
+## Workflow maintenance
+
+All Action references are pinned to full commit SHAs with version comments.
+Dependabot proposes weekly grouped GitHub Actions updates; it does not merge
+them automatically. Workflows default to read-only contents access, disable
+checkout credential persistence, and set job timeouts. Only the PyPI publishing
+job grants OIDC token permission. Postpublication verification reads its helper
+from the release tag.
+
+CI validates the hook configuration with the existing `pre-commit` tool and
+checks workflows with actionlint 1.7.11. Its standalone Linux binary is verified
+against a pinned SHA-256 before execution; updating that version requires
+updating its checksum in the same change. Optional shellcheck/pyflakes integrations
+are disabled, so actionlint adds no Python dependency. Locally, install actionlint
+separately and run `actionlint -shellcheck= -pyflakes=`. Workflow linting remains
+a CI check rather than a prerequisite for local Python hooks.

@@ -99,7 +99,8 @@ convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q --strict-config --strict-markers"
+xfail_strict = true
 
 [tool.coverage.run]
 source = ["src/lss4py"]

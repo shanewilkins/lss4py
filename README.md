@@ -342,6 +342,7 @@ The repository is currently validated with:
 - `uv sync --locked --group dev --extra storage`
 - `uv run --locked ruff check .`
 - `uv run --locked ruff format --check .`
+- `uv run --locked pre-commit validate-config`
 - `uv run --locked ty check`
 - `uv run --locked import-linter lint --config lint_imports_config.ini`
 - `uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-fail-under=90`
@@ -354,7 +355,8 @@ Install both local hook stages with:
 uv run pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push
 ```
 
-The `pre-commit` stage runs Ruff on changed files and the locked test suite without coverage.
+The `pre-commit` stage runs locked Ruff lint/format on changed files. It does not
+run the test suite; full tests run at pre-push and in CI.
 
 The `pre-push` stage and CI run the full locked repository-wide gates.
 Pre-push runs the suite once with coverage and requires the Arrow backend;
@@ -373,6 +375,10 @@ CI and the release build also require the
 [FLO ecosystem journey](docs/ecosystem-integration.md), using published FLO 0.4.2
 and the candidate LSS4PY wheel. Run it with
 `uv run --locked python tools/check_wheel.py --ecosystem`.
+To verify an already built release artifact without rebuilding it, pass
+`--wheel dist/lss4py-0.2.0-py3-none-any.whl`. Add `--artifacts-dir artifacts/ecosystem`
+to retain per-installation JUnit reports, the tested wheel's SHA-256 and ecosystem
+evidence. CI retains source JUnit/coverage XML and installed-wheel reports for 14 days.
 
 ## Roadmap
 

@@ -10,6 +10,7 @@ repos:
         entry: uv run --locked ruff check
         language: system
         types_or: [python, pyi, jupyter]
+        require_serial: true
         args: [--fix]
         stages: [pre-commit]
       - id: ruff-format
@@ -17,10 +18,18 @@ repos:
         entry: uv run --locked ruff format
         language: system
         types_or: [python, pyi, jupyter]
+        require_serial: true
         stages: [pre-commit]
       - id: ruff-check-all
         name: Ruff (all files)
         entry: uv run --locked ruff check .
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        always_run: true
+      - id: validate-hooks
+        name: Validate pre-commit configuration
+        entry: uv run --locked pre-commit validate-config
         language: system
         pass_filenames: false
         stages: [pre-push]
@@ -49,7 +58,7 @@ repos:
 
       - id: coverage
         name: coverage (90% minimum)
-        entry: uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-fail-under=90
+        entry: uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-fail-under=90 --cov-report=term-missing --cov-report=xml:artifacts/tests/coverage.xml --junitxml=artifacts/tests/junit.xml
         language: system
         pass_filenames: false
         stages: [pre-push]
@@ -69,12 +78,4 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-push]
-        always_run: true
-
-      - id: pytest
-        name: pytest
-        entry: uv run --locked pytest
-        language: system
-        pass_filenames: false
-        stages: [pre-commit]
         always_run: true

@@ -210,17 +210,21 @@ Do not claim a prior chat's passing checks cover a changed revision or environme
 ```bash
 uv lock --check
 uv run --locked ruff check .
+uv run --locked ruff format --check .
+uv run --locked pre-commit validate-config
 uv run --locked import-linter lint --config lint_imports_config.ini
 uv run --locked vulture src tests --min-confidence 80
-uv run --locked xenon --max-absolute B --max-modules A --max-average A src/lss4py tests
 uv run --locked ty check
-uv run --locked pydocstyle src/lss4py/_event_log.py src/lss4py/_kernels src/lss4py/domain src/lss4py/guidance
-uv run --locked bandit -r src/lss4py --skip B101
 uv run --locked pip-audit --desc
-uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-report=term-missing
+uv run --locked --extra storage pytest --require-pyarrow --cov=src/lss4py --cov-report=term-missing --cov-report=xml:artifacts/tests/coverage.xml --junitxml=artifacts/tests/junit.xml
 uv build
 uv run --locked python tools/check_wheel.py --ecosystem
 ```
+
+CI additionally runs standalone `actionlint -shellcheck= -pyflakes=`. For release
+acceptance, test the existing artifact with `tools/check_wheel.py --wheel
+dist/lss4py-0.2.0-py3-none-any.whl --ecosystem --artifacts-dir artifacts/ecosystem`
+rather than rebuilding a second wheel. Record the tested wheel's SHA-256.
 
 The storage extra and `--require-pyarrow` make the governed Arrow matrix mandatory;
 do not silently accept skipped backends as parity evidence. Inspect expected
