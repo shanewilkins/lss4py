@@ -176,10 +176,13 @@ result and returns native axes; its optional imports occur only when called.
 
 **Location:** `lss4py/integration/`
 
-The optional bridge accepts FLO 0.4.2's public JSON export and translates a bounded
+The optional bridge accepts FLO 0.4.3's public JSON export and translates a bounded
 supported projection into ProcessModelIR. It preserves declared step identities,
 parallel/rework topology, source semantics and modeled metadata. It imports domain
-contracts only, without FLO, kernels, adapters or rendering. Versioned evidence
+contracts and private Pydantic exchange schemas, without FLO, kernels, adapters
+or rendering. Pydantic is a direct base dependency so portable JSON validation
+does not require the optional FLO producer. Schemas validate shapes without
+serializing over the original snapshot. Versioned evidence
 manifests capture completed timing/descriptive results and explicit study context;
 restoration does not recalculate. The external reference workflow composes FLO and
 LSS4PY public operations and keeps modeled diagrams and observed metrics separate.

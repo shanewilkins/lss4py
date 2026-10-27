@@ -2,7 +2,7 @@ spec_version: "0.1"
 process:
   id: intake_baseline
   name: Intake baseline
-  version: 1
+  version: 2
 items:
   - id: order
     name: Order
@@ -31,11 +31,14 @@ steps:
     kind: parallel_split
     name: Begin parallel reviews
   - id: review
-    kind: decision
+    kind: task
     name: Review
     consumes: [ticket]
     metadata:
       cycle_time: {value: 30, unit: min}
+  - id: review_check
+    kind: decision
+    name: Review approved?
   - id: approval
     kind: task
     name: Approval
@@ -60,11 +63,12 @@ transitions:
   - {source: intake, target: split}
   - {source: split, target: review}
   - {source: split, target: approval}
-  - {source: review, target: join, outcome: approved}
+  - {source: review, target: review_check}
+  - {source: review_check, target: join, outcome: approved}
   - {source: approval, target: join}
   - {source: join, target: close}
   - {source: close, target: end}
-  - source: review
+  - source: review_check
     target: review
     outcome: revise
     edge_type: rework

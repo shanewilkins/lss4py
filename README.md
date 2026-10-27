@@ -372,7 +372,7 @@ These exercise CSV ingestion, timing/yield analyses, capability studies, JSON
 exports, and failure scenarios in base and pandas-extra installations. Run them
 locally with `uv run --locked python tools/check_wheel.py`.
 CI and the release build also require the
-[FLO ecosystem journey](docs/ecosystem-integration.md), using published FLO 0.4.2
+[FLO ecosystem journey](docs/ecosystem-integration.md), using published FLO 0.4.3
 and the candidate LSS4PY wheel. Run it with
 `uv run --locked python tools/check_wheel.py --ecosystem`.
 To verify an already built release artifact without rebuilding it, pass

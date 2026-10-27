@@ -90,3 +90,5 @@ Maintainers review these documents with the same change as the code whenever
 practical. A separate governance ceremony is not required.
 
 - [Numeric activity-to-order reconstruction](order-reconstruction.md): explicit book policy, complete orders and inspectable source/load/pass evidence.
+- [v0.2.1 book model assessment](assessments/v021-book-model.md): pinned actual FLO model, producer compatibility and remaining measurement-policy boundaries.
+- [v0.2.1 Pydantic pilot](assessments/v021-pydantic-pilot.md): strict portable payload schemas, compatibility evidence and dependency/code-size tradeoffs.

@@ -16,9 +16,10 @@ from lss4py.domain import (
 )
 from lss4py.errors import ValidationError
 
-FLO_VERSION = "0.4.2"
+from ._process_schema import ProjectionEnvelope, validate_projection
+
+FLO_VERSION = "0.4.3"
 CONTRACT_VERSION = "1.0"
-NODE_KINDS = {"start", "end", "task", "queue", "decision", "parallel_split", "parallel_join"}
 
 
 def strict_json(value: Any) -> str:
@@ -41,58 +42,26 @@ def nonblank(value: Any, name: str) -> str:
     return value
 
 
-def _nodes(payload: dict) -> dict[str, dict]:
-    """Reject topology whose meaning the first projection cannot represent."""
-    nodes = payload.get("nodes")
-    if not isinstance(nodes, list) or not nodes:
-        raise ValidationError("FLO export requires nonempty nodes.")
-    indexed = {}
-    for node in nodes:
-        if not isinstance(node, dict):
-            raise ValidationError("FLO nodes must be objects.")
-        identifier = nonblank(node.get("id"), "node id")
-        if identifier in indexed:
-            raise ValidationError(f"Duplicate FLO node id: {identifier}")
-        if (
-            node.get("kind") not in NODE_KINDS
-            or node.get("subprocess_parent") is not None
-            or node.get("branch") is not None
-        ):
-            raise ValidationError(f"Unsupported FLO node semantics: {identifier}")
-        indexed[identifier] = node
-    return indexed
-
-
-def _edges(payload: dict, nodes: dict[str, dict]) -> list[dict]:
-    """Validate references and reject unsupported routing rather than flatten it."""
-    edges = payload.get("edges")
-    if not isinstance(edges, list):
-        raise ValidationError("FLO export requires edges.")
-    for edge in edges:
-        _validate_edge(edge, nodes)
-    return edges
-
-
-def _validate_edge(edge: Any, nodes: dict[str, dict]) -> None:
-    """Check one edge's references and supported selection semantics."""
-    if not isinstance(edge, dict):
-        raise ValidationError("FLO edges must be objects.")
-    if edge.get("source") not in nodes or edge.get("target") not in nodes:
-        raise ValidationError("FLO edge references an unknown step.")
-    if edge.get("route") is not None:
-        raise ValidationError("Unsupported FLO route semantics.")
-    if edge.get("edge_type") not in (None, "sequence", "rework", "handoff"):
-        raise ValidationError("Unsupported FLO edge type.")
-    _edge_flags(edge)
-
-
-def _edge_flags(edge: dict) -> None:
-    """Require explicit boolean flags and textual branch outcomes."""
-    for name in ("rework", "handoff"):
-        if name in edge and not isinstance(edge[name], bool):
-            raise ValidationError(f"FLO {name} must be boolean.")
-    if edge.get("outcome") is not None:
-        nonblank(edge["outcome"], "edge outcome")
+def _validate_references(projection: ProjectionEnvelope) -> None:
+    """Keep graph and observation identity rules separate from payload shapes."""
+    nodes = set()
+    for index, node in enumerate(projection.export.nodes):
+        if node.id in nodes:
+            raise ValidationError(f"export.nodes.{index}.id: Duplicate FLO node id: {node.id}")
+        nodes.add(node.id)
+    for index, edge in enumerate(projection.export.edges):
+        for field, identifier in (("source", edge.source), ("target", edge.target)):
+            if identifier not in nodes:
+                raise ValidationError(
+                    f"export.edges.{index}.{field}: FLO edge references an unknown step."
+                )
+    for source, target in projection.step_mapping.items():
+        if target not in nodes:
+            raise ValidationError(
+                f"step_mapping.{source}: Mapping references an unknown step: {target}"
+            )
+    if len(set(projection.step_mapping.values())) != len(projection.step_mapping):
+        raise ValidationError("step_mapping: Ambiguous many-to-one step mapping is unsupported.")
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,41 +76,10 @@ class ProcessProjection:
             body = json.loads(self._json)
         except (ValueError, TypeError) as exc:
             raise ValidationError("Invalid process projection JSON.") from exc
-        if not isinstance(body, dict) or set(body) != {
-            "schema_version",
-            "flo_version",
-            "source",
-            "model_revision",
-            "export",
-            "step_mapping",
-        }:
-            raise ValidationError("Invalid process projection fields.")
-        if body["schema_version"] != CONTRACT_VERSION or body["flo_version"] != FLO_VERSION:
-            raise ValidationError("Unsupported process schema or FLO version.")
-        nonblank(body["source"], "source namespace")
-        nonblank(body["model_revision"], "model revision")
-        payload = body["export"]
-        if not isinstance(payload, dict) or not isinstance(payload.get("process"), dict):
-            raise ValidationError("Invalid FLO process export.")
-        nonblank(payload["process"].get("id"), "process id")
-        nonblank(payload["process"].get("name"), "process name")
-        nodes = _nodes(payload)
-        _edges(payload, nodes)
-        self._validate_mapping(body["step_mapping"], nodes)
+        projection = validate_projection(body)
+        _validate_references(projection)
+        # The typed view is for validation only: retain omissions and all producer data.
         object.__setattr__(self, "_json", strict_json(body))
-
-    @staticmethod
-    def _validate_mapping(mapping: Any, nodes: dict[str, dict]) -> None:
-        """Require unambiguous source activity to declared-step associations."""
-        if not isinstance(mapping, dict) or not mapping:
-            raise ValidationError("An explicit nonempty step mapping is required.")
-        for source, target in mapping.items():
-            nonblank(source, "source activity id")
-            nonblank(target, "target step id")
-            if target not in nodes:
-                raise ValidationError(f"Mapping references an unknown step: {target}")
-        if len(set(mapping.values())) != len(mapping):
-            raise ValidationError("Ambiguous many-to-one step mapping is unsupported.")
 
     @classmethod
     def from_flo_export(

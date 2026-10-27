@@ -1,7 +1,7 @@
 # v0.2.1: FLO-backed White Belt measurement workflow
 
 - Accepted scope: 2026-10-24.
-- Status: Planned; implementation has not started.
+- Status: In progress; S1 and S2 completed 2026-10-26.
 - Release target: v0.2.1, following the v0.2.0 candidate.
 - Existing requirement coverage: UR-003, UR-014, UR-046, UR-047;
   TR-003, TR-013, TR-040, TR-043, TR-044, TR-045, TR-046.
@@ -20,7 +20,10 @@ classifications, explicit measurement conventions and saved audit evidence.
 
 This draft combines the accepted FLO workflow, Pydantic pilot and planned Pint
 unit support with targeted test hardening. Sprint dates, capacity and task owners are not assigned yet.
-Implementation of these planned items has not started.
+S1 and S2 are complete; S2a and subsequent integration implementation remain planned.
+See the [S1 assessment](../assessments/v021-book-model.md) and its governed fixture.
+The [S2 assessment](../assessments/v021-pydantic-pilot.md) records strict schemas,
+unchanged snapshots, direct dependency placement and the measured code tradeoff.
 
 ### Starting evidence
 
@@ -34,8 +37,8 @@ Implementation of these planned items has not started.
   These identify test priorities, not evidence that the implemented calculations
   fail. Unimplemented workflow stubs remain visible in the denominator.
 - Existing reconstruction and independent baseline fixtures are reusable. The
-  supported FLO producer profile is currently pinned to 0.4.2; compatibility with
-  the actual book model still needs verification.
+  producer was pinned to 0.4.2 at planning time. S1 now verifies published 0.4.3
+  against the actual book model and retains restoration of 0.4.2 payloads.
 - The dated v0.2.0 readiness assessment records publication and book dependency
   integration as pending. Verify their current state before release work; do not
   treat that historical assessment as proof of current publication status.
@@ -44,8 +47,8 @@ Implementation of these planned items has not started.
 
 | Item | Deliverable | Completion evidence | Dependency |
 | --- | --- | --- | --- |
-| S1: Freeze source and producer contract | Govern the actual `.flo`, public producer export, source revision/hashes, attribution and explicit activity-to-step mapping. Record supported and unsupported semantics. | Actual book export is representable by the bridge, or a specific incompatibility and required producer/bridge change is documented before downstream work proceeds. | None |
-| S2: Pilot Pydantic at the JSON boundary | Replace repetitive structural checks in `integration/process.py` with explicit schemas, preserving semantic checks and public errors. Document dependency placement and compatibility decisions. | Existing bridge contracts pass; nested errors identify field locations; coercion and applicable unknown fields are rejected; accepted snapshots and fingerprints remain unchanged. Record validation-code reduction, error examples and dependency impact. | S1 schema/profile decision |
+| S1: Freeze source and producer contract — Complete 2026-10-26 | Govern the actual `.flo`, public producer export, source revision/hashes, attribution and explicit activity-to-step mapping. Record supported and unsupported semantics. | Actual model passes released FLO 0.4.3 and the existing bridge: 14 nodes, 14 edges, all eight observed activities mapped, source/observation bytes pinned. Legacy 0.4.2 payload restoration is retained. See the [assessment](../assessments/v021-book-model.md). | None |
+| S2: Pilot Pydantic at the JSON boundary — Complete 2026-10-26 | Strict private schemas replace structural checks; graph/mapping rules remain explicit. Pydantic is declared directly in core to preserve base-installation bridge access. | Source gates and all installed stages pass, alongside a 325-case differential probe. Original snapshots/fingerprints and extensible producer data are retained; public errors identify nested fields. See the [assessment](../assessments/v021-pydantic-pilot.md) for code-size and dependency costs. | S1 schema/profile decision |
 | S2a: Add Pint for explicit unit handling | Define a bounded unit contract, verify Python 3.14/dependency compatibility, add Pint to the appropriate dependency group and lockfile, and implement explicit duration-unit validation/conversion at a declared boundary. | Seconds/minutes/hours conversions preserve physical quantities; incompatible dimensions and unknown units fail with governed errors; existing numeric + unit APIs, serialized payloads and baseline results remain compatible. Test registry isolation, backend parity, installed dependencies and conversion provenance. | S1 unit inventory; dependency and registry decisions below |
 | S3: Derive declared measurement policy | Translate projected model classifications and explicit analyst conventions into the existing reconstruction policy. Select an orchestration location that satisfies layer rules. | Missing/conflicting classifications and ambiguous mappings fail clearly; display-name changes preserve identity; model classification changes affect policy/results or fail the pinned profile. | S1; S2 validates the final integration path |
 | S4: Demonstrate and preserve the full route | Add an installed-package model + CSV example using existing reconstruction/measurement APIs, FLO rendering and saved audit evidence. | All 39 order expectations and the WNF-003 hand check pass; source hashes, model/producer revisions, mapping, classifications and remaining conventions survive export/restoration. Modeled durations do not alter observed metrics. | S2, S2a, S3 |
@@ -61,6 +64,13 @@ Implementation of these planned items has not started.
    calculations must remain usable without FLO; preserve existing bridge import
    and installation contracts or explicitly document a required compatibility
    decision. Preserve the standalone standard-library bundle validator.
+   FLO already depends on Pydantic and owns validation of its native documents.
+   Keep using its public facade; do not import private source/render models or
+   reproduce native-document checks. The LSS4PY pilot validates its portable
+   exchange envelopes, mappings and analytical declarations, including saved or
+   externally supplied JSON. If LSS4PY imports Pydantic directly, declare that
+   dependency explicitly in the chosen scope rather than relying on FLO's
+   transitive dependency, and use a compatible version range.
 3. Separate producer fields that are intentionally extensible from closed
    envelopes. Match current accepted payload behavior rather than applying
    `extra="forbid"` indiscriminately. Preserve original producer data used in

@@ -113,7 +113,7 @@ OCEL version/profile and serializations must be selected before implementation.
 ## v0.2.1 integration follow-up
 
 The accepted [FLO-backed White Belt workflow](plans/v021-flo-white-belt.md) is
-Planned for v0.2.1. Ingest the actual book `.flo` through FLO's public producer
+in progress for v0.2.1. Ingest the actual book `.flo` through FLO's public producer
 API and the existing projection bridge, explicitly map observations to stable
 step IDs, derive baseline value classes from the model, and reuse observed
 reconstruction/PCE calculations. Preserve the CSV-only route. This increment
@@ -121,6 +121,13 @@ extends the existing UR-003/UR-014/UR-046/UR-047 and
 TR-003/TR-013/TR-040/TR-043/TR-044/TR-045/TR-046 contracts; their current statuses
 do not imply this additional integration is implemented. v0.2.0 retains its
 completed local acceptance scope and candidate version.
+
+S1 completed 2026-10-26: the [actual book model assessment](assessments/v021-book-model.md)
+pins source/export/license bytes and explicit mappings for all eight observed
+activities. FLO 0.4.3 and the existing bridge accept the 14-node/14-edge model;
+0.4.2 payload restoration remains supported.
+Model-derived measurement policy and the full installed measurement route remain
+planned; preservation of model class metadata alone does not implement them.
 
 The [2026-10-26 sprint draft](plans/v021-flo-white-belt.md#sprint-draft-2026-10-26)
 orders source/profile verification, the Pydantic pilot, model-derived measurement
@@ -134,14 +141,17 @@ validation/conversion with registry ownership, conversion provenance and portabl
 serialization. Preserve existing numeric + unit APIs and distinguish operating
 clocks from calendar durations. See task S2a in the sprint draft.
 
-### Next sprint: Pydantic integration-boundary pilot
+### Pydantic integration-boundary pilot
 
-- **Status:** Planned; accepted 2026-10-25 for the next sprint alongside the
-  v0.2.1 FLO integration follow-up.
+- **Status:** Complete 2026-10-26; see the
+  [pilot assessment](assessments/v021-pydantic-pilot.md). Accepted 2026-10-25
+  alongside the v0.2.1 FLO integration follow-up.
 - **Scope:** Pilot Pydantic on the external FLO JSON payloads consumed by
   `src/lss4py/integration/process.py`. Replace repetitive structural checks for
   nested objects, required text, supported literals and boolean fields with
   explicit schemas. Retain custom graph-reference and routing-semantic checks.
+  Reuse FLO's public validation facade for native documents; its existing
+  Pydantic models are not an invitation to couple to private upstream modules.
 - **Contract:** Use strict validation and reject unknown fields where the
   existing contract requires it. Preserve accepted payloads, canonical snapshots,
   fingerprints and public `lss4py.errors.ValidationError` behavior; improve
@@ -150,6 +160,9 @@ clocks from calendar durations. See task S2a in the sprint draft.
   validation unchanged. Preserve the standard-library-only standalone bundle
   validator in `src/lss4py/_bundle_schema.py`. Decide and document dependency
   placement so the pilot respects optional integration boundaries.
+  Pydantic is a direct core dependency to keep portable bridge validation usable
+  without FLO. Typed schemas validate the existing wire data; they do not replace
+  its canonical serialization. Producer annotations remain extensible.
 - **Acceptance:** Pass existing integration and installed-package contract tests;
   cover nested invalid fields, coercion rejection and applicable unknown-field
   rejection. Compare validation-code reduction and error clarity, document the

@@ -1,0 +1,325 @@
+{
+  "process": {
+    "id": "wash_n_fold",
+    "name": "Wash n' Fold Current State",
+    "version": 2,
+    "metadata": {
+      "process_id": "wash_n_fold",
+      "process_name": "Wash n' Fold Current State"
+    }
+  },
+  "nodes": [
+    {
+      "id": "start",
+      "kind": "start",
+      "name": "Start",
+      "metadata": {
+        "description": "Customer order is dropped off"
+      }
+    },
+    {
+      "id": "dropoff",
+      "kind": "task",
+      "name": "Drop-off and ticket",
+      "workers": [
+        "Customer",
+        "Staff"
+      ],
+      "performed_by": [
+        "Customer",
+        "Staff"
+      ],
+      "metadata": {
+        "value_class": "RNVA",
+        "cycle_time": {
+          "value": 3,
+          "unit": "min"
+        },
+        "wait_before": {
+          "value": 5.1,
+          "unit": "min",
+          "measurement_id": "dropoff_wait"
+        },
+        "changeover_time": {
+          "value": 0.0,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "sort_tag",
+      "kind": "task",
+      "name": "Sort and tag",
+      "workers": [
+        "Staff"
+      ],
+      "performed_by": [
+        "Staff"
+      ],
+      "metadata": {
+        "value_class": "RNVA",
+        "cycle_time": {
+          "value": 4.8,
+          "unit": "min"
+        },
+        "wait_before": {
+          "value": 4.5,
+          "unit": "min",
+          "measurement_id": "sort_tag_wait"
+        },
+        "changeover_time": {
+          "value": 0.0,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "wash_release_queue",
+      "kind": "queue",
+      "name": "Batch Release Queue",
+      "metadata": {
+        "wait_time": {
+          "value": 501.7,
+          "unit": "min",
+          "measurement_id": "order_batch_release_wait"
+        }
+      }
+    },
+    {
+      "id": "wash",
+      "kind": "task",
+      "name": "Wash loads",
+      "workers": [
+        "Staff"
+      ],
+      "performed_by": [
+        "Staff"
+      ],
+      "metadata": {
+        "value_class": "VA",
+        "cycle_time": {
+          "value": 30.4,
+          "unit": "min"
+        },
+        "changeover_time": {
+          "value": 1.5,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "dry",
+      "kind": "task",
+      "name": "Dry loads",
+      "workers": [
+        "Staff"
+      ],
+      "performed_by": [
+        "Staff"
+      ],
+      "metadata": {
+        "value_class": "VA",
+        "cycle_time": {
+          "value": 45.3,
+          "unit": "min"
+        },
+        "wait_before": {
+          "value": 0.8,
+          "unit": "min",
+          "measurement_id": "dry_wait"
+        },
+        "changeover_time": {
+          "value": 0.7,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "fold_package",
+      "kind": "task",
+      "name": "Reunite, fold, and package",
+      "workers": [
+        "Staff"
+      ],
+      "performed_by": [
+        "Staff"
+      ],
+      "metadata": {
+        "value_class": "VA",
+        "cycle_time": {
+          "value": 16.2,
+          "unit": "min"
+        },
+        "wait_before": {
+          "value": 3.6,
+          "unit": "min",
+          "measurement_id": "fold_package_wait"
+        },
+        "changeover_time": {
+          "value": 0.5,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "packaging_check",
+      "kind": "decision",
+      "name": "Packaging check passes?"
+    },
+    {
+      "id": "notification_queue",
+      "kind": "queue",
+      "name": "Notification Batch Queue",
+      "metadata": {
+        "wait_time": {
+          "value": 37.9,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "stage",
+      "kind": "task",
+      "name": "Stage for collection",
+      "workers": [
+        "Staff"
+      ],
+      "performed_by": [
+        "Staff"
+      ],
+      "metadata": {
+        "value_class": "RNVA",
+        "cycle_time": {
+          "value": 3,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "notify",
+      "kind": "task",
+      "name": "Send readiness notification",
+      "workers": [
+        "Staff"
+      ],
+      "performed_by": [
+        "Staff"
+      ],
+      "metadata": {
+        "value_class": "VA",
+        "cycle_time": {
+          "value": 1,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "correction_queue",
+      "kind": "queue",
+      "name": "Fold Correction Queue",
+      "metadata": {
+        "wait_time": {
+          "value": 5.6,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "fold_correction",
+      "kind": "task",
+      "name": "Fold correction",
+      "workers": [
+        "Staff"
+      ],
+      "performed_by": [
+        "Staff"
+      ],
+      "metadata": {
+        "value_class": "NVA",
+        "cycle_time": {
+          "value": 6.8,
+          "unit": "min"
+        },
+        "changeover_time": {
+          "value": 0.0,
+          "unit": "min"
+        }
+      }
+    },
+    {
+      "id": "end",
+      "kind": "end",
+      "name": "Stop",
+      "metadata": {
+        "description": "Completed order is staged and customer is notified"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "start",
+      "target": "dropoff"
+    },
+    {
+      "source": "dropoff",
+      "target": "sort_tag"
+    },
+    {
+      "source": "sort_tag",
+      "target": "wash_release_queue"
+    },
+    {
+      "source": "wash_release_queue",
+      "target": "wash"
+    },
+    {
+      "source": "wash",
+      "target": "dry"
+    },
+    {
+      "source": "dry",
+      "target": "fold_package"
+    },
+    {
+      "source": "fold_package",
+      "target": "packaging_check"
+    },
+    {
+      "source": "packaging_check",
+      "target": "notification_queue",
+      "outcome": "pass",
+      "label": "Yes"
+    },
+    {
+      "source": "notification_queue",
+      "target": "stage"
+    },
+    {
+      "source": "stage",
+      "target": "notify"
+    },
+    {
+      "source": "notify",
+      "target": "end"
+    },
+    {
+      "source": "packaging_check",
+      "target": "correction_queue",
+      "outcome": "fail",
+      "label": "No (5 of 39 orders)",
+      "edge_type": "rework",
+      "rework": true
+    },
+    {
+      "source": "correction_queue",
+      "target": "fold_correction"
+    },
+    {
+      "source": "fold_correction",
+      "target": "notification_queue",
+      "label": "Corrected package rejoins flow",
+      "edge_type": "rework",
+      "rework": true
+    }
+  ]
+}

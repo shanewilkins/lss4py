@@ -1,0 +1,72 @@
+spec_version: "0.1"
+process:
+  id: intake_baseline
+  name: Intake baseline
+  version: 1
+items:
+  - id: order
+    name: Order
+    kind: information
+  - id: ticket
+    name: Work ticket
+    kind: information
+  - id: document
+    name: Document
+    kind: material
+  - id: approved_document
+    name: Approved document
+    kind: material
+steps:
+  - id: start
+    kind: start
+    name: Start
+  - id: intake
+    kind: task
+    name: Intake
+    consumes: [order, document]
+    produces: [ticket]
+    metadata:
+      cycle_time: {value: 20, unit: min}
+  - id: split
+    kind: parallel_split
+    name: Begin parallel reviews
+  - id: review
+    kind: decision
+    name: Review
+    consumes: [ticket]
+    metadata:
+      cycle_time: {value: 30, unit: min}
+  - id: approval
+    kind: task
+    name: Approval
+    consumes: [document]
+    produces: [approved_document]
+    metadata:
+      cycle_time: {value: 15, unit: min}
+  - id: join
+    kind: parallel_join
+    name: Complete parallel reviews
+  - id: close
+    kind: task
+    name: Close
+    consumes: [approved_document]
+    metadata:
+      cycle_time: {value: 10, unit: min}
+  - id: end
+    kind: end
+    name: End
+transitions:
+  - {source: start, target: intake}
+  - {source: intake, target: split}
+  - {source: split, target: review}
+  - {source: split, target: approval}
+  - {source: review, target: join, outcome: approved}
+  - {source: approval, target: join}
+  - {source: join, target: close}
+  - {source: close, target: end}
+  - source: review
+    target: review
+    outcome: revise
+    edge_type: rework
+    rework: true
+    handoff: true

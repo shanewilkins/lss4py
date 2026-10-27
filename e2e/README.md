@@ -6,7 +6,7 @@ From the repository root, run:
 uv run --locked python tools/check_wheel.py
 ```
 
-To also test published FLO 0.4.2, evidence restoration and Matplotlib/Seaborn
+To also test published FLO 0.4.3, evidence restoration and Matplotlib/Seaborn
 artifact rendering, run `uv run --locked python tools/check_wheel.py --ecosystem`.
 Add `--artifacts-dir /tmp/lss4py-ecosystem-artifacts` to retain the source snapshots,
 manifest, observed annotation JSON, modeled value-stream SVG and observed SVG/PNG
@@ -26,8 +26,9 @@ checkout. Python runs in isolated mode; the suite rejects editable/source import
 and leaked development plugins. It then installs the
 wheel's pandas extra and repeats the studies on both backends. Dependency versions
 are constrained by `uv.lock`. CI runs this same command through Python 3.14.
-Pandas currently also arrives transitively through statsmodels in the base install;
-the first pass requests no optional extra and exercises Polars. The second pass
+The base pass requires pandas, FLO and rendering dependencies to be absent;
+Pydantic is a declared base dependency for portable payload validation.
+The first pass requests no optional extra and exercises Polars. The second pass
 explicitly requests the pandas extra and exercises both analytical backends.
 Failures in building, installing, the CLI, or any study fail the job. No expected
 failures or optional-backend skips are used.
@@ -36,6 +37,8 @@ The suite covers:
 
 - Intake CSV → explicit timestamp/stage bindings → lead/wait/PCE and funnel
   yields → descriptive summary → JSON files reopened and checked.
+- Portable process JSON → strict schema validation → restored pinned projection,
+  with field-specific rejection of boolean coercion in every installation stage.
 - Unordered event CSV with mapped column names, leading-zero IDs, parallel
   activities and repeated review → topology validation → case lead times in
   hours/minutes → summary and JSON export.

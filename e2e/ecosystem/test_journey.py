@@ -29,8 +29,9 @@ def public_process(source):
     exported = flo.export(source)
     validated = flo.validate(source)
     assert exported.ok, exported.diagnostics
+    assert exported.value is not None
     assert validated.ok, validated.diagnostics
-    assert metadata.version("flo-lang") == "0.4.2"
+    assert metadata.version("flo-lang") == "0.4.3"
     return validated.value, json.loads(exported.value)
 
 
@@ -41,7 +42,7 @@ def study(source_path, *, payload=None):
     projection = ProcessProjection.from_flo_export(
         export if payload is None else payload,
         source="intake-system",
-        model_revision="intake-v1",
+        model_revision="intake-v2",
         step_mapping=MAPPING,
     )
     events = load_event_log(

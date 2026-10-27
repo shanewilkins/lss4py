@@ -16,6 +16,7 @@ dependencies = [
     "opentelemetry-exporter-otlp>=1.31.0",
     "opentelemetry-sdk>=1.31.0",
     "polars>=1.0.0",
+    "pydantic>=2.12,<3",  # Portable exchange validation; FLO remains optional
     "rich>=13.9.0",
     "scipy>=1.15.0",
     "structlog>=24.4.0",
@@ -23,7 +24,7 @@ dependencies = [
 
 [project.optional-dependencies]
 integration = [
-    "flo-lang==0.4.2",
+    "flo-lang==0.4.3",
 ]
 pandas = [
     "pandas>=2.2.0",

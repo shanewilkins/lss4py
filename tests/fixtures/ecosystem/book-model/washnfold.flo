@@ -1,0 +1,215 @@
+spec_version: "0.1"
+
+# FLO's cycle_time and changeover_time keys are renderer fields.
+# The published SVG displays them as processing time (P/T) and setup time (S/T).
+# The 501.7-minute order release queue overlaps the 500.9-minute load Wash wait.
+# Show only the order projection here; retain the load summary in the worksheet.
+
+process:
+  id: wash_n_fold
+  name: Wash n' Fold Current State
+  version: 2
+
+steps:
+  - id: start
+    name: Start
+    kind: start
+    metadata:
+      description: Customer order is dropped off
+
+  - id: dropoff
+    name: Drop-off and ticket
+    kind: task
+    workers:
+      - Customer
+      - Staff
+    metadata:
+      value_class: RNVA
+      cycle_time:
+        value: 3
+        unit: min
+      wait_before:
+        value: 5.1
+        unit: min
+        measurement_id: dropoff_wait
+      changeover_time:
+        value: 0.0
+        unit: min
+
+  - id: sort_tag
+    name: Sort and tag
+    kind: task
+    workers:
+      - Staff
+    metadata:
+      value_class: RNVA
+      cycle_time:
+        value: 4.8
+        unit: min
+      wait_before:
+        value: 4.5
+        unit: min
+        measurement_id: sort_tag_wait
+      changeover_time:
+        value: 0.0
+        unit: min
+
+  - id: wash_release_queue
+    name: Batch Release Queue
+    kind: queue
+    metadata:
+      wait_time:
+        value: 501.7
+        unit: min
+        measurement_id: order_batch_release_wait
+
+  - id: wash
+    name: Wash loads
+    kind: task
+    workers:
+      - Staff
+    metadata:
+      value_class: VA
+      cycle_time:
+        value: 30.4
+        unit: min
+      changeover_time:
+        value: 1.5
+        unit: min
+
+  - id: dry
+    name: Dry loads
+    kind: task
+    workers:
+      - Staff
+    metadata:
+      value_class: VA
+      cycle_time:
+        value: 45.3
+        unit: min
+      wait_before:
+        value: 0.8
+        unit: min
+        measurement_id: dry_wait
+      changeover_time:
+        value: 0.7
+        unit: min
+
+  - id: fold_package
+    name: Reunite, fold, and package
+    kind: task
+    workers:
+      - Staff
+    metadata:
+      value_class: VA
+      cycle_time:
+        value: 16.2
+        unit: min
+      wait_before:
+        value: 3.6
+        unit: min
+        measurement_id: fold_package_wait
+      changeover_time:
+        value: 0.5
+        unit: min
+
+  - id: packaging_check
+    name: Packaging check passes?
+    kind: decision
+
+  - id: notification_queue
+    name: Notification Batch Queue
+    kind: queue
+    metadata:
+      wait_time:
+        value: 37.9
+        unit: min
+
+  - id: stage
+    name: Stage for collection
+    kind: task
+    workers:
+      - Staff
+    metadata:
+      value_class: RNVA
+      cycle_time:
+        value: 3
+        unit: min
+
+  - id: notify
+    name: Send readiness notification
+    kind: task
+    workers:
+      - Staff
+    metadata:
+      value_class: VA
+      cycle_time:
+        value: 1
+        unit: min
+
+  - id: correction_queue
+    name: Fold Correction Queue
+    kind: queue
+    metadata:
+      wait_time:
+        value: 5.6
+        unit: min
+
+  - id: fold_correction
+    name: Fold correction
+    kind: task
+    workers:
+      - Staff
+    metadata:
+      value_class: NVA
+      cycle_time:
+        value: 6.8
+        unit: min
+      changeover_time:
+        value: 0.0
+        unit: min
+
+  - id: end
+    name: Stop
+    kind: end
+    metadata:
+      description: Completed order is staged and customer is notified
+
+transitions:
+  - source: start
+    target: dropoff
+  - source: dropoff
+    target: sort_tag
+  - source: sort_tag
+    target: wash_release_queue
+  - source: wash_release_queue
+    target: wash
+  - source: wash
+    target: dry
+  - source: dry
+    target: fold_package
+  - source: fold_package
+    target: packaging_check
+  - source: packaging_check
+    target: notification_queue
+    outcome: pass
+    label: "Yes"
+  - source: notification_queue
+    target: stage
+  - source: stage
+    target: notify
+  - source: notify
+    target: end
+  - source: packaging_check
+    target: correction_queue
+    outcome: fail
+    label: "No (5 of 39 orders)"
+    edge_type: rework
+    rework: true
+  - source: correction_queue
+    target: fold_correction
+  - source: fold_correction
+    target: notification_queue
+    label: Corrected package rejoins flow
+    edge_type: rework
+    rework: true

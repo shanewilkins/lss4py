@@ -22,10 +22,11 @@ MAPPING = {"I": "intake", "R": "review", "A": "approval", "C": "close"}
 def projection():
     """Use a frozen public export from genuine FLO 0.4.2, without importing FLO."""
     return ProcessProjection.from_flo_export(
-        json.loads((ROOT / "process-export.json").read_text()),
+        json.loads((ROOT / "legacy-0.4.2/process-export.json").read_text()),
         source="intake-system",
         model_revision="intake-v1",
         step_mapping=MAPPING,
+        flo_version="0.4.2",
     )
 
 

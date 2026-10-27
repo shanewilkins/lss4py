@@ -1,11 +1,21 @@
 # Ecosystem baseline and exchange contracts
 
 The initial bridge lives in `lss4py.integration`, with no FLO imports or mandatory
-rendering dependency. It accepts the public JSON export from FLO **0.4.2**. The
+rendering dependency. It accepts the public JSON export from FLO **0.4.3** and
+retains **0.4.2** payload restoration. The
 optional `integration` extra installs that released package; numerical analysis
-uses the existing NumPy/SciPy/statsmodels stack. The `visualization` extra provides
+uses the existing NumPy/SciPy stack. The `visualization` extra provides
 Matplotlib and Seaborn. See [ADR-0022](adr/0022-ecosystem-integration-contracts-and-journey-gates.md)
 and [ADR-0023](adr/0023-matplotlib-contract-with-seaborn-convenience.md).
+
+Portable projection shapes are validated with Pydantic, declared directly in the
+base package so the bridge continues to work without FLO. The outer envelope is
+closed; producer objects remain extensible. Validation uses a typed view while
+serialization retains the original JSON, including omissions and unknown
+annotations. Errors retain `lss4py.errors.ValidationError` and identify nested
+fields such as `export.edges.0.rework`. See the
+[Pydantic pilot assessment](assessments/v021-pydantic-pilot.md) for the dependency
+and compatibility decisions. FLO still owns its native-document validation.
 
 ## Initial supported contracts
 
@@ -46,7 +56,7 @@ uv run --locked python tools/check_wheel.py --ecosystem \
 ```
 
 The runner builds the candidate LSS4PY wheel, copies fixtures/tests outside the
-source tree and tests a clean base install, then pandas, then published FLO 0.4.2
+source tree and tests a clean base install, then pandas, then published FLO 0.4.3
 and the visualization extra. It rejects editable/source imports and leaked test
 plugins. All dependency versions are constrained by `uv.lock`.
 
