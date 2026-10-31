@@ -93,3 +93,58 @@ Current 0.2.0 candidate verification passes 1,750 tests with five deferred
 branch-metric expected failures and 95.22% coverage. Installed base, pandas,
 Arrow/storage and ecosystem workflows pass. See the
 [acceptance gate snapshot](assessments/v02-release-gates.json).
+
+## Derive baseline classes from FLO
+
+`lss4py.integration.derive_reconstruction_policy` accepts a validated
+`ProcessProjection`, the distinct `observed_activities` vocabulary from the
+supplied event log, and a `ReconstructionConventions` declaration. It returns a
+`DerivedReconstructionPolicy`:
+
+```python
+from lss4py.integration import derive_reconstruction_policy
+
+# projection: public FLO export plus explicit observation-to-step mapping
+# conventions: ReconstructionConventions with measurement rules, no class lists
+bound = derive_reconstruction_policy(
+    projection,
+    observed_activities=tuple(log.frame[log.contract.activity_column].unique()),
+    conventions=conventions,
+)
+result = reconstruct_orders(log, policy=bound.policy)
+result.metadata["policy_derivation"] = bound.to_dict()
+```
+
+`ReconstructionConventions` declares arrival/readiness activities, required and
+parallel activities, rework column and accepted flags, correction activity,
+cohort, value-add convention, optional parallel-load count column and tolerance.
+It reuses the existing policy's validation and accounting semantics. It has no
+VA/RNVA lists: those come exclusively from each mapped task's FLO
+`value_class` (`VA`, `RNVA`, or `NVA`, case-sensitive) for FLO 0.5.
+Saved 0.4.x projections still read `metadata.value_class`; attribution records
+the version-appropriate field. Missing or explicit `unknown` classifications
+cannot supply a numerical reconstruction policy.
+
+Classification remains optional for general FLO projection. Derivation requires
+it for every mapped task, including conditional correction tasks, and rejects
+mappings to routing nodes. Unmapped routing nodes need no annotation. Every
+observed activity and every activity referenced by the analyst must be mapped.
+Supply the vocabulary of the actual log that will be reconstructed; the derived
+policy is an ordinary domain policy, not a runtime binding to future datasets.
+Mapping is explicit and one-to-one; display names are never used to match data.
+
+The correction activity must be NVA; declaring it VA or RNVA conflicts with this
+reconstruction method and fails. Right-first-time rules can make individual
+failed attempts NVA even when their baseline class is VA or RNVA. Other valid
+model classification changes flow into the derived policy and measured results.
+The governed book fixture's acceptance tests pin its original baseline; there is
+no separate runtime profile lock or analyst override for model classes.
+
+`bound.to_dict()` and `bound.to_json()` preserve the projection SHA-256, source,
+model revision, FLO producer version, observed vocabulary, activity/step/class
+attribution, analyst conventions and complete derived policy. The JSON is
+preparation evidence suitable for result metadata, not a standalone analytical
+result or a new bundle result type. Keep the projection alongside it when the
+full source model is needed. Modeled durations and topology do not infer numeric
+measurement rules or enter observed arithmetic. The CSV-only API remains usable
+without a projection, and derivation itself does not import FLO.

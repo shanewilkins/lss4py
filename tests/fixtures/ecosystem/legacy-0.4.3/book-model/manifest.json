@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "fixture_id": "washnfold-book-model",
+  "fixture_version": "1.0.0",
+  "accepted_on": "2026-10-26",
+  "source": {
+    "repository": "https://github.com/shanewilkins/modern-process-improvement",
+    "model_path": "book/diagrams/washnfold.flo",
+    "revision": "a10b7ecbc33908cffcafd4bbc3783b3447163406",
+    "inspected_head": "afca5fe41237ead0be2bdfce4e08341d7deaea12",
+    "working_tree_clean": true,
+    "git_blob_sha1": "264ae8a6b23e80a67a4b5a48fb7dc13c099c5282",
+    "license_path": "LICENSE.md",
+    "attribution": "Shane M. Wilkins, Modern Process Improvement with Python",
+    "diagram_license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "changes": "Model and license copied byte-for-byte; JSON export produced mechanically by FLO 0.4.3; activity mapping is an explicit LSS4PY declaration."
+  },
+  "producer": {
+    "distribution": "flo-lang",
+    "version": "0.4.3",
+    "validate_ok": true,
+    "export_ok": true,
+    "diagnostics": [],
+    "export_matches_0_4_2": true
+  },
+  "artifacts_sha256": {
+    "washnfold.flo": "d3593510d5a8fc5bb80bbfa6b86f3185c446936b1d4bc168207e11a2273f2d49",
+    "process-export.json": "3270e6d0d9e00635f780c43885cd9feedede6605f6b21b428d7552fd6d1f5bb0",
+    "activity-mapping.json": "49bb8eb11bcab83d38a756eaa27b8a18272f995180f4523d4612e89e715c4980",
+    "SOURCE_LICENSE.md": "1a2838df9a99f9a9b1dcd7a7c76eb9d767a0c88b122a5f921065b7ad2fd1337e"
+  },
+  "observations": {
+    "dataset_id": "washnfold-friday91",
+    "version": "1.0.0",
+    "artifacts_sha256": {
+      "event_log.csv": "3efcd0b299b96af4d860374a4ad885d44b77b6edb65a853ec07de6d3f9d7af20",
+      "order_summary.csv": "ae30c7992aafa60304d1fd7bbb59c1d86de02a5b8fa15e27a74d34d8dce6fa86",
+      "conventions.json": "e4572fd0fc2aedb7743c9609a11d7815902452ab4b1cc9ae9b0142e6b27af7f2"
+    },
+    "rows": 330,
+    "orders": 39,
+    "activities": 8
+  },
+  "bridge": {
+    "contract_version": "1.0",
+    "compatible": true,
+    "projection_sha256": "05ecf7542271617df2529fbb683189dfb45a7361c721322177a1145bf6118b20",
+    "nodes": 14,
+    "edges": 14,
+    "unsupported_semantics": []
+  }
+}

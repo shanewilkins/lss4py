@@ -15,6 +15,7 @@ from lss4py._kernels.yield_ import (
     created_to_booked_yield,
     rolled_yield,
 )
+from lss4py._units import convert_duration_columns
 from lss4py._version import __version__
 from lss4py.adapters import AdapterSchema, EventLogCSVAdapter, load_event_log
 from lss4py.adapters.numeric_log import NumericEventLogCSVAdapter, load_numeric_event_log
@@ -54,6 +55,7 @@ from lss4py.domain import (
 )
 from lss4py.domain.reconstruction import OrderReconstructionPolicy
 from lss4py.domain.results import OrderReconstructionResult, ProcessMapResult
+from lss4py.domain.units import DurationConversion
 from lss4py.errors import (
     AdapterError,
     LSS4PyError,
@@ -71,6 +73,8 @@ from lss4py.guidance import (
 from lss4py.workflows import map_process
 
 __all__ = [
+    "DurationConversion",
+    "convert_duration_columns",
     "UnsupportedInputError",
     "ProcessMapResult",
     "AnalysisSelection",

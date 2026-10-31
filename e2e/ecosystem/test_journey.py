@@ -31,7 +31,7 @@ def public_process(source):
     assert exported.ok, exported.diagnostics
     assert exported.value is not None
     assert validated.ok, validated.diagnostics
-    assert metadata.version("flo-lang") == "0.4.3"
+    assert metadata.version("flo-lang") == "0.5.0"
     return validated.value, json.loads(exported.value)
 
 
@@ -181,7 +181,7 @@ def test_installed_baseline_to_evidence_and_artifacts(tmp_path, monkeypatch):
         == renderer.render_artifact(ir, options={"diagram": "value_stream"}).content
     )
     (output / "modeled-value-stream.svg").write_text(artifact.content)
-    assert "CT 20 min" in artifact.content
+    assert "P/T 20 min" in artifact.content
     assert 'data-flow-kind="information"' in artifact.content
     assert 'data-flow-kind="material"' in artifact.content
     assert artifact.metadata["partial"] is False

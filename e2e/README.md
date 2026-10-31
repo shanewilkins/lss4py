@@ -6,7 +6,7 @@ From the repository root, run:
 uv run --locked python tools/check_wheel.py
 ```
 
-To also test published FLO 0.4.3, evidence restoration and Matplotlib/Seaborn
+To also test published FLO 0.5.0, evidence restoration and Matplotlib/Seaborn
 artifact rendering, run `uv run --locked python tools/check_wheel.py --ecosystem`.
 Add `--artifacts-dir /tmp/lss4py-ecosystem-artifacts` to retain the source snapshots,
 manifest, observed annotation JSON, modeled value-stream SVG and observed SVG/PNG

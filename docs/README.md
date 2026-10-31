@@ -25,7 +25,8 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
   completed capability-Z and defect/rework-yield slices without changing release ownership.
 - [v0.2 release-readiness audit](assessments/v02-release-readiness.md) records acceptance blockers and verified release gates.
 - [Draft release notes](releases/v0.2.0.md) and [migration guide](migration-v0.2.md) describe the unreleased contract.
-- [v0.2.1 FLO-backed White Belt plan](plans/v021-flo-white-belt.md) defines the accepted next integration increment.
+- [v0.2.1 FLO-backed White Belt plan](plans/v021-flo-white-belt.md) records the completed standalone sprint.
+- [v0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md) records final local gates and release handoff; [release notes](releases/v0.2.1.md) remain a draft.
 - [White Belt book sprint plan](plans/white-belt-book-preview.md) splits current
   fixture assessment, the v0.2 preview, and v0.3-owned reconstruction; these slices are implemented ahead of book publication.
 - [Book fixture/API assessment](assessments/book-preview.md) records current
@@ -37,6 +38,7 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 
 ## Current analytical guides
 
+- [FLO-backed book workflow](flo-book-workflow.md): actual model and CSV, derived policy, audited results and modeled rendering.
 - [White Belt prepared-data preview](book-preview.md)
 - [White Belt simulation ingestion](simulation-ingestion.md)
 
@@ -92,3 +94,4 @@ practical. A separate governance ceremony is not required.
 - [Numeric activity-to-order reconstruction](order-reconstruction.md): explicit book policy, complete orders and inspectable source/load/pass evidence.
 - [v0.2.1 book model assessment](assessments/v021-book-model.md): pinned actual FLO model, producer compatibility and remaining measurement-policy boundaries.
 - [v0.2.1 Pydantic pilot](assessments/v021-pydantic-pilot.md): strict portable payload schemas, compatibility evidence and dependency/code-size tradeoffs.
+- [Explicit duration units](duration-units.md): Pint-backed preparation, private registry ownership and portable conversion evidence.

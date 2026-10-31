@@ -1,32 +1,459 @@
 {
   "schema_version": "1.0",
   "fixture_id": "washnfold-book-model",
-  "fixture_version": "1.0.0",
-  "accepted_on": "2026-10-26",
+  "fixture_version": "2.0.0",
+  "accepted_on": "2026-10-30",
   "source": {
     "repository": "https://github.com/shanewilkins/modern-process-improvement",
     "model_path": "book/diagrams/washnfold.flo",
-    "revision": "a10b7ecbc33908cffcafd4bbc3783b3447163406",
-    "inspected_head": "afca5fe41237ead0be2bdfce4e08341d7deaea12",
+    "revision": "cefd20a8acb68636798666383510744cc351684c",
+    "inspected_head": "cefd20a8acb68636798666383510744cc351684c",
     "working_tree_clean": true,
-    "git_blob_sha1": "264ae8a6b23e80a67a4b5a48fb7dc13c099c5282",
+    "git_blob_sha1": "438372e6f941b1a87450d8fa4b94f77745b353bf",
     "license_path": "LICENSE.md",
     "attribution": "Shane M. Wilkins, Modern Process Improvement with Python",
     "diagram_license": "CC BY 4.0",
     "license_url": "https://creativecommons.org/licenses/by/4.0/",
-    "changes": "Model and license copied byte-for-byte; JSON export produced mechanically by FLO 0.4.3; activity mapping is an explicit LSS4PY declaration."
+    "changes": "Model and license copied byte-for-byte; JSON export produced mechanically by FLO 0.5.0; activity mapping is an explicit LSS4PY declaration."
   },
   "producer": {
     "distribution": "flo-lang",
-    "version": "0.4.3",
+    "version": "0.5.0",
     "validate_ok": true,
     "export_ok": true,
-    "diagnostics": [],
-    "export_matches_0_4_2": true
+    "diagnostics": [
+      {
+        "code": "timing-incomplete",
+        "severity": "warning",
+        "message": "6 unmeasured timing field(s) across 4 step(s); processing, waiting or setup values remain unknown.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": "Declare measured durations with explicit units; retain omission for unmeasured values.",
+        "include_chain": [],
+        "details": {
+          "affected_node_ids": [
+            "fold_correction",
+            "notify",
+            "stage",
+            "wash"
+          ],
+          "missing_fields": [
+            {
+              "node_id": "fold_correction",
+              "field": "wait_time",
+              "field_path": "nodes.fold_correction.wait_time"
+            },
+            {
+              "node_id": "notify",
+              "field": "wait_time",
+              "field_path": "nodes.notify.wait_time"
+            },
+            {
+              "node_id": "notify",
+              "field": "changeover_time",
+              "field_path": "nodes.notify.changeover_time"
+            },
+            {
+              "node_id": "stage",
+              "field": "wait_time",
+              "field_path": "nodes.stage.wait_time"
+            },
+            {
+              "node_id": "stage",
+              "field": "changeover_time",
+              "field_path": "nodes.stage.changeover_time"
+            },
+            {
+              "node_id": "wash",
+              "field": "wait_time",
+              "field_path": "nodes.wash.wait_time"
+            }
+          ]
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'dropoff' field 'changeover_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "dropoff",
+          "field": "changeover_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'dry' field 'changeover_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "dry",
+          "field": "changeover_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'fold_correction' field 'changeover_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "fold_correction",
+          "field": "changeover_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'fold_package' field 'changeover_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "fold_package",
+          "field": "changeover_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'sort_tag' field 'changeover_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "sort_tag",
+          "field": "changeover_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'wash' field 'changeover_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "wash",
+          "field": "changeover_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'dropoff' field 'cycle_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "dropoff",
+          "field": "cycle_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'dry' field 'cycle_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "dry",
+          "field": "cycle_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'fold_correction' field 'cycle_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "fold_correction",
+          "field": "cycle_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'fold_package' field 'cycle_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "fold_package",
+          "field": "cycle_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'notify' field 'cycle_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "notify",
+          "field": "cycle_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'sort_tag' field 'cycle_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "sort_tag",
+          "field": "cycle_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'stage' field 'cycle_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "stage",
+          "field": "cycle_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'wash' field 'cycle_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "wash",
+          "field": "cycle_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'correction_queue' field 'wait_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "correction_queue",
+          "field": "wait_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'dropoff' field 'wait_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "dropoff",
+          "field": "wait_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'dry' field 'wait_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "dry",
+          "field": "wait_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'fold_package' field 'wait_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "fold_package",
+          "field": "wait_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'notification_queue' field 'wait_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "notification_queue",
+          "field": "wait_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'sort_tag' field 'wait_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "sort_tag",
+          "field": "wait_time"
+        }
+      },
+      {
+        "code": "timing-invalid-duration",
+        "severity": "warning",
+        "message": "Ignored invalid timing value at node 'wash_release_queue' field 'wait_time'.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": "wash_release_queue",
+          "field": "wait_time"
+        }
+      },
+      {
+        "code": "timing-multiple-paths",
+        "severity": "info",
+        "message": "Process has 2 acyclic start-to-end paths; report a range instead of one modeled lead time.",
+        "stage": "analysis.timing",
+        "source": null,
+        "line": null,
+        "column": null,
+        "excerpt": null,
+        "field_path": null,
+        "suggestion": null,
+        "include_chain": [],
+        "details": {
+          "node_id": null,
+          "field": null
+        }
+      }
+    ]
   },
   "artifacts_sha256": {
-    "washnfold.flo": "d3593510d5a8fc5bb80bbfa6b86f3185c446936b1d4bc168207e11a2273f2d49",
-    "process-export.json": "3270e6d0d9e00635f780c43885cd9feedede6605f6b21b428d7552fd6d1f5bb0",
+    "washnfold.flo": "f9764be89ab1c5ec7e90eb6a1b75e6ddf907bece67f36d75d3d330bd8efe56dc",
+    "process-export.json": "b66b43141a4543da22c4fc31c99fd7822438808d12e01969c3548c3c47e9d01d",
     "activity-mapping.json": "49bb8eb11bcab83d38a756eaa27b8a18272f995180f4523d4612e89e715c4980",
     "SOURCE_LICENSE.md": "1a2838df9a99f9a9b1dcd7a7c76eb9d767a0c88b122a5f921065b7ad2fd1337e"
   },
@@ -45,7 +472,7 @@
   "bridge": {
     "contract_version": "1.0",
     "compatible": true,
-    "projection_sha256": "05ecf7542271617df2529fbb683189dfb45a7361c721322177a1145bf6118b20",
+    "projection_sha256": "0d8f6567f23fe94176d14aecd26c92e16d13190c535abfcf7c696f82005bff50",
     "nodes": 14,
     "edges": 14,
     "unsupported_semantics": []

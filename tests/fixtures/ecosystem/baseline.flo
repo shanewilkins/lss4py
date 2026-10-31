@@ -1,9 +1,9 @@
-spec_version: "0.1"
+spec_version: '0.1'
 process:
   id: intake_baseline
   name: Intake baseline
   version: 2
-items:
+  items:
   - id: order
     name: Order
     kind: information
@@ -17,60 +17,104 @@ items:
     name: Approved document
     kind: material
 steps:
-  - id: start
-    kind: start
-    name: Start
-  - id: intake
-    kind: task
-    name: Intake
-    consumes: [order, document]
-    produces: [ticket]
-    metadata:
-      cycle_time: {value: 20, unit: min}
-  - id: split
-    kind: parallel_split
-    name: Begin parallel reviews
-  - id: review
-    kind: task
-    name: Review
-    consumes: [ticket]
-    metadata:
-      cycle_time: {value: 30, unit: min}
-  - id: review_check
-    kind: decision
-    name: Review approved?
-  - id: approval
-    kind: task
-    name: Approval
-    consumes: [document]
-    produces: [approved_document]
-    metadata:
-      cycle_time: {value: 15, unit: min}
-  - id: join
-    kind: parallel_join
-    name: Complete parallel reviews
-  - id: close
-    kind: task
-    name: Close
-    consumes: [approved_document]
-    metadata:
-      cycle_time: {value: 10, unit: min}
-  - id: end
-    kind: end
-    name: End
+- id: start
+  kind: start
+  name: Start
+- id: intake
+  kind: task
+  name: Intake
+  consumes:
+  - order
+  - document
+  produces:
+  - ticket
+  cycle_time:
+    basis: planned
+    results:
+      declared:
+        method: mean
+        value: 20
+        unit: min
+    primary: declared
+    analysis_input: declared
+- id: split
+  kind: parallel_split
+  name: Begin parallel reviews
+- id: review
+  kind: task
+  name: Review
+  consumes:
+  - ticket
+  cycle_time:
+    basis: planned
+    results:
+      declared:
+        method: mean
+        value: 30
+        unit: min
+    primary: declared
+    analysis_input: declared
+- id: review_check
+  kind: decision
+  name: Review approved?
+- id: approval
+  kind: task
+  name: Approval
+  consumes:
+  - document
+  produces:
+  - approved_document
+  cycle_time:
+    basis: planned
+    results:
+      declared:
+        method: mean
+        value: 15
+        unit: min
+    primary: declared
+    analysis_input: declared
+- id: join
+  kind: parallel_join
+  name: Complete parallel reviews
+- id: close
+  kind: task
+  name: Close
+  consumes:
+  - approved_document
+  cycle_time:
+    basis: planned
+    results:
+      declared:
+        method: mean
+        value: 10
+        unit: min
+    primary: declared
+    analysis_input: declared
+- id: end
+  kind: end
+  name: End
 transitions:
-  - {source: start, target: intake}
-  - {source: intake, target: split}
-  - {source: split, target: review}
-  - {source: split, target: approval}
-  - {source: review, target: review_check}
-  - {source: review_check, target: join, outcome: approved}
-  - {source: approval, target: join}
-  - {source: join, target: close}
-  - {source: close, target: end}
-  - source: review_check
-    target: review
-    outcome: revise
-    edge_type: rework
-    rework: true
-    handoff: true
+- source: start
+  target: intake
+- source: intake
+  target: split
+- source: split
+  target: review
+- source: split
+  target: approval
+- source: review
+  target: review_check
+- source: review_check
+  target: join
+  outcome: approved
+- source: approval
+  target: join
+- source: join
+  target: close
+- source: close
+  target: end
+- source: review_check
+  target: review
+  outcome: revise
+  rework: {}
+  handoff: {}

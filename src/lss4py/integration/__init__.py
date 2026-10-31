@@ -5,6 +5,19 @@ export API and pass it to this bridge; calculations remain independently usable.
 """
 
 from .evidence import EvidenceManifest, MetricAnnotation, SourceEvidence
+from .policy import (
+    DerivedReconstructionPolicy,
+    ReconstructionConventions,
+    derive_reconstruction_policy,
+)
 from .process import ProcessProjection
 
-__all__ = ["EvidenceManifest", "MetricAnnotation", "ProcessProjection", "SourceEvidence"]
+__all__ = [
+    "DerivedReconstructionPolicy",
+    "ReconstructionConventions",
+    "derive_reconstruction_policy",
+    "EvidenceManifest",
+    "MetricAnnotation",
+    "ProcessProjection",
+    "SourceEvidence",
+]

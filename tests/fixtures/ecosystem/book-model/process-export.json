@@ -3,256 +3,496 @@
     "id": "wash_n_fold",
     "name": "Wash n' Fold Current State",
     "version": 2,
-    "metadata": {
-      "process_id": "wash_n_fold",
-      "process_name": "Wash n' Fold Current State"
-    }
+    "resources": [
+      {
+        "id": "Customer",
+        "name": "Customer",
+        "kind": "person"
+      },
+      {
+        "id": "Staff",
+        "name": "Staff",
+        "kind": "person"
+      }
+    ]
   },
   "nodes": [
     {
       "id": "start",
-      "kind": "start",
       "name": "Start",
-      "metadata": {
-        "description": "Customer order is dropped off"
-      }
+      "description": "Customer order is dropped off",
+      "kind": "start"
     },
     {
       "id": "dropoff",
-      "kind": "task",
       "name": "Drop-off and ticket",
-      "workers": [
-        "Customer",
-        "Staff"
-      ],
       "performed_by": [
         "Customer",
         "Staff"
       ],
-      "metadata": {
-        "value_class": "RNVA",
-        "cycle_time": {
-          "value": 3,
-          "unit": "min"
+      "value_class": "RNVA",
+      "cycle_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 3,
+            "unit": "min"
+          }
         },
-        "wait_before": {
-          "value": 5.1,
-          "unit": "min",
-          "measurement_id": "dropoff_wait"
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Drop-off and ticket"
+      },
+      "wait_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 5.1,
+            "unit": "min"
+          }
         },
-        "changeover_time": {
-          "value": 0.0,
-          "unit": "min"
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Drop-off and ticket",
+        "extensions": {
+          "mpi:measurement_id": "dropoff_wait"
         }
-      }
+      },
+      "changeover_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 0.0,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Drop-off and ticket"
+      },
+      "kind": "task"
     },
     {
       "id": "sort_tag",
-      "kind": "task",
       "name": "Sort and tag",
-      "workers": [
-        "Staff"
-      ],
       "performed_by": [
         "Staff"
       ],
-      "metadata": {
-        "value_class": "RNVA",
-        "cycle_time": {
-          "value": 4.8,
-          "unit": "min"
+      "value_class": "RNVA",
+      "cycle_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 4.8,
+            "unit": "min"
+          }
         },
-        "wait_before": {
-          "value": 4.5,
-          "unit": "min",
-          "measurement_id": "sort_tag_wait"
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Sort and tag"
+      },
+      "wait_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 4.5,
+            "unit": "min"
+          }
         },
-        "changeover_time": {
-          "value": 0.0,
-          "unit": "min"
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Sort and tag",
+        "extensions": {
+          "mpi:measurement_id": "sort_tag_wait"
         }
-      }
+      },
+      "changeover_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 0.0,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Sort and tag"
+      },
+      "kind": "task"
     },
     {
       "id": "wash_release_queue",
-      "kind": "queue",
       "name": "Batch Release Queue",
-      "metadata": {
-        "wait_time": {
-          "value": 501.7,
-          "unit": "min",
-          "measurement_id": "order_batch_release_wait"
+      "wait_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 501.7,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "order",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#first-load-release",
+        "extensions": {
+          "mpi:measurement_id": "order_batch_release_wait"
         }
-      }
+      },
+      "kind": "queue"
     },
     {
       "id": "wash",
-      "kind": "task",
       "name": "Wash loads",
-      "workers": [
-        "Staff"
-      ],
       "performed_by": [
         "Staff"
       ],
-      "metadata": {
-        "value_class": "VA",
-        "cycle_time": {
-          "value": 30.4,
-          "unit": "min"
+      "value_class": "VA",
+      "cycle_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 30.4,
+            "unit": "min"
+          }
         },
-        "changeover_time": {
-          "value": 1.5,
-          "unit": "min"
-        }
-      }
+        "primary": "mean",
+        "observation_count": 65,
+        "observation_unit": "load",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Wash"
+      },
+      "changeover_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 1.5,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 65,
+        "observation_unit": "load",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Wash"
+      },
+      "kind": "task"
     },
     {
       "id": "dry",
-      "kind": "task",
       "name": "Dry loads",
-      "workers": [
-        "Staff"
-      ],
       "performed_by": [
         "Staff"
       ],
-      "metadata": {
-        "value_class": "VA",
-        "cycle_time": {
-          "value": 45.3,
-          "unit": "min"
+      "value_class": "VA",
+      "cycle_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 45.3,
+            "unit": "min"
+          }
         },
-        "wait_before": {
-          "value": 0.8,
-          "unit": "min",
-          "measurement_id": "dry_wait"
+        "primary": "mean",
+        "observation_count": 65,
+        "observation_unit": "load",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Dry"
+      },
+      "wait_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 0.8,
+            "unit": "min"
+          }
         },
-        "changeover_time": {
-          "value": 0.7,
-          "unit": "min"
+        "primary": "mean",
+        "observation_count": 65,
+        "observation_unit": "load",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Dry",
+        "extensions": {
+          "mpi:measurement_id": "dry_wait"
         }
-      }
+      },
+      "changeover_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 0.7,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 65,
+        "observation_unit": "load",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Dry"
+      },
+      "kind": "task"
     },
     {
       "id": "fold_package",
-      "kind": "task",
       "name": "Reunite, fold, and package",
-      "workers": [
-        "Staff"
-      ],
       "performed_by": [
         "Staff"
       ],
-      "metadata": {
-        "value_class": "VA",
-        "cycle_time": {
-          "value": 16.2,
-          "unit": "min"
+      "value_class": "VA",
+      "cycle_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 16.2,
+            "unit": "min"
+          }
         },
-        "wait_before": {
-          "value": 3.6,
-          "unit": "min",
-          "measurement_id": "fold_package_wait"
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Fold and package"
+      },
+      "wait_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 3.6,
+            "unit": "min"
+          }
         },
-        "changeover_time": {
-          "value": 0.5,
-          "unit": "min"
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Fold and package",
+        "extensions": {
+          "mpi:measurement_id": "fold_package_wait"
         }
-      }
+      },
+      "changeover_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 0.5,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Fold and package"
+      },
+      "kind": "task"
     },
     {
       "id": "packaging_check",
-      "kind": "decision",
-      "name": "Packaging check passes?"
+      "name": "Packaging check passes?",
+      "kind": "decision"
     },
     {
       "id": "notification_queue",
-      "kind": "queue",
       "name": "Notification Batch Queue",
-      "metadata": {
-        "wait_time": {
-          "value": 37.9,
-          "unit": "min"
-        }
-      }
+      "wait_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 37.9,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Stage for collection"
+      },
+      "kind": "queue"
     },
     {
       "id": "stage",
-      "kind": "task",
       "name": "Stage for collection",
-      "workers": [
-        "Staff"
-      ],
       "performed_by": [
         "Staff"
       ],
-      "metadata": {
-        "value_class": "RNVA",
-        "cycle_time": {
-          "value": 3,
-          "unit": "min"
-        }
-      }
+      "value_class": "RNVA",
+      "cycle_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 3,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Stage for collection"
+      },
+      "kind": "task"
     },
     {
       "id": "notify",
-      "kind": "task",
       "name": "Send readiness notification",
-      "workers": [
-        "Staff"
-      ],
       "performed_by": [
         "Staff"
       ],
-      "metadata": {
-        "value_class": "VA",
-        "cycle_time": {
-          "value": 1,
-          "unit": "min"
-        }
-      }
+      "value_class": "VA",
+      "cycle_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 1,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 39,
+        "observation_unit": "order",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Send readiness notification"
+      },
+      "kind": "task"
     },
     {
       "id": "correction_queue",
-      "kind": "queue",
       "name": "Fold Correction Queue",
-      "metadata": {
-        "wait_time": {
-          "value": 5.6,
-          "unit": "min"
-        }
-      }
+      "wait_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 5.6,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 5,
+        "observation_unit": "correction",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Fold correction"
+      },
+      "kind": "queue"
     },
     {
       "id": "fold_correction",
-      "kind": "task",
       "name": "Fold correction",
-      "workers": [
-        "Staff"
-      ],
       "performed_by": [
         "Staff"
       ],
-      "metadata": {
-        "value_class": "NVA",
-        "cycle_time": {
-          "value": 6.8,
-          "unit": "min"
+      "value_class": "NVA",
+      "cycle_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 6.8,
+            "unit": "min"
+          }
         },
-        "changeover_time": {
-          "value": 0.0,
-          "unit": "min"
-        }
-      }
+        "primary": "mean",
+        "observation_count": 5,
+        "observation_unit": "correction",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Fold correction"
+      },
+      "changeover_time": {
+        "basis": "simulated",
+        "results": {
+          "mean": {
+            "method": "mean",
+            "value": 0.0,
+            "unit": "min"
+          }
+        },
+        "primary": "mean",
+        "observation_count": 5,
+        "observation_unit": "correction",
+        "cohort": "Friday 91",
+        "aggregation_level": "activity",
+        "observation_window": "Representative Friday",
+        "evidence_ref": "data/washnfold/washnfold_event_log.csv#Fold correction"
+      },
+      "kind": "task"
     },
     {
       "id": "end",
-      "kind": "end",
       "name": "Stop",
-      "metadata": {
-        "description": "Completed order is staged and customer is notified"
-      }
+      "description": "Completed order is staged and customer is notified",
+      "kind": "end"
     }
   ],
   "edges": [
@@ -307,8 +547,16 @@
       "target": "correction_queue",
       "outcome": "fail",
       "label": "No (5 of 39 orders)",
-      "edge_type": "rework",
-      "rework": true
+      "rework": {
+        "reason": "Packaging check failed",
+        "frequency": {
+          "basis": "simulated",
+          "numerator": 5,
+          "denominator": 39,
+          "observation_unit": "order",
+          "evidence_ref": "data/washnfold/washnfold_event_log.csv#Fold correction"
+        }
+      }
     },
     {
       "source": "correction_queue",
@@ -318,8 +566,7 @@
       "source": "fold_correction",
       "target": "notification_queue",
       "label": "Corrected package rejoins flow",
-      "edge_type": "rework",
-      "rework": true
+      "rework": {}
     }
   ]
 }

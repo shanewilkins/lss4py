@@ -1,0 +1,10 @@
+{
+  "Drop-off and ticket": "dropoff",
+  "Sort and tag": "sort_tag",
+  "Wash": "wash",
+  "Dry": "dry",
+  "Fold and package": "fold_package",
+  "Fold correction": "fold_correction",
+  "Stage for collection": "stage",
+  "Send readiness notification": "notify"
+}

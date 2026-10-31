@@ -1,55 +1,47 @@
 # Actual Wash n' Fold book model
 
-Fixture `washnfold-book-model` version 1.0.0, accepted 2026-10-26 for sprint S1.
+Fixture `washnfold-book-model` version 2.0.0, accepted 2026-10-30.
 
 Source: Shane M. Wilkins, *Modern Process Improvement with Python*,
 [modern-process-improvement](https://github.com/shanewilkins/modern-process-improvement),
-`book/diagrams/washnfold.flo` at revision
-`a10b7ecbc33908cffcafd4bbc3783b3447163406`. This is the model file's last-change
-commit; its bytes also match the clean source checkout inspected at
-`afca5fe41237ead0be2bdfce4e08341d7deaea12`.
+`book/diagrams/washnfold.flo` at clean revision
+`cefd20a8acb68636798666383510744cc351684c`.
 
-The diagram is reused as original instructional material under
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The source repository's
-full mixed-license notice is preserved in `SOURCE_LICENSE.md`. The `.flo` file
-and notice are unmodified byte copies. `process-export.json` is the mechanically
-produced JSON object from FLO 0.4.3's public `flo.export()` API, formatted with
-two-space indentation and a terminal newline. The explicit activity mapping and
-manifest are LSS4PY fixture declarations. No source simulation was rerun.
+The source and mixed-license notice are byte copies. Diagrams are reused under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); `SOURCE_LICENSE.md`
+retains the complete notice. `process-export.json` was mechanically generated
+by published FLO 0.5.0's public `flo.export()` API, formatted with two-space
+indentation and a terminal newline. The mapping and manifest are explicit
+LSS4PY fixture declarations. No simulation or observation data was regenerated.
 
-The actual book export was first checked against 0.4.2 and then reproduced
-unchanged with published 0.4.3. Its projection fingerprint records 0.4.3 as the
-producer; the original observation/model bytes and classification declarations
-are unchanged.
+The manifest pins the source revision, producer, diagnostic records, artifact
+hashes, projection fingerprint, and unchanged `washnfold-friday91` 1.0.0
+observations. All 330 observations across 39 orders and eight activities retain
+their existing identities. The model retains 14 nodes and 14 edges, with one
+packaging decision and two explicitly declared rework edges; the return relation
+is the meaningful empty object `rework: {}`.
 
-`manifest.json` pins source identity, producer version, artifact hashes, the
-projection fingerprint and the existing `washnfold-friday91` 1.0.0 observations.
-The source activity CSV and prepared summary exactly match that adopted fixture;
-neither is duplicated or revised here. Update this fixture only with a reviewed
-version, source attribution, hashes and synchronized contract tests.
+FLO 0.5 supplies first-class value classes and measurement profiles. This actual
+book model intentionally supplies no `analysis_input`: means are display evidence,
+not modeled elapsed-time inputs. Profiles retain simulated basis, distinct order/
+load/correction populations, observation context, evidence references and measured
+zero. Notification remains VA as currently declared by the book. FLO's separate
+reference fixture differs and is not a replacement for this source.
 
-The export has 14 nodes, 14 edges, one packaging decision and two explicitly
-marked rework edges. All eight observed activity names map to distinct task IDs.
-`Wash` maps to `wash` (displayed as `Wash loads`); `Dry` to `dry` (`Dry loads`);
-`Fold and package` to `fold_package` (`Reunite, fold, and package`). Display text
-does not define observation identity. Routing nodes, queues, start and end have
-no observation mapping.
+Order-release waiting overlaps the load Wash wait. No displayed mean enters the
+observed arithmetic. Policy derivation reads model-owned classifications and
+records `source_field: value_class`; analyst conventions still own boundaries,
+parallel-load envelopes and failed-attempt treatment. Calendar bindings on the
+general ProcessModelIR do not define this numerical CSV's operating clock.
 
-All modeled duration metadata uses `min`. These are displayed/model facts;
-observations independently declare cumulative operating minutes. The source
-comments warn that order release wait overlaps load Wash wait. Do not add diagram
-averages to observed durations or infer a work calendar from the unit spelling.
+The manifest retains warnings from published 0.5.0, including its known
+invalid-duration warnings for unselected analytical inputs. Warning-only producer
+operations succeed; the standalone example saves the normalized report in its
+evidence bundle. A local upstream fix is not substituted for the pinned release.
 
-The bridge preserves the entire producer nodes/edges and their metadata. It does
-not derive the numerical reconstruction policy from `value_class`, and its
-calendar-event bindings do not describe the numeric activity CSV. See the
-[S1 assessment](../../../../docs/assessments/v021-book-model.md) for the remaining
-policy work and explicit conventions. This fixture does not claim the full
-model-to-measurement workflow is implemented.
-
-Offline tests require neither FLO nor the source checkout. The installed
-ecosystem test reproduces validation/export with published `flo-lang==0.4.3` and
-checks the projection fingerprint using the ordinary wheel runner:
+The previous book model/export/manifest are preserved under
+`../legacy-0.4.3/book-model/` for exact legacy restoration and policy tests.
+Offline tests need neither FLO nor the book checkout. Installed-wheel acceptance:
 
 ```sh
 uv run --locked python tools/check_wheel.py --ecosystem

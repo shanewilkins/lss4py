@@ -88,6 +88,11 @@ explicit `DataContract`. `normalize_data` prepares declared columns with auditab
 opt-in row exclusions. See the [data-quality guide](docs/data-quality.md) for
 schema, key, timestamp, unit, missingness and duplicate policies.
 
+`convert_duration_columns` explicitly prepares seconds/minutes/hours using Pint,
+preserving the native backend and recording conversion evidence on an unchanged
+declared clock. See [duration units](docs/duration-units.md); normalization and
+analytical methods retain their existing unit behavior.
+
 `AnalysisBundle.capture` saves typed analyses with source hashes, selections,
 software versions and linked specifications. Bundles restore without recalculation;
 a standalone standard-library validator supports reviewers without analytical
@@ -372,7 +377,7 @@ These exercise CSV ingestion, timing/yield analyses, capability studies, JSON
 exports, and failure scenarios in base and pandas-extra installations. Run them
 locally with `uv run --locked python tools/check_wheel.py`.
 CI and the release build also require the
-[FLO ecosystem journey](docs/ecosystem-integration.md), using published FLO 0.4.3
+[FLO ecosystem journey](docs/ecosystem-integration.md), using published FLO 0.5.0
 and the candidate LSS4PY wheel. Run it with
 `uv run --locked python tools/check_wheel.py --ecosystem`.
 To verify an already built release artifact without rebuilding it, pass
@@ -402,3 +407,7 @@ now reconstructs all 39 pinned orders through public numeric contracts, retainin
 load/pass/classification and correction evidence. See the
 [reconstruction guide](docs/order-reconstruction.md) and saved
 [audited bundle](examples/white_belt/reconstruction-bundle.json).
+
+The [FLO-backed book workflow](docs/flo-book-workflow.md) runs the actual book
+model and observed CSV through model-derived classifications, reconstruction,
+metrics and saved audit evidence using installed packages.

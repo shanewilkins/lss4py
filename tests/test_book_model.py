@@ -68,7 +68,7 @@ def test_every_observed_activity_maps_to_a_classified_model_task():
         assert projection.resolve_activity(activity) == target
         raw = steps[target].metadata["flo"]
         assert raw["kind"] == "task"
-        assert raw["metadata"]["value_class"] == CLASSES[target]
+        assert raw["value_class"] == CLASSES[target]
 
 
 def test_book_export_preserves_full_topology_and_source_metadata():
@@ -107,17 +107,16 @@ def test_packaging_decision_and_correction_return_preserve_their_meaning():
 def test_modeled_measurements_keep_their_original_units_and_identities():
     steps = {step.id: step for step in _projection().to_process_model().steps}
     measures = [
-        value
+        result
         for step in steps.values()
-        for value in step.metadata["flo"].get("metadata", {}).values()
-        if isinstance(value, dict) and "unit" in value
+        for field in ("cycle_time", "wait_time", "changeover_time")
+        for result in step.metadata["flo"].get(field, {}).get("results", {}).values()
     ]
     assert {measure["unit"] for measure in measures} == {"min"}
-    assert steps["wash_release_queue"].metadata["flo"]["metadata"]["wait_time"] == {
-        "value": 501.7,
-        "unit": "min",
-        "measurement_id": "order_batch_release_wait",
-    }
+    wait = steps["wash_release_queue"].metadata["flo"]["wait_time"]
+    assert wait["results"]["mean"] == {"method": "mean", "value": 501.7, "unit": "min"}
+    assert wait["observation_count"] == 39 and wait["observation_unit"] == "order"
+    assert "analysis_input" not in wait
     assert steps["wash"].metadata["flo"]["name"] == "Wash loads"
     assert MAPPING["Wash"] == "wash"
     assert MAPPING["Fold and package"] == "fold_package"
@@ -139,15 +138,22 @@ def test_model_mapping_cannot_merge_distinct_observed_activities():
     ],
 )
 def test_saved_book_projection_preserves_its_producer_version_and_fingerprint(version, digest):
-    body = _projection().to_dict()
-    body["flo_version"] = version
+    legacy = ROOT.parent / "legacy-0.4.3/book-model"
+    manifest = json.loads((legacy / "manifest.json").read_text())
+    body = ProcessProjection.from_flo_export(
+        json.loads((legacy / "process-export.json").read_text()),
+        source=manifest["observations"]["dataset_id"],
+        model_revision=manifest["source"]["revision"],
+        step_mapping=MAPPING,
+        flo_version=version,
+    ).to_dict()
     restored = ProcessProjection(json.dumps(body))
     assert restored.to_dict()["flo_version"] == version
     assert restored.digest == digest
     assert ProcessProjection(restored.to_json()).digest == digest
 
 
-@pytest.mark.parametrize("version", [None, ["0.4.3"], "0.5.0"])
+@pytest.mark.parametrize("version", [None, ["0.4.3"], "0.6.0"])
 def test_unsupported_producer_profiles_raise_governed_errors(version):
     body = _projection().to_dict()
     body["flo_version"] = version

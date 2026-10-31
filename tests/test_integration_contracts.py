@@ -126,7 +126,7 @@ def test_projection_rejects_unsupported_or_ambiguous_semantics(projection, failu
     body = projection.to_dict()
     mutations = {
         "schema": lambda: body.update(schema_version="99"),
-        "version": lambda: body.update(flo_version="0.5.0"),
+        "version": lambda: body.update(flo_version="99"),
         "duplicate-node": lambda: body["export"]["nodes"].append(body["export"]["nodes"][0]),
         "unknown-edge": lambda: body["export"]["edges"][0].update(target="unknown"),
         "unknown-mapping": lambda: body["step_mapping"].update(R="unknown"),
@@ -328,3 +328,77 @@ def test_bridge_does_not_import_flo_or_rendering_packages():
         ],
         check=True,
     )
+
+
+@pytest.mark.parametrize(
+    ("path", "value", "message"),
+    [
+        ("results", [], "requires analytical results"),
+        ("results", {}, "requires analytical results"),
+        ("results.lead.result_type", "Unknown", "Unsupported analytical result"),
+        ("results.lead.provenance", None, "requires provenance"),
+        ("results.lead.provenance", {}, "Unsupported provenance fields"),
+        ("results.lead.extra", True, "Unsupported timing result fields"),
+        ("results.lead.provenance.created_at", "yesterday", "Invalid provenance timestamp"),
+        ("results.lead.provenance.parameters", [], "requires explicit parameters"),
+        ("results.lead.provenance.warnings", {}, "requires warnings"),
+        ("results.lead.provenance.assumptions", ["guess"], "Invalid diagnostic note"),
+        ("results.lead.values", [], "requires values"),
+        ("results.lead.values", [True], "requires numeric values"),
+        ("results.lead.values", ["2"], "requires numeric values"),
+        ("results.lead.keys", [], "key/value lengths differ"),
+        ("results.review.mean", "2", "must reference a scalar"),
+        ("included_case_ids", [], "requires included cases"),
+        ("included_case_ids", ["001", "001"], "Duplicate cohort"),
+        ("exclusions", [{"case_id": "002"}], "Exclusions require case_id and reason"),
+        ("exclusions", [{"case_id": "002", "reason": ""}], "exclusion reason"),
+        ("software_versions", {}, "Software versions are required"),
+        ("sources", [], "Source evidence is required"),
+        ("sources", [{"reference": "observations.csv"}], "Invalid source evidence fields"),
+        ("annotations", {}, "Annotations must be a list"),
+        ("annotations", [{}], "Invalid annotation fields"),
+    ],
+)
+def test_malformed_saved_evidence_reports_the_violated_contract(manifest, path, value, message):
+    """Exercise rejection after rehashing so corruption cannot hide behind checksum checks."""
+    envelope = manifest.to_dict()
+    target = envelope["evidence"]
+    *parents, field = path.split(".")
+    for parent in parents:
+        target = target[parent]
+    target[field] = value
+    with pytest.raises(ValidationError, match=message):
+        EvidenceManifest.from_json(rehash(envelope))
+
+
+@pytest.mark.parametrize("field", ["sources", "annotations", "exclusions"])
+def test_duplicate_evidence_identity_is_rejected(manifest, field):
+    """Each source, result annotation and excluded case must retain unique identity."""
+    envelope = manifest.to_dict()
+    values = envelope["evidence"][field]
+    values.append(deepcopy(values[0]))
+    with pytest.raises(ValidationError, match="Duplicate"):
+        EvidenceManifest.from_json(rehash(envelope))
+
+
+@pytest.mark.parametrize("value", ["not JSON", "[]", "{}", '{"evidence": null, "sha256": "x"}'])
+def test_invalid_evidence_envelopes_raise_public_errors(value):
+    """Malformed portable evidence has one governed public exception type."""
+    with pytest.raises(ValidationError, match="Invalid evidence"):
+        EvidenceManifest.from_json(value)
+
+
+@pytest.mark.parametrize("identifier", ["missing", "review"])
+def test_restoring_absent_or_non_timing_evidence_is_explicit(manifest, identifier):
+    """A descriptive result cannot silently be restored as timing evidence."""
+    with pytest.raises(ValidationError, match="not timing evidence"):
+        manifest.restore_timing(identifier)
+
+
+def test_consistently_relabeled_unsupported_timing_unit_is_rejected(manifest):
+    """Matching unit labels cannot introduce an unsupported measurement unit."""
+    envelope = manifest.to_dict()
+    timing = envelope["evidence"]["results"]["lead"]
+    timing["unit"] = timing["provenance"]["parameters"]["unit"] = "fortnights"
+    with pytest.raises(ValidationError, match="Unsupported timing unit"):
+        EvidenceManifest.from_json(rehash(envelope))

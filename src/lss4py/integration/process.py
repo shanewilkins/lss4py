@@ -16,9 +16,15 @@ from lss4py.domain import (
 )
 from lss4py.errors import ValidationError
 
-from ._process_schema import ProjectionEnvelope, validate_projection
+from ._process_schema import (
+    MeasurementProfile,
+    ModernProjectionEnvelope,
+    ProjectionEnvelope,
+    WaitingReference,
+    validate_projection,
+)
 
-FLO_VERSION = "0.4.3"
+FLO_VERSION = "0.5.0"
 CONTRACT_VERSION = "1.0"
 
 
@@ -42,7 +48,7 @@ def nonblank(value: Any, name: str) -> str:
     return value
 
 
-def _validate_references(projection: ProjectionEnvelope) -> None:
+def _validate_references(projection: ProjectionEnvelope | ModernProjectionEnvelope) -> None:
     """Keep graph and observation identity rules separate from payload shapes."""
     nodes = set()
     for index, node in enumerate(projection.export.nodes):
@@ -62,6 +68,42 @@ def _validate_references(projection: ProjectionEnvelope) -> None:
             )
     if len(set(projection.step_mapping.values())) != len(projection.step_mapping):
         raise ValidationError("step_mapping: Ambiguous many-to-one step mapping is unsupported.")
+    if isinstance(projection, ModernProjectionEnvelope):
+        _validate_waiting_references(projection)
+
+
+def _validate_waiting_references(projection: ModernProjectionEnvelope) -> None:
+    """Resolve direct waiting references without copying or adding their evidence."""
+    by_id = {node.id: node for node in projection.export.nodes}
+    for index, node in enumerate(projection.export.nodes):
+        if not isinstance(node.wait_time, WaitingReference):
+            continue
+        identifier, separator, field = node.wait_time.ref.rpartition(".")
+        target = by_id.get(identifier)
+        if (
+            not separator
+            or field != "wait_time"
+            or target is None
+            or target.kind != "task"
+            or not isinstance(target.wait_time, MeasurementProfile)
+        ):
+            raise ValidationError(
+                f"export.nodes.{index}.wait_time.ref: Expected a direct work wait_time profile."
+            )
+
+
+def _portable_evidence(value: Any) -> None:
+    """Reject Python values that JSON encoding would silently coerce."""
+    if isinstance(value, dict):
+        if any(not isinstance(key, str) for key in value):
+            raise ValidationError("FLO 0.5 evidence requires JSON string keys.")
+        for item in value.values():
+            _portable_evidence(item)
+    elif isinstance(value, list):
+        for item in value:
+            _portable_evidence(item)
+    elif value is not None and not isinstance(value, (str, bool, int, float)):
+        raise ValidationError("FLO 0.5 evidence must contain portable JSON values.")
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,6 +134,8 @@ class ProcessProjection:
         flo_version: str = FLO_VERSION,
     ) -> ProcessProjection:
         """Capture FLO's public JSON export with version and identity declarations."""
+        if flo_version == "0.5.0":
+            _portable_evidence(payload)
         return cls(
             strict_json(
                 {
@@ -135,7 +179,10 @@ class ProcessProjection:
         body = self.to_dict()
         payload = body["export"]
         nodes = {node["id"]: node for node in payload["nodes"]}
-        edges = [self._project_edge(edge, nodes) for edge in payload["edges"]]
+        edges = [
+            self._project_edge(edge, nodes, modern=body["flo_version"] == "0.5.0")
+            for edge in payload["edges"]
+        ]
         return ProcessModelIR(
             name=payload["process"]["name"],
             steps=[
@@ -163,10 +210,15 @@ class ProcessProjection:
         )
 
     @staticmethod
-    def _project_edge(edge: dict, nodes: dict[str, dict]) -> ProcessEdgeIR:
+    def _project_edge(edge: dict, nodes: dict[str, dict], *, modern: bool = False) -> ProcessEdgeIR:
         """Retain rework priority and explicit split/join endpoint meaning."""
         kind = "sequence"
-        if edge.get("rework") or edge.get("edge_type") == "rework":
+        rework = (
+            edge.get("rework") is not None
+            if modern
+            else bool(edge.get("rework") or edge.get("edge_type") == "rework")
+        )
+        if rework:
             kind = "rework"
         elif nodes[edge["source"]]["kind"] == "parallel_split":
             kind = "parallel_split"

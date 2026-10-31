@@ -1,14 +1,15 @@
 # Ecosystem reference fixture
 
-Synthetic original intake data and FLO source; no customer records. FLO 0.4.3's
+Synthetic original intake data and FLO source; no customer records. FLO 0.5.0's
 public `flo.export()` generated `process-export.json` from `baseline.flo`. The
 installed-package test reproduces that export using the pinned published release.
 
-The current synthetic model is version 2: review work and its routing decision
-are separate nodes. FLO 0.4.3 rejects the former placement of processing time on
-a decision (E1508). Observation IDs, timings and the independently drawn observed
-PNG remain unchanged. Original 0.4.2 source/export bytes are retained in
-`legacy-0.4.2/` for backward-compatible evidence restoration tests.
+The synthetic model separates review work from its routing decision. FLO 0.5
+profiles use explicitly declared planned basis and selectors for its original
+synthetic durations; items now live under process and handoff/rework are objects.
+Observation identities, timings and the independently drawn observed PNG remain
+unchanged. Original exports/sources are retained in `legacy-0.4.2/` and
+`legacy-0.4.3/` for backward-compatible restoration.
 
 The `.flo` source declares parallel reviews, explicit review rework/handoff and
 modeled durations in minutes. Observations use source activity codes, leading-zero

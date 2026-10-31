@@ -1,16 +1,24 @@
 # v0.2.1: FLO-backed White Belt measurement workflow
 
 - Accepted scope: 2026-10-24.
-- Status: In progress; S1 and S2 completed 2026-10-26.
+- Status: Accepted locally 2026-10-27; S1–S6 complete. Release/publication steps remain separate.
 - Release target: v0.2.1, following the v0.2.0 candidate.
 - Existing requirement coverage: UR-003, UR-014, UR-046, UR-047;
   TR-003, TR-013, TR-040, TR-043, TR-044, TR-045, TR-046.
-- This is an additional integration acceptance slice. Existing Satisfied statuses
-  describe their verified current contracts and do not claim this workflow exists.
+- This additional integration is verified by the S6 acceptance assessment.
+  Requirement statuses retain their declared scope; publication remains separate.
 
 Demonstrate the book's actual process model and observed activity data working
 through FLO and lss4py together. Keep the CSV-only route independently usable.
 Do not change v0.2.0 package metadata or fold this integration into its candidate.
+
+## Contract alignment follow-up: 2026-10-30
+
+Current producer capture targets published FLO 0.5.0; legacy 0.4.2/0.4.3
+projection restoration remains supported. The actual book model is fixture
+version 2.0.0, retaining its current classifications and display-only profiles.
+See the [alignment assessment](../assessments/flo-05-alignment.md) for the contract
+changes and updated validation. The dated S1–S6 records below remain historical.
 
 ## Sprint draft: 2026-10-26
 
@@ -20,10 +28,13 @@ classifications, explicit measurement conventions and saved audit evidence.
 
 This draft combines the accepted FLO workflow, Pydantic pilot and planned Pint
 unit support with targeted test hardening. Sprint dates, capacity and task owners are not assigned yet.
-S1 and S2 are complete; S2a and subsequent integration implementation remain planned.
+S1–S6 are complete. The [final acceptance assessment](../assessments/v021-sprint-acceptance.md)
+records the tested working-tree/wheel identities, combined gates and release handoff.
 See the [S1 assessment](../assessments/v021-book-model.md) and its governed fixture.
 The [S2 assessment](../assessments/v021-pydantic-pilot.md) records strict schemas,
 unchanged snapshots, direct dependency placement and the measured code tradeoff.
+The [duration unit contract](../duration-units.md) and [ADR-0027](../adr/0027-explicit-duration-conversion-and-private-pint-registry.md)
+record the separate conversion boundary and private Pint registry.
 
 ### Starting evidence
 
@@ -49,11 +60,75 @@ unchanged snapshots, direct dependency placement and the measured code tradeoff.
 | --- | --- | --- | --- |
 | S1: Freeze source and producer contract — Complete 2026-10-26 | Govern the actual `.flo`, public producer export, source revision/hashes, attribution and explicit activity-to-step mapping. Record supported and unsupported semantics. | Actual model passes released FLO 0.4.3 and the existing bridge: 14 nodes, 14 edges, all eight observed activities mapped, source/observation bytes pinned. Legacy 0.4.2 payload restoration is retained. See the [assessment](../assessments/v021-book-model.md). | None |
 | S2: Pilot Pydantic at the JSON boundary — Complete 2026-10-26 | Strict private schemas replace structural checks; graph/mapping rules remain explicit. Pydantic is declared directly in core to preserve base-installation bridge access. | Source gates and all installed stages pass, alongside a 325-case differential probe. Original snapshots/fingerprints and extensible producer data are retained; public errors identify nested fields. See the [assessment](../assessments/v021-pydantic-pilot.md) for code-size and dependency costs. | S1 schema/profile decision |
-| S2a: Add Pint for explicit unit handling | Define a bounded unit contract, verify Python 3.14/dependency compatibility, add Pint to the appropriate dependency group and lockfile, and implement explicit duration-unit validation/conversion at a declared boundary. | Seconds/minutes/hours conversions preserve physical quantities; incompatible dimensions and unknown units fail with governed errors; existing numeric + unit APIs, serialized payloads and baseline results remain compatible. Test registry isolation, backend parity, installed dependencies and conversion provenance. | S1 unit inventory; dependency and registry decisions below |
-| S3: Derive declared measurement policy | Translate projected model classifications and explicit analyst conventions into the existing reconstruction policy. Select an orchestration location that satisfies layer rules. | Missing/conflicting classifications and ambiguous mappings fail clearly; display-name changes preserve identity; model classification changes affect policy/results or fail the pinned profile. | S1; S2 validates the final integration path |
-| S4: Demonstrate and preserve the full route | Add an installed-package model + CSV example using existing reconstruction/measurement APIs, FLO rendering and saved audit evidence. | All 39 order expectations and the WNF-003 hand check pass; source hashes, model/producer revisions, mapping, classifications and remaining conventions survive export/restoration. Modeled durations do not alter observed metrics. | S2, S2a, S3 |
-| S5: Harden coverage of supported behavior | Add CLI doctor/debug tests, isolated structured-logging and telemetry tests, integration evidence rejection tests, and reporting success/error-path tests. Prioritize adapter failures relevant to the new route. | Tests assert observable behavior and governed errors, avoid global telemetry/logging leakage, and run in the normal CI suite. Full-package coverage stays at least 90% without exclusions or a reduced threshold. | Can start after S1; final integration cases depend on S4 |
-| S6: Close acceptance and document the pilot | Run quality and installed-package gates, document the runnable workflow and compatibility decisions, and record a recommendation on further Pydantic adoption. | Gate results identify the tested revision; requirements evidence reflects only demonstrated behavior; release notes describe the delivered scope and dependency changes. | S2–S5 |
+| S2a: Add Pint for explicit unit handling — Complete 2026-10-27 | Direct core Pint dependency and separate `convert_duration_columns` preparation API. Private lazy registry; explicit seconds/minutes/hours aliases and unchanged clock declaration. | Source gates and all installed stages pass, including the unchanged 39-order book PCE after explicit conversion. Backend/identity preservation, governed errors, registry isolation and portable conversion evidence are verified. Days/calendars and implicit conversion remain outside the contract. See [duration units](../duration-units.md). | S1 unit inventory; registry/dependency decisions in ADR-0027 |
+| S3: Derive declared measurement policy — Complete 2026-10-27 | Translate projected model classifications and explicit analyst conventions into the existing reconstruction policy. Select an orchestration location that satisfies layer rules. | `integration.derive_reconstruction_policy` returns the existing domain policy plus portable attribution. Missing/invalid classes, unmapped observed/analyst activities and correction conflicts fail clearly. All 39 orders match; model class changes affect VA/PCE; names and modeled durations do not. See [policy derivation](../order-reconstruction.md#derive-baseline-classes-from-flo). | S1; S2 validates the final integration path |
+| S4: Demonstrate and preserve the full route — Complete 2026-10-27 | Add an installed-package model + CSV example using existing reconstruction/measurement APIs, FLO rendering and saved audit evidence. | Standalone `examples/white_belt/flo_measure.py` runs native FLO + CSV through installed packages. Every order field, WNF-003 and cohort readouts pass; audited bundle restoration retains model/producer versions, source snapshots, mapping/classes and analyst rules. FLO renders the modeled value stream. Changed pinned inputs fail before success artifacts. See the [workflow](../flo-book-workflow.md). | S2, S2a, S3 |
+| S5: Harden coverage of supported behavior — Complete 2026-10-27 | Add CLI doctor/debug tests, isolated structured-logging and telemetry tests, integration evidence rejection tests, and reporting success/error-path tests. Prioritize adapter failures relevant to the new route. | Normal CI now verifies CLI help/doctor/debug, real JSON logging/filtering/context/exceptions, locally exported parent/child spans, rehashed malformed evidence, plot creation/labels/warnings/style/dependency failures, numeric schema identity and CSV parse/storage diagnostics. Logging configuration/context are restored; local telemetry providers flush and shut down without replacing the global provider. See S5 verification below. | Can start after S1; final integration cases depend on S4 |
+| S6: Close acceptance and document the pilot — Complete 2026-10-27 | Run quality and installed-package gates, document the runnable workflow and compatibility decisions, and record a recommendation on further Pydantic adoption. | Final source gates pass (1,983 passed, five expected failures, 95.71% coverage); the exact-wheel matrix passes all 157 installed tests. Dependency audit, distribution metadata and workflow checks pass. The acceptance assessment records executable/wheel hashes, the bounded Pydantic recommendation and release limitations; draft v0.2.1 notes document dependency changes. | S2–S5 |
+
+### S3 verification: 2026-10-27
+
+The locked pre-push gates pass: 1,932 source tests passed, five expected
+failures, 93.65% full-package statement coverage, all eight import boundaries,
+Ruff, formatting, Vulture, lock consistency and ty. The new derivation module
+has complete statement coverage. Regression tests compare every order/activity
+table with the CSV-only baseline, preserve derivation evidence through result
+JSON, and verify the notification classification changes VA/PCE without changing
+lead time. Display-name and modeled-duration mutations leave measurements intact.
+
+The isolated wheel matrix also passes all 153 tests: 28 base, 38 pandas,
+40 storage and 47 ecosystem. Base installation verifies derivation from portable
+FLO exports without requiring the FLO package. Reports are retained under
+`artifacts/tests/` and `artifacts/ecosystem/tests/`.
+
+### S4 verification: 2026-10-27
+
+The isolated wheel matrix passes 157 tests: 28 base, 38 pandas, 40 storage
+and 51 ecosystem. The actual model/CSV subprocess route restores all five typed
+results and compares every order against the independent prepared summary. It
+checks source fingerprints, model/producer identity, mapping/classes, analyst
+rules, WNF-003 load evidence and the FLO SVG structure. Three changed-source
+cases reject the pinned profile without success artifacts. The source gates
+retain 1,932 passes, five expected failures and 93.65% full-package coverage.
+Artifacts are retained under `artifacts/ecosystem/book/`. Requirement evidence
+links were extended for the demonstrated route; publication-related statuses
+remain unchanged.
+
+### S5 verification: 2026-10-27
+
+Added 51 normal-CI behavior and rejection cases in `tests/test_observability.py`,
+`tests/test_reporting.py`, `tests/test_adapter_failures.py` and
+`tests/test_integration_contracts.py`. The final source suite passes 1,983 tests
+with five expected failures. Full-package statement coverage increased from
+93.65% to **95.71%** (3,684 statements, 158 missing), with the unchanged 90% gate
+and no exclusions. CLI, logging, telemetry, integration evidence, timing plotting
+and the numeric CSV adapter each reach 100% statement coverage. This does not
+claim branch coverage or completion of deferred features.
+
+The locked pre-push checks pass; final adapter assertion changes also pass the
+full required-Arrow coverage command, Ruff/formatting, Vulture and ty. All eight
+import boundaries remain intact. JUnit and coverage XML are retained under
+`artifacts/tests/`. JSON logging restores root handlers/level, structlog
+configuration (including its configured state) and context variables. Real SDK
+spans are exported and flushed through local providers that are shut down;
+global tracer-provider installation is intercepted and the original provider is
+unchanged. Plot tests close created figures and check that style and analytical
+results are unchanged. Evidence mutations are rehashed to verify semantic
+rejection rather than merely checksum rejection.
+
+No production code, dependencies or installed E2E cases changed in S5. The S4
+157-test installed matrix remains its recorded evidence; the final combined
+installed-package run belongs to S6. Deferred workflow and Markdown-rendering
+stubs remain visible in coverage and unimplemented.
+
+### S6 verification: 2026-10-27
+
+All combined acceptance gates pass against the recorded working tree and selected
+wheel. See the [acceptance assessment](../assessments/v021-sprint-acceptance.md)
+for exact identities, gate results, retained artifacts, Pydantic recommendation
+and remaining release steps. The standalone implementation scope is accepted;
+package metadata remains 0.2.0 and publication/sibling-book integration were not
+performed. The [v0.2.1 release notes](../releases/v0.2.1.md) are a draft.
 
 ### Decisions to settle during S1/S2/S2a
 
@@ -75,12 +150,15 @@ unchanged snapshots, direct dependency placement and the measured code tradeoff.
    envelopes. Match current accepted payload behavior rather than applying
    `extra="forbid"` indiscriminately. Preserve original producer data used in
    canonical snapshots and fingerprints when validating it.
-4. Choose the public policy-derivation surface and orchestration location.
+4. Resolved by S3: `lss4py.integration.derive_reconstruction_policy` accepts
+   `ReconstructionConventions` and observed vocabulary, returning the existing
+   domain policy with detached classification evidence. It imports no kernels
+   or data adapters. Full-route orchestration remains S4. Original constraint:
    `lss4py.integration` currently depends only on domain contracts; it must not
    start importing adapters, kernels or workflows to run the demonstration.
-5. Decide whether Pint belongs in core or an optional extra based on the actual
-   unit API and import path. Document one registry ownership policy without
-   changing a caller's application registry. Keep numerical kernels operating on
+5. Resolved by ADR-0027: Pint is a core dependency for a separate preparation
+   operation with a private lazy registry, without changing a caller's application
+   registry. Keep numerical kernels operating on
    normalized magnitudes and explicit units; preserve portable JSON rather than
    storing registry-bound quantity objects in bundles.
 6. Define accepted unit spellings and explicit conversion requests. Duration

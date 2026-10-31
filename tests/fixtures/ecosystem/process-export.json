@@ -3,42 +3,37 @@
     "id": "intake_baseline",
     "name": "Intake baseline",
     "version": 2,
-    "metadata": {
-      "process_id": "intake_baseline",
-      "process_name": "Intake baseline",
-      "items": [
-        {
-          "id": "order",
-          "name": "Order",
-          "kind": "information"
-        },
-        {
-          "id": "ticket",
-          "name": "Work ticket",
-          "kind": "information"
-        },
-        {
-          "id": "document",
-          "name": "Document",
-          "kind": "material"
-        },
-        {
-          "id": "approved_document",
-          "name": "Approved document",
-          "kind": "material"
-        }
-      ]
-    }
+    "items": [
+      {
+        "id": "order",
+        "name": "Order",
+        "kind": "information"
+      },
+      {
+        "id": "ticket",
+        "name": "Work ticket",
+        "kind": "information"
+      },
+      {
+        "id": "document",
+        "name": "Document",
+        "kind": "material"
+      },
+      {
+        "id": "approved_document",
+        "name": "Approved document",
+        "kind": "material"
+      }
+    ]
   },
   "nodes": [
     {
       "id": "start",
-      "kind": "start",
-      "name": "Start"
+      "name": "Start",
+      "kind": "start"
     },
     {
       "id": "intake",
-      "kind": "task",
       "name": "Intake",
       "consumes": [
         "order",
@@ -47,40 +42,52 @@
       "produces": [
         "ticket"
       ],
-      "metadata": {
-        "cycle_time": {
-          "value": 20,
-          "unit": "min"
-        }
-      }
+      "cycle_time": {
+        "basis": "planned",
+        "results": {
+          "declared": {
+            "method": "mean",
+            "value": 20,
+            "unit": "min"
+          }
+        },
+        "primary": "declared",
+        "analysis_input": "declared"
+      },
+      "kind": "task"
     },
     {
       "id": "split",
-      "kind": "parallel_split",
-      "name": "Begin parallel reviews"
+      "name": "Begin parallel reviews",
+      "kind": "parallel_split"
     },
     {
       "id": "review",
-      "kind": "task",
       "name": "Review",
       "consumes": [
         "ticket"
       ],
-      "metadata": {
-        "cycle_time": {
-          "value": 30,
-          "unit": "min"
-        }
-      }
+      "cycle_time": {
+        "basis": "planned",
+        "results": {
+          "declared": {
+            "method": "mean",
+            "value": 30,
+            "unit": "min"
+          }
+        },
+        "primary": "declared",
+        "analysis_input": "declared"
+      },
+      "kind": "task"
     },
     {
       "id": "review_check",
-      "kind": "decision",
-      "name": "Review approved?"
+      "name": "Review approved?",
+      "kind": "decision"
     },
     {
       "id": "approval",
-      "kind": "task",
       "name": "Approval",
       "consumes": [
         "document"
@@ -88,36 +95,49 @@
       "produces": [
         "approved_document"
       ],
-      "metadata": {
-        "cycle_time": {
-          "value": 15,
-          "unit": "min"
-        }
-      }
+      "cycle_time": {
+        "basis": "planned",
+        "results": {
+          "declared": {
+            "method": "mean",
+            "value": 15,
+            "unit": "min"
+          }
+        },
+        "primary": "declared",
+        "analysis_input": "declared"
+      },
+      "kind": "task"
     },
     {
       "id": "join",
-      "kind": "parallel_join",
-      "name": "Complete parallel reviews"
+      "name": "Complete parallel reviews",
+      "kind": "parallel_join"
     },
     {
       "id": "close",
-      "kind": "task",
       "name": "Close",
       "consumes": [
         "approved_document"
       ],
-      "metadata": {
-        "cycle_time": {
-          "value": 10,
-          "unit": "min"
-        }
-      }
+      "cycle_time": {
+        "basis": "planned",
+        "results": {
+          "declared": {
+            "method": "mean",
+            "value": 10,
+            "unit": "min"
+          }
+        },
+        "primary": "declared",
+        "analysis_input": "declared"
+      },
+      "kind": "task"
     },
     {
       "id": "end",
-      "kind": "end",
-      "name": "End"
+      "name": "End",
+      "kind": "end"
     }
   ],
   "edges": [
@@ -162,9 +182,8 @@
       "source": "review_check",
       "target": "review",
       "outcome": "revise",
-      "edge_type": "rework",
-      "handoff": true,
-      "rework": true
+      "handoff": {},
+      "rework": {}
     }
   ]
 }

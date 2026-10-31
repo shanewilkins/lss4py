@@ -112,22 +112,37 @@ OCEL version/profile and serializations must be selected before implementation.
 
 ## v0.2.1 integration follow-up
 
-The accepted [FLO-backed White Belt workflow](plans/v021-flo-white-belt.md) is
-in progress for v0.2.1. Ingest the actual book `.flo` through FLO's public producer
-API and the existing projection bridge, explicitly map observations to stable
-step IDs, derive baseline value classes from the model, and reuse observed
-reconstruction/PCE calculations. Preserve the CSV-only route. This increment
-extends the existing UR-003/UR-014/UR-046/UR-047 and
-TR-003/TR-013/TR-040/TR-043/TR-044/TR-045/TR-046 contracts; their current statuses
-do not imply this additional integration is implemented. v0.2.0 retains its
-completed local acceptance scope and candidate version.
+Contract alignment follow-up (2026-10-30): current capture targets published
+FLO 0.5.0, with first-class classification, measurement profiles and structured
+relations. The migrated actual book fixture preserves observed arithmetic and
+keeps 0.4.2/0.4.3 projection restoration. See the
+[alignment assessment](assessments/flo-05-alignment.md) for current acceptance;
+the dated S1–S6 records below describe the earlier 0.4.3 baseline.
+
+The [FLO-backed White Belt workflow](plans/v021-flo-white-belt.md) is accepted
+locally for v0.2.1. It ingests the actual book `.flo` through FLO's public producer
+API and the projection bridge, explicitly maps observations to stable step IDs,
+derives baseline value classes from the model, and reuses observed
+reconstruction/PCE calculations. The CSV-only route remains usable. This
+increment extends UR-003/UR-014/UR-046/UR-047 and
+TR-003/TR-013/TR-040/TR-043/TR-044/TR-045/TR-046; the evidence below demonstrates
+the additional integration. Package metadata retains the 0.2.0 candidate version.
 
 S1 completed 2026-10-26: the [actual book model assessment](assessments/v021-book-model.md)
 pins source/export/license bytes and explicit mappings for all eight observed
 activities. FLO 0.4.3 and the existing bridge accept the 14-node/14-edge model;
 0.4.2 payload restoration remains supported.
-Model-derived measurement policy and the full installed measurement route remain
-planned; preservation of model class metadata alone does not implement them.
+S3 completed 2026-10-27: [policy derivation](order-reconstruction.md#derive-baseline-classes-from-flo)
+uses model-owned classes and explicit analyst conventions, with portable
+classification attribution. S4 completed 2026-10-27: the standalone
+[book workflow](flo-book-workflow.md) executes the native model and CSV against
+installed packages, reproduces all 39 orders and saves restorable audited
+evidence plus FLO rendering. S5 completed 2026-10-27 with normal-CI CLI,
+observability, evidence rejection, plotting and numeric ingestion hardening.
+S6 completed 2026-10-27: the [final acceptance assessment](assessments/v021-sprint-acceptance.md)
+records 1,983 source passes, 95.71% coverage and 157 exact-wheel installed passes.
+The standalone sprint is accepted locally; package version selection, publication
+and official book dependency integration remain separate release work.
 
 The [2026-10-26 sprint draft](plans/v021-flo-white-belt.md#sprint-draft-2026-10-26)
 orders source/profile verification, the Pydantic pilot, model-derived measurement
@@ -135,11 +150,12 @@ policy, an installed-package demonstration, targeted coverage hardening and fina
 acceptance. Dates, capacity and owners remain unset. Full-package coverage is
 already enabled; new sprint tests target supported behavior and failure paths.
 
-Pint unit support is also planned for this sprint: add the dependency after
-deciding core versus optional placement, and deliver bounded, explicit duration
-validation/conversion with registry ownership, conversion provenance and portable
-serialization. Preserve existing numeric + unit APIs and distinguish operating
-clocks from calendar durations. See task S2a in the sprint draft.
+Pint duration support completed 2026-10-27: a direct core dependency powers
+the separate [explicit duration conversion API](duration-units.md), with a private
+lazy registry, backend/row preservation and portable conversion evidence.
+Existing numeric/unit APIs retain their behavior. The supported aliases cover
+seconds/minutes/hours; days, operating-day calendars and implicit conversion are
+outside this slice. See task S2a and [ADR-0027](adr/0027-explicit-duration-conversion-and-private-pint-registry.md).
 
 ### Pydantic integration-boundary pilot
 

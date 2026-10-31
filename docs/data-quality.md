@@ -64,6 +64,11 @@ and units are never converted. Mixed integer/real numeric columns use common flo
 storage only when the integers can be represented exactly; otherwise normalization
 raises `ValidationError` rather than silently rounding them.
 
+For an explicitly requested duration conversion, use the separate
+[`convert_duration_columns`](duration-units.md) operation before inspection or
+analysis, then declare its target units. It does not change this normalization
+contract or infer a clock/calendar.
+
 Rows remain in original order. Missing-row exclusion occurs first, and optional
 deduplication keeps the first surviving occurrence. These options apply to all
 declared columns and declared key/row identity respectively. No other error is

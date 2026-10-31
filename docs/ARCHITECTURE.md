@@ -176,7 +176,7 @@ result and returns native axes; its optional imports occur only when called.
 
 **Location:** `lss4py/integration/`
 
-The optional bridge accepts FLO 0.4.3's public JSON export and translates a bounded
+The optional bridge accepts FLO 0.5.0's public JSON export and translates a bounded
 supported projection into ProcessModelIR. It preserves declared step identities,
 parallel/rework topology, source semantics and modeled metadata. It imports domain
 contracts and private Pydantic exchange schemas, without FLO, kernels, adapters
@@ -187,6 +187,18 @@ manifests capture completed timing/descriptive results and explicit study contex
 restoration does not recalculate. The external reference workflow composes FLO and
 LSS4PY public operations and keeps modeled diagrams and observed metrics separate.
 See the [integration guide](ecosystem-integration.md) for supported semantics.
+
+### Explicit unit preparation
+
+**Location:** `lss4py/_units.py`, with `DurationConversion` in `domain/units.py`.
+
+The public `convert_duration_columns` operation converts selected eager duration
+columns before analysis. Its private lazy Pint registry owns physical factors;
+caller application registries are neither consumed nor replaced. Native backend,
+row order and non-selected columns are preserved. Portable evidence records the
+explicit units, unchanged clock, factor, source positions and Pint version.
+Existing numerical methods and normalization retain their unit behavior.
+See [duration units](duration-units.md) and [ADR-0027](adr/0027-explicit-duration-conversion-and-private-pint-registry.md).
 
 ## Dependency rules
 

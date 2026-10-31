@@ -15,6 +15,7 @@ dependencies = [
     "opentelemetry-api>=1.31.0",
     "opentelemetry-exporter-otlp>=1.31.0",
     "opentelemetry-sdk>=1.31.0",
+    "pint>=0.25,<1",  # Explicit duration conversion; registry stays private
     "polars>=1.0.0",
     "pydantic>=2.12,<3",  # Portable exchange validation; FLO remains optional
     "rich>=13.9.0",
@@ -24,7 +25,7 @@ dependencies = [
 
 [project.optional-dependencies]
 integration = [
-    "flo-lang==0.4.3",
+    "flo-lang==0.5.0",
 ]
 pandas = [
     "pandas>=2.2.0",

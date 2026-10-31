@@ -1,8 +1,8 @@
 # Ecosystem baseline and exchange contracts
 
 The initial bridge lives in `lss4py.integration`, with no FLO imports or mandatory
-rendering dependency. It accepts the public JSON export from FLO **0.4.3** and
-retains **0.4.2** payload restoration. The
+rendering dependency. It accepts the public JSON export from FLO **0.5.0** and
+retains **0.4.2/0.4.3** payload restoration. The
 optional `integration` extra installs that released package; numerical analysis
 uses the existing NumPy/SciPy stack. The `visualization` extra provides
 Matplotlib and Seaborn. See [ADR-0022](adr/0022-ecosystem-integration-contracts-and-journey-gates.md)
@@ -24,8 +24,8 @@ and compatibility decisions. FLO still owns its native-document validation.
   It preserves source metadata and all supported node/edge identities. Labels and
   row position never determine identity. `to_process_model()` produces the existing
   analytical contract without importing upstream IR classes.
-- Exchange schema **1.0** covers start/end/task/queue/decision and explicit
-  parallel split/join nodes. Rework, handoff and outcome metadata are preserved.
+- Exchange schema **1.0**, interpreted by explicit producer version, covers
+  start/end/task/queue/decision and explicit parallel split/join nodes. Rework, handoff and outcome metadata are preserved.
   Generic branches, subprocess hierarchy, dispatch routes and unrecognized edge
   semantics are rejected. This is a bounded projection, not full FLO conformance
   analysis or a guarantee that declared graph reachability is checked by lead time.
@@ -56,7 +56,7 @@ uv run --locked python tools/check_wheel.py --ecosystem \
 ```
 
 The runner builds the candidate LSS4PY wheel, copies fixtures/tests outside the
-source tree and tests a clean base install, then pandas, then published FLO 0.4.3
+source tree and tests a clean base install, then pandas, then published FLO 0.5.0
 and the visualization extra. It rejects editable/source imports and leaked test
 plugins. All dependency versions are constrained by `uv.lock`.
 
@@ -98,3 +98,26 @@ evidence/graphics. The release build job requires it before publishing artifacts
 The LSS4PY maintainer owns these fixtures, compatibility pin and gates until a
 separate integration owner/package is established. Increasing the supported
 version set or changing semantic/visual fixtures requires explicit review.
+
+## FLO 0.5 evidence semantics
+
+New captures default to FLO 0.5.0. The bridge validates first-class `value_class`,
+structured handoff/rework objects, measurement profile selectors and direct queue
+waiting references. Empty relation objects assert presence; zero rework frequency
+is retained. Profiles keep all supplied results, population context and provenance.
+`primary` selects display; omitted/null `analysis_input` never inherits it. Queue
+references preserve full step IDs, including Unicode and dots, and do not copy or
+add durations. Supplied process lead time is distinct from derived modeled time.
+
+Policy derivation reads first-class `value_class` for 0.5 and the original metadata
+field for saved 0.4.x projections, recording the appropriate source field. Legacy
+JSON and fingerprints are preserved unchanged. The bridge validates its bounded
+portable contract; native semantic validation still belongs to FLO.
+
+The governed actual book source is display-only and retains the book's current
+notification VA classification. The independent FLO reference fixture is not a
+substitute for that source. Observed reconstruction continues to use event data,
+not displayed model means. The example saves the producer diagnostic report;
+warning-only validation remains successful. Published 0.5.0 currently emits
+invalid-duration warnings for intentionally unselected profiles; these are retained
+as producer evidence, not used to fill or alter analytical inputs.

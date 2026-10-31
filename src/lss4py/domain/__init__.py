@@ -43,9 +43,11 @@ from .results import (
     YieldResult,
 )
 from .specification import AnalysisWindow, Specification
+from .units import DurationConversion
 from .validation import validate_event_log
 
 __all__ = [
+    "DurationConversion",
     "ProcessMapResult",
     "OrderReconstructionPolicy",
     "OrderReconstructionResult",

@@ -53,6 +53,8 @@ See [ARCHITECTURAL-DECISION-FRAMEWORK.md](ARCHITECTURAL-DECISION-FRAMEWORK.md) f
 
 | [0026](0026-method-specific-input-contracts-and-ocel-interchange.md) | Method-specific analytical inputs; OCEL as interchange with explicit projections | Accepted |
 
+| [0027](0027-explicit-duration-conversion-and-private-pint-registry.md) | Explicit duration preparation and private Pint registry ownership | Accepted |
+
 ## When to write an ADR
 
 Write an ADR when a choice:

@@ -12,17 +12,18 @@ from lss4py.integration import ProcessProjection
 ROOT = Path(__file__).parent / "fixtures/ecosystem/book-model"
 
 
-@pytest.fixture
-def body():
+@pytest.fixture(params=["0.4.3", "0.5.0"])
+def body(request):
     """Supply authored JSON without validating it before each mutation."""
-    manifest = json.loads((ROOT / "manifest.json").read_text())
+    root = ROOT if request.param == "0.5.0" else ROOT.parent / "legacy-0.4.3/book-model"
+    manifest = json.loads((root / "manifest.json").read_text())
     return {
         "schema_version": "1.0",
         "flo_version": manifest["producer"]["version"],
         "source": manifest["observations"]["dataset_id"],
         "model_revision": manifest["source"]["revision"],
-        "export": json.loads((ROOT / "process-export.json").read_text()),
-        "step_mapping": json.loads((ROOT / "activity-mapping.json").read_text()),
+        "export": json.loads((root / "process-export.json").read_text()),
+        "step_mapping": json.loads((root / "activity-mapping.json").read_text()),
     }
 
 
@@ -56,7 +57,7 @@ def _set(body, path, value):
         (("export", "edges", 0, "edge_type"), "conditional"),
         (("export", "edges", 0, "rework"), 1),
         (("export", "edges", 0, "rework"), "false"),
-        (("export", "edges", 0, "handoff"), None),
+        (("export", "edges", 0, "handoff"), []),
         (("export", "edges", 0, "outcome"), 1),
         (("export", "edges", 0, "outcome"), "\t"),
         (("step_mapping",), {}),
@@ -90,7 +91,10 @@ def test_unknown_envelope_fields_are_rejected(body):
 def test_extensible_producer_data_and_omitted_defaults_preserve_exact_snapshot(body):
     body["export"]["future_annotation"] = {"nested": [None, True, 1, 1.0, "001"]}
     body["export"]["process"]["future_identity"] = {"id": "  001  "}
-    body["export"]["nodes"][0]["metadata"] = ["arbitrary", "producer", "annotation"]
+    if body["flo_version"] == "0.5.0":
+        body["export"]["nodes"][0]["extensions"] = {"annotations": ["arbitrary", "producer"]}
+    else:
+        body["export"]["nodes"][0]["metadata"] = ["arbitrary", "producer", "annotation"]
     body["export"]["edges"][0]["future_flag"] = {"value": False}
     body["source"] = "  original namespace  "
     expected = json.dumps(body, allow_nan=False, sort_keys=True, separators=(",", ":"))
@@ -104,9 +108,10 @@ def test_extensible_producer_data_and_omitted_defaults_preserve_exact_snapshot(b
 
 def test_explicit_optional_nulls_and_false_flags_are_not_omitted(body):
     body["export"]["nodes"][0].update(branch=None, subprocess_parent=None)
-    body["export"]["edges"][0].update(
-        route=None, edge_type=None, outcome=None, rework=False, handoff=False
-    )
+    fields = {"route": None, "outcome": None, "rework": None, "handoff": None}
+    if body["flo_version"] != "0.5.0":
+        fields.update(edge_type=None, rework=False, handoff=False)
+    body["export"]["edges"][0].update(fields)
     assert ProcessProjection.from_json(json.dumps(body)).to_dict() == body
 
 
