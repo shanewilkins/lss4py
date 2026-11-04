@@ -8,11 +8,11 @@ It is not yet a full SPC, capability, simulation, or deliverables platform.
 
 ## Release status
 
-The working tree prepares the unreleased **0.2.0 candidate**. The
-[v0.2 acceptance follow-through](docs/assessments/v02-release-readiness.md)
-records the completed local fixes and verification. Actual publication and
+The working tree prepares the unreleased **0.2.1 candidate**. The
+[v0.2.1 sprint acceptance](docs/assessments/v021-sprint-acceptance.md)
+records the accepted standalone implementation scope. Actual publication and
 verification of the official PyPI package remain pending. See the
-[release notes](docs/releases/v0.2.0.md) and [migration guide](docs/migration-v0.2.md).
+[release notes](docs/releases/v0.2.1.md) and [migration guide](docs/migration-v0.2.md).
 
 ## Stable Today
 
@@ -381,7 +381,7 @@ CI and the release build also require the
 and the candidate LSS4PY wheel. Run it with
 `uv run --locked python tools/check_wheel.py --ecosystem`.
 To verify an already built release artifact without rebuilding it, pass
-`--wheel dist/lss4py-0.2.0-py3-none-any.whl`. Add `--artifacts-dir artifacts/ecosystem`
+`--wheel dist/lss4py-0.2.1-py3-none-any.whl`. Add `--artifacts-dir artifacts/ecosystem`
 to retain per-installation JUnit reports, the tested wheel's SHA-256 and ecosystem
 evidence. CI retains source JUnit/coverage XML and installed-wheel reports for 14 days.
 

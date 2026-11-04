@@ -26,7 +26,7 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 - [v0.2 release-readiness audit](assessments/v02-release-readiness.md) records acceptance blockers and verified release gates.
 - [Draft release notes](releases/v0.2.0.md) and [migration guide](migration-v0.2.md) describe the unreleased contract.
 - [v0.2.1 FLO-backed White Belt plan](plans/v021-flo-white-belt.md) records the completed standalone sprint.
-- [v0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md) records final local gates and release handoff; [release notes](releases/v0.2.1.md) remain a draft.
+- [v0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md) records final local gates and release handoff; [release notes](releases/v0.2.1.md) describe the selected candidate.
 - [White Belt book sprint plan](plans/white-belt-book-preview.md) splits current
   fixture assessment, the v0.2 preview, and v0.3-owned reconstruction; these slices are implemented ahead of book publication.
 - [Book fixture/API assessment](assessments/book-preview.md) records current

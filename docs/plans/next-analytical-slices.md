@@ -90,7 +90,7 @@ claims; passing tests do not by themselves declare a release ready.
 
 ## Accepted v0.2.1 follow-up
 
-The next integration increment is the [FLO-backed White Belt workflow](v021-flo-white-belt.md):
+The accepted integration increment is the [FLO-backed White Belt workflow](v021-flo-white-belt.md):
 actual model ingestion, explicit activity/step mapping, model-derived baseline
 classes, observed-data calculations and evidence containing both sources. It is
-Planned for v0.2.1 and does not change the current v0.2.0 candidate.
+included in the selected v0.2.1 candidate.

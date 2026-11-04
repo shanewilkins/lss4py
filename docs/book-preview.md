@@ -110,8 +110,8 @@ reproduces every pinned order and retains load/pass/classification and correctio
 evidence. Book publication requirements remain Partial until the official release
 and book dependency update.
 
-Current 0.2.0 candidate verification passes 1,750 tests with five deferred
-branch-metric expected failures and 95.22% coverage, with Arrow required.
+The accepted 0.2.1 sprint verification passes 1,983 tests with five deferred
+expected failures and 95.71% coverage, with Arrow required.
 Installed base/pandas/storage/ecosystem journeys verify the standalone notebook
 and full route. See the [source-fingerprinted acceptance snapshot](assessments/v02-release-gates.json)
 for current exact gate results.

@@ -12,7 +12,7 @@ Add `--artifacts-dir /tmp/lss4py-ecosystem-artifacts` to retain the source snaps
 manifest, observed annotation JSON, modeled value-stream SVG and observed SVG/PNG
 chart. See the [integration guide](../docs/ecosystem-integration.md).
 
-Pass `--wheel /absolute/path/to/lss4py-0.2.0-py3-none-any.whl` to test an existing
+Pass `--wheel /absolute/path/to/lss4py-0.2.1-py3-none-any.whl` to test an existing
 artifact without rebuilding it. The release workflow uses the exact wheel in
 `dist/` that it later publishes. With `--artifacts-dir`, the runner also saves
 `wheel.json` (filename and SHA-256) and separate `tests/base.xml`, `pandas.xml`,

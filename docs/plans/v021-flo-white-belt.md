@@ -126,9 +126,10 @@ stubs remain visible in coverage and unimplemented.
 All combined acceptance gates pass against the recorded working tree and selected
 wheel. See the [acceptance assessment](../assessments/v021-sprint-acceptance.md)
 for exact identities, gate results, retained artifacts, Pydantic recommendation
-and remaining release steps. The standalone implementation scope is accepted;
-package metadata remains 0.2.0 and publication/sibling-book integration were not
-performed. The [v0.2.1 release notes](../releases/v0.2.1.md) are a draft.
+and remaining release steps. The standalone implementation scope is accepted.
+Metadata remained 0.2.0 for that dated acceptance run and has since been selected
+as 0.2.1; publication and sibling-book integration have not been performed. The
+[v0.2.1 release notes](../releases/v0.2.1.md) describe the selected candidate.
 
 ### Decisions to settle during S1/S2/S2a
 

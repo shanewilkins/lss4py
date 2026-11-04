@@ -126,7 +126,7 @@ derives baseline value classes from the model, and reuses observed
 reconstruction/PCE calculations. The CSV-only route remains usable. This
 increment extends UR-003/UR-014/UR-046/UR-047 and
 TR-003/TR-013/TR-040/TR-043/TR-044/TR-045/TR-046; the evidence below demonstrates
-the additional integration. Package metadata retains the 0.2.0 candidate version.
+the additional integration. Package metadata now identifies the 0.2.1 release candidate.
 
 S1 completed 2026-10-26: the [actual book model assessment](assessments/v021-book-model.md)
 pins source/export/license bytes and explicit mappings for all eight observed
@@ -141,8 +141,8 @@ evidence plus FLO rendering. S5 completed 2026-10-27 with normal-CI CLI,
 observability, evidence rejection, plotting and numeric ingestion hardening.
 S6 completed 2026-10-27: the [final acceptance assessment](assessments/v021-sprint-acceptance.md)
 records 1,983 source passes, 95.71% coverage and 157 exact-wheel installed passes.
-The standalone sprint is accepted locally; package version selection, publication
-and official book dependency integration remain separate release work.
+The standalone sprint is accepted locally and the package version is selected as
+0.2.1; publication and official book dependency integration remain separate release work.
 
 The [2026-10-26 sprint draft](plans/v021-flo-white-belt.md#sprint-draft-2026-10-26)
 orders source/profile verification, the Pydantic pilot, model-derived measurement

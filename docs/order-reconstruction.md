@@ -89,8 +89,8 @@ Single-time lifecycle inputs are ingestible but require a separate, explicit
 pairing policy before this analysis. General branch metrics, OCEL interchange and
 publication into the book's officially released dependency remain separate work.
 
-Current 0.2.0 candidate verification passes 1,750 tests with five deferred
-branch-metric expected failures and 95.22% coverage. Installed base, pandas,
+The accepted 0.2.1 sprint verification passes 1,983 tests with five deferred
+expected failures and 95.71% coverage. Installed base, pandas,
 Arrow/storage and ecosystem workflows pass. See the
 [acceptance gate snapshot](assessments/v02-release-gates.json).
 
