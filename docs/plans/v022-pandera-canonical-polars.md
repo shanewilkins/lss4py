@@ -114,6 +114,14 @@ Verify that:
 
 ## Phase 3: canonical analytical input boundary
 
+**Status:** Complete. The private boundary now selects only required columns,
+retains the complete source logical schema/backend/row count, optionally carries
+zero-based source positions, and materializes a caller-independent Polars frame.
+Characterization tests cover supported eager backends, hostile pandas indexes,
+categorical and Arrow edge dtypes, ordering, source mutation, ambiguous columns,
+missing selections and lazy rejection. Analytical kernels remain on the 0.2.1
+path until the incremental Phase 5 migration.
+
 Introduce a private canonical-input model carrying:
 
 - the canonical Polars frame;
