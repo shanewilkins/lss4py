@@ -45,6 +45,10 @@ The suite covers:
 - Inspection CSV with a blank measurement → restored CTQ specification →
   Cp/Cpk, confidence intervals, explicitly shifted Z, grouped summaries and
   missing-data diagnostics → JSON export.
+- Explicit short-/long-term CSV samples → public `capability_study` with reviewed
+  omission and shared confidence/normality settings → hand-checkable observed
+  counts and capability → typed nested restoration → audited bundle saved and
+  reopened with verified source bytes and specification links.
 - Corrupt files, missing files/fields/identifiers, invalid timestamps, negative
   durations, undeclared topology, impossible funnel/work durations and strict
   missing-measurement rejection.

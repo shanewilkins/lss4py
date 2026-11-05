@@ -78,6 +78,26 @@ per supplied sample.
 alpha are explicit shared parameters. Audited analysis bundles recursively
 validate and restore every nested result without rerunning calculations.
 
+## Portable validation boundary
+
+Calculation passes the declared missing policy, confidence settings, and
+normality alpha to the applicable children. Each child's provenance retains
+its settings; its backend and schema describe its own supplied sample. Different
+sample backends are expected, not inconsistent evidence.
+
+Portable restoration checks child types and supported schemas, retained-count
+agreement, specification limits/target/units, complete optional long-term evidence,
+and observed nonconformance against the retained values. Audited bundles also
+check source/specification links and software context. Valid JSON or a matching
+snapshot fingerprint alone does not establish those semantic checks.
+
+Restoration does not recompute capability estimates, confidence intervals, or
+diagnostics, or certify agreement of every parent/child provenance parameter.
+To verify an edited study's numerical derivation and shared settings, inspect the
+recorded parameters and explicitly rerun the study from verified source bytes.
+Loading a bundle is evidence restoration, not independent analytical replication
+or source authentication.
+
 ## R SixSigma relationship and current boundary
 
 SixSigma 0.11.1 `ss.study.ca` accepts separate `xST` and optional `xLT` vectors,

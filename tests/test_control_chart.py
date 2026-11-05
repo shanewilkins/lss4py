@@ -245,3 +245,67 @@ def test_reject_phase_ii_as_baseline_and_nsigma_mismatch(frame_factory):
         )
     with pytest.raises(ValidationError, match="must match"):
         control_chart(frame_factory({"x": [1, 4]}), column="x", baseline=phase_i)
+
+
+@pytest.mark.parametrize("baseline_unit", [None, "minutes"])
+def test_phase_ii_preserves_baseline_units(frame_factory, baseline_unit):
+    baseline = control_chart(frame_factory({"x": [1.0, 2.0, 3.0]}), column="x", unit=baseline_unit)
+    for explicit_unit in (None, baseline_unit):
+        result = control_chart(
+            frame_factory({"x": [1.0, 2.0, 3.0]}),
+            column="x",
+            baseline=baseline,
+            unit=explicit_unit,
+        )
+        assert result.unit == baseline_unit
+        assert result.provenance.parameters["unit"] == baseline_unit
+        assert result.signal_indices.tolist() == []
+    with pytest.raises(ValidationError, match="unit must match"):
+        control_chart(
+            frame_factory({"x": [60.0, 120.0, 180.0]}),
+            column="x",
+            baseline=baseline,
+            unit="seconds",
+        )
+
+
+@pytest.mark.parametrize("scale", [0.0, 1e-15, 1.0, 1e100])
+def test_baseline_limit_integrity_across_scales(frame_factory, scale):
+    baseline = control_chart(frame_factory({"x": [0.0, scale, 2 * scale]}), column="x")
+    restored = AnalyticalResult.from_dict(json.loads(baseline.to_json()))
+    assert isinstance(restored, ControlChartResult)
+    monitoring = frame_factory({"x": [0.0, max(1e-13, 100 * scale)]})
+    intact = control_chart(monitoring, column="x", baseline=restored)
+    assert intact.signal_indices.tolist() == [0]
+    restored.ucl = max(9e-13, 900 * scale)
+    with pytest.raises(ValidationError, match="limits differ"):
+        control_chart(monitoring, column="x", baseline=restored)
+
+
+@pytest.mark.parametrize(
+    ("starts", "ends", "message"),
+    [
+        (["a", "b"], ["wrong", "wrong"], "adjacent observations"),
+        (["a", "b"], ["b", "a"], "Duplicate"),
+        (["a", None], [None, "c"], "portable"),
+        (["a", " "], [" ", "c"], "portable"),
+        (["a", ["b"]], [["b"], "c"], "portable"),
+        (["a", {"id": "b"}], [{"id": "b"}, "c"], "portable"),
+        (["a", 1], [1.0, "c"], "adjacent observations"),
+    ],
+)
+def test_reject_inconsistent_portable_pair_keys(frame_factory, starts, ends, message):
+    baseline = control_chart(
+        frame_factory({"x": [1.0, 2.0, 3.0], "key": ["a", "b", "c"]}),
+        column="x",
+        key_column="key",
+    )
+    payload = json.loads(baseline.to_json())
+    payload["pair_start_keys"] = starts
+    payload["pair_end_keys"] = ends
+    with pytest.raises(ValidationError, match=message):
+        AnalyticalResult.from_dict(payload)
+    baseline.pair_start_keys = np.array(starts, dtype=object)
+    baseline.pair_end_keys = np.array(ends, dtype=object)
+    with pytest.raises(ValidationError, match="not an intact"):
+        control_chart(frame_factory({"x": [1.0, 2.0]}), column="x", baseline=baseline)

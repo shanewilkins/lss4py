@@ -30,26 +30,36 @@ def backend(request):
 
 
 @pytest.fixture
-def frame_factory(backend, request):
+def frame_factory(backend, frame_factory_for_backend):
     """Build independent frames directly from records without cross-backend conversion."""
-    if backend == "polars":
-        return pl.DataFrame
-    if backend == "pyarrow":
-        arrow = (
-            import_module("pyarrow")
-            if request.config.getoption("--require-pyarrow")
-            else pytest.importorskip("pyarrow")
-        )
-        return arrow.table
+    return frame_factory_for_backend(backend)
 
-    def pandas_frame(records):
-        """Use hostile index labels to expose accidental label-based row identity."""
-        frame = pd.DataFrame(records)
-        if backend == "pandas-indexed":
-            frame.index = pd.Index([17 if i % 2 == 0 else -3 for i in range(len(frame))])
-        return frame
 
-    return pandas_frame
+@pytest.fixture
+def frame_factory_for_backend(request):
+    """Allow independent short-/long-term backend choices in the same calculation."""
+
+    def factory(backend):
+        if backend == "polars":
+            return pl.DataFrame
+        if backend == "pyarrow":
+            arrow = (
+                import_module("pyarrow")
+                if request.config.getoption("--require-pyarrow")
+                else pytest.importorskip("pyarrow")
+            )
+            return arrow.table
+
+        def pandas_frame(records):
+            """Use hostile index labels to expose accidental label-based row identity."""
+            frame = pd.DataFrame(records)
+            if backend == "pandas-indexed":
+                frame.index = pd.Index([17 if i % 2 == 0 else -3 for i in range(len(frame))])
+            return frame
+
+        return pandas_frame
+
+    return factory
 
 
 @pytest.fixture

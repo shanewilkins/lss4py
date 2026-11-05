@@ -75,6 +75,52 @@ baseline result. It never recalculates limits from monitoring data. The baseline
 must be a schema-valid Phase I moving-range result with matching `nsigmas`;
 edited limits and chained Phase II baselines are rejected.
 
+An omitted Phase II `unit` inherits the baseline unit. An explicitly supplied
+unit must match the baseline exactly, including whether a unit was declared;
+convert measurements explicitly before monitoring. Limits are never converted
+or relabeled implicitly.
+
+## Worked example: convert, monitor, investigate
+
+Run the complete [monitoring example](../examples/yellow_belt/monitoring.py):
+
+```sh
+uv run --locked python examples/yellow_belt/monitoring.py
+```
+
+The example estimates a baseline from six sequential durations in minutes,
+`[10, 11, 9, 10, 14, 13]`, with keys `a` through `f`. Its mean moving range is
+1.8 minutes and its three-sigma UCL is approximately 5.8798 minutes. This small
+synthetic sample demonstrates the API; it does not establish stability or a
+recommended baseline size. Assess collection design and baseline suitability
+before using limits to make operational decisions.
+
+Later observations `g`, `h`, and `i` arrive as `[780, 1380, 1320]` seconds. The
+example retains those raw values and explicitly derives a minutes column:
+
+```python
+converted = recorded.with_columns((pl.col("duration_seconds") / 60).alias("duration_minutes"))
+monitored = control_chart(
+    converted,
+    column="duration_minutes",
+    key_column="sample",
+    baseline=baseline,
+)
+```
+
+Omitting `unit` inherits `minutes` from the baseline. The converted observations
+are `[13, 23, 22]`, so their moving ranges are `[10, 1]` minutes. Limits remain
+frozen, and the first pair signals. `signal_indices == [0]` refers to the first
+moving range; `signal_source_positions == [1]` refers to its ending observation,
+`h`. The pair-level table preserves both `g` and `h` for investigation. No pair
+is formed across the boundary between the baseline and the monitoring batch.
+
+Check the recorded measurements, collection conditions, and relevant process
+changes around `g → h`. The signal identifies a change outside the declared
+limits; it does not identify a cause, prove nonconformance to specifications,
+or authorize dropping observations or recalibrating the baseline. The absence
+of a signal on `h → i` does not establish overall process stability.
+
 ## Optional plotting
 
 The visualization extra renders the completed pair-level evidence without

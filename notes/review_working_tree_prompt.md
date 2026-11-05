@@ -24,3 +24,10 @@ defects are established, say so and describe material validation limits.
 
 Finish with a concise validation summary and whether the change can proceed,
 needs fixes, or lacks sufficient evidence.
+
+Include the persona scorecard and separate assessments required by the main
+prompt: scope examined, defined rating, evidence confidence, specific observations,
+prioritized recommendations with acceptance/validation criteria, and unverified
+questions. Reference one shared findings list, explain inapplicable perspectives,
+and do not average ratings. Separate required fixes, recommended improvements,
+and future scope.

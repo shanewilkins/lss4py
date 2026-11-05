@@ -1,6 +1,7 @@
 """Property tests for moving-range identities, limits, signals, and frozen baselines."""
 
 import json
+from math import ldexp
 
 import numpy as np
 import polars as pl
@@ -23,6 +24,51 @@ MEASUREMENTS = st.lists(
     min_size=2,
     max_size=30,
 )
+
+
+@settings(max_examples=60)
+@given(
+    values=st.lists(st.integers(-1000, 1000), min_size=2, max_size=30),
+    offset=st.integers(-1000000, 1000000),
+    exponent=st.integers(-400, 400),
+)
+def test_translation_and_positive_scaling_preserve_chart_decisions(values, offset, exponent):
+    # Integer translations and binary scaling are exact here, so cancellation
+    # cannot invalidate the mathematical invariants being tested.
+    original = control_chart(pl.DataFrame({"x": values}), column="x")
+    translated = control_chart(pl.DataFrame({"x": [x + offset for x in values]}), column="x")
+    scaled = control_chart(pl.DataFrame({"x": [ldexp(x, exponent) for x in values]}), column="x")
+    assert translated.moving_ranges.tolist() == original.moving_ranges.tolist()
+    for field in ("lcl", "center_line", "ucl"):
+        assert getattr(translated, field) == getattr(original, field)
+        assert getattr(scaled, field) == pytest.approx(
+            ldexp(getattr(original, field), exponent), rel=1e-12, abs=0
+        )
+    assert scaled.moving_ranges == pytest.approx(
+        [ldexp(value, exponent) for value in original.moving_ranges], rel=1e-12, abs=0
+    )
+    for chart in (translated, scaled):
+        assert chart.signal_indices.tolist() == original.signal_indices.tolist()
+        assert chart.signal_source_positions.tolist() == original.signal_source_positions.tolist()
+
+
+@settings(max_examples=50)
+@given(exponent=st.integers(-400, 400))
+def test_scaled_frozen_baseline_preserves_signals_and_rejects_edits(exponent):
+    baseline = control_chart(
+        pl.DataFrame({"x": [ldexp(x, exponent) for x in (0, 1, 2)]}), column="x"
+    )
+    observations = pl.DataFrame({"x": [0.0, ldexp(100, exponent)]})
+    result = control_chart(observations, column="x", baseline=baseline)
+    assert result.signal_indices.tolist() == [0]
+    assert (result.lcl, result.center_line, result.ucl) == (
+        baseline.lcl,
+        baseline.center_line,
+        baseline.ucl,
+    )
+    baseline.ucl *= 2
+    with pytest.raises(ValidationError, match="limits differ"):
+        control_chart(observations, column="x", baseline=baseline)
 
 
 @settings(max_examples=75)

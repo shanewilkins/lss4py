@@ -4,6 +4,7 @@ import json
 from importlib.metadata import version
 
 import numpy as np
+import polars as pl
 import pytest
 
 from lss4py import (
@@ -15,6 +16,7 @@ from lss4py import (
     __version__,
     capability_study,
 )
+from lss4py._bundle_schema import bundle_fingerprint
 from lss4py.domain import AnalyticalResult
 
 pytestmark = pytest.mark.parametrize(
@@ -34,7 +36,20 @@ def specification():
     )
 
 
-def test_explicit_short_and_long_term_study(frame_factory, specification, assert_equivalent):
+def neutral_study(result, neutral_payload):
+    """Normalize only declared backend identity and timestamps at every result level."""
+    payload = neutral_payload(result)
+    for role in ("short_term", "long_term"):
+        for kind in ("capability", "distribution"):
+            child = getattr(result, f"{role}_{kind}")
+            payload[f"{role}_{kind}"] = None if child is None else neutral_payload(child)
+        payload["metadata"].pop(f"{role}_backend")
+    return payload
+
+
+def test_explicit_short_and_long_term_study(
+    frame_factory, specification, neutral_payload, assert_equivalent
+):
     short = frame_factory({"value": [9.0, 10.0, 11.0, 10.0, 9.5, 10.5]})
     long = frame_factory({"value": [7.0, 9.0, 10.0, 11.0, 13.0, 10.0]})
     result = capability_study(
@@ -44,24 +59,14 @@ def test_explicit_short_and_long_term_study(frame_factory, specification, assert
         long_term_data=long,
     )
     reference = capability_study(
-        frame_factory({"value": [9.0, 10.0, 11.0, 10.0, 9.5, 10.5]}),
+        pl.DataFrame({"value": [9.0, 10.0, 11.0, 10.0, 9.5, 10.5]}),
         column="value",
         specification=specification,
-        long_term_data=frame_factory({"value": [7.0, 9.0, 10.0, 11.0, 13.0, 10.0]}),
+        long_term_data=pl.DataFrame({"value": [7.0, 9.0, 10.0, 11.0, 13.0, 10.0]}),
     )
-
-    def without_created_at(value):
-        if isinstance(value, dict):
-            return {
-                key: without_created_at(item) for key, item in value.items() if key != "created_at"
-            }
-        if isinstance(value, list):
-            return [without_created_at(item) for item in value]
-        return value
-
     assert_equivalent(
-        without_created_at(result.to_dict()),
-        without_created_at(reference.to_dict()),
+        neutral_study(result, neutral_payload),
+        neutral_study(reference, neutral_payload),
     )
     assert result.short_term_capability is not None
     assert result.short_term_distribution is not None
@@ -84,6 +89,59 @@ def test_explicit_short_and_long_term_study(frame_factory, specification, assert
     }
     assert result.provenance.parameters["sample_role_policy"] == (
         "explicit_short_term_and_optional_long_term"
+    )
+
+
+@pytest.mark.parametrize("long_backend", ["pandas", "pandas-indexed", "polars", "pyarrow"])
+@pytest.mark.parametrize("missing", ["raise", "omit"])
+def test_mixed_backend_study_parity(
+    frame_factory,
+    frame_factory_for_backend,
+    backend,
+    long_backend,
+    missing,
+    specification,
+    neutral_payload,
+    assert_equivalent,
+):
+    short_values = [9.0, 10.0, 11.0, 10.0]
+    long_values = [7.0, 10.0, 13.0, 12.0]
+    if missing == "omit":
+        short_values.insert(1, None)
+        long_values.append(None)
+    result = capability_study(
+        frame_factory({"value": short_values}),
+        long_term_data=frame_factory_for_backend(long_backend)({"value": long_values}),
+        column="value",
+        specification=specification,
+        missing=missing,
+        confidence_level=0.9,
+        normality_alpha=0.1,
+    )
+    reference = capability_study(
+        pl.DataFrame({"value": short_values}),
+        long_term_data=pl.DataFrame({"value": long_values}),
+        column="value",
+        specification=specification,
+        missing=missing,
+        confidence_level=0.9,
+        normality_alpha=0.1,
+    )
+    for role, source_backend in (("short_term", backend), ("long_term", long_backend)):
+        expected_backend = "pandas" if source_backend.startswith("pandas") else source_backend
+        assert result.metadata[f"{role}_backend"] == expected_backend
+        for kind in ("capability", "distribution"):
+            child = getattr(result, f"{role}_{kind}")
+            assert child.provenance.backend == expected_backend
+            assert child.provenance.parameters["backend_version"] == version(expected_backend)
+            assert child.count == 4
+            assert child.total == (5 if missing == "omit" else 4)
+            assert child.missing == (1 if missing == "omit" else 0)
+        assert getattr(result, f"{role}_capability").confidence_level == 0.9
+        assert getattr(result, f"{role}_distribution").normality_alpha == 0.1
+    assert result.provenance.backend == result.metadata["short_term_backend"]
+    assert_equivalent(
+        neutral_study(result, neutral_payload), neutral_study(reference, neutral_payload)
     )
 
 
@@ -147,7 +205,8 @@ def test_schema_rejects_edited_observed_risk(frame_factory, specification):
         AnalyticalResult.from_dict(payload)
 
 
-def test_audited_bundle_restores_nested_study_evidence(frame_factory, specification):
+@pytest.fixture
+def study_evidence(frame_factory, specification):
     short_raw = b"value\n9\n10\n11\n"
     long_raw = b"value\n8.5\n10\n11.5\n"
     result = capability_study(
@@ -179,6 +238,51 @@ def test_audited_bundle_restores_nested_study_evidence(frame_factory, specificat
         specifications={"ctq": specification},
         result_specifications={"study": ["ctq"]},
     )
+    return bundle, result
+
+
+def test_audited_bundle_restores_nested_study_evidence(study_evidence):
+    bundle, result = study_evidence
     restored = AnalysisBundle.from_json(bundle.to_json()).get_result("study")
     assert isinstance(restored, CapabilityStudyResult)
     assert restored.to_dict() == result.to_dict()
+
+
+@pytest.mark.parametrize("role", ["short_term", "long_term"])
+@pytest.mark.parametrize("corruption", ["count", "specification", "child_type"])
+def test_rejects_inconsistent_nested_evidence(study_evidence, role, corruption):
+    bundle, _ = study_evidence
+    body = bundle.to_dict()
+    payload = body["results"]["study"]["result"]
+    child = payload[f"{role}_capability"]
+    if corruption == "count":
+        child["count"] += 1
+        child["total"] += 1
+        message = "study counts disagree"
+    elif corruption == "specification":
+        child["lsl"] = 6.0
+        message = "study specification disagrees"
+    else:
+        payload[f"{role}_capability"] = payload[f"{role}_distribution"]
+        message = "capability-study evidence"
+    assert_rejected_result_and_bundle(payload, body, message)
+
+
+@pytest.mark.parametrize("missing_child", ["capability", "distribution", "nonconformance"])
+def test_rejects_incomplete_long_term_evidence(study_evidence, missing_child):
+    bundle, _ = study_evidence
+    body = bundle.to_dict()
+    payload = body["results"]["study"]["result"]
+    payload[f"long_term_{missing_child}"] = None
+    assert_rejected_result_and_bundle(payload, body, "Incomplete long-term")
+
+
+def assert_rejected_result_and_bundle(payload, body, message):
+    """Reseal edited evidence to distinguish semantic rejection from hash mismatch."""
+    with pytest.raises(ValidationError, match=message):
+        AnalyticalResult.from_dict(payload)
+    body["sha256"] = bundle_fingerprint(
+        {key: value for key, value in body.items() if key != "sha256"}
+    )
+    with pytest.raises(ValidationError, match=message):
+        AnalysisBundle.from_json(json.dumps(body))

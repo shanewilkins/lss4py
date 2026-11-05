@@ -487,6 +487,28 @@ def _capability(result: dict) -> None:
         _require(_text(result[name]), f"Invalid capability {name}.")
 
 
+def _control_chart_keys(start_keys: Any, end_keys: Any, count: int) -> None:
+    """Require overlapping pairs to reconstruct one unique portable source sequence."""
+    _require(
+        isinstance(start_keys, list)
+        and isinstance(end_keys, list)
+        and len(start_keys) == len(end_keys) == count,
+        "Invalid control-chart pair keys.",
+    )
+    _require(
+        all(_text(key) or isinstance(key, bool) or _number(key) for key in start_keys + end_keys),
+        "Control-chart keys must be portable nonmissing scalars.",
+    )
+    start_identities = [(type(key).__name__, key) for key in start_keys]
+    end_identities = [(type(key).__name__, key) for key in end_keys]
+    _require(
+        start_identities[1:] == end_identities[:-1],
+        "Control-chart pair keys disagree on adjacent observations.",
+    )
+    identities = start_identities[:1] + end_identities
+    _require(len(set(identities)) == count + 1, "Duplicate control-chart source keys.")
+
+
 def _control_chart(result: dict) -> None:
     """Validate aligned MR pairs, limits, signals, and Phase I/II evidence."""
     _require(result["schema_version"] == "1.0", "Unsupported control-chart schema.")
@@ -516,14 +538,7 @@ def _control_chart(result: dict) -> None:
     start_keys, end_keys = result["pair_start_keys"], result["pair_end_keys"]
     _require((start_keys is None) == (end_keys is None), "Incomplete control-chart pair keys.")
     if start_keys is not None:
-        _require(
-            isinstance(start_keys, list)
-            and isinstance(end_keys, list)
-            and len(start_keys) == len(end_keys) == count,
-            "Invalid control-chart pair keys.",
-        )
-        _json_tree(start_keys)
-        _json_tree(end_keys)
+        _control_chart_keys(start_keys, end_keys, count)
     for name in ("lcl", "center_line", "ucl", "nsigmas"):
         _require(_number(result[name]), f"Invalid control-chart field: {name}.")
     _require(

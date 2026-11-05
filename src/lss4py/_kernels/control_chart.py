@@ -66,7 +66,7 @@ def _baseline(
     expected = _limits(result.moving_ranges, nsigmas)
     actual = (result.lcl, result.center_line, result.ucl)
     if not all(
-        isclose(left, right, rel_tol=1e-12, abs_tol=1e-12)
+        isclose(left, right, rel_tol=1e-12, abs_tol=0)
         for left, right in zip(actual, expected, strict=True)
     ):
         raise ValidationError("baseline limits differ from its Phase I observations.")
@@ -145,6 +145,11 @@ def control_chart(
     else:
         phase = "II"
         lcl, center, ucl, baseline_fingerprint = _baseline(baseline, width)
+        if unit is not None and unit != baseline.unit:
+            raise ValidationError(
+                "unit must match the Phase I baseline; convert inputs explicitly."
+            )
+        unit = baseline.unit
         baseline_count = baseline.observation_count
         baseline_schema_fingerprint = baseline.provenance.input_schema_fingerprint
 
