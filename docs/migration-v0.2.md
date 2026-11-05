@@ -1,11 +1,10 @@
 # Preparing for v0.2
 
-This guide covers the current working tree and v0.2 contract. It is not a
-published-version guarantee. The working tree is preparing the 0.2.2
-infrastructure release from the accepted 0.2.1 behavior; package identity changes
-remain part of release preparation. Check the
+This guide covers the current working tree and v0.2 contract. Version 0.2.2
+advances the accepted 0.2.1 behavior with the canonical dataframe boundary and
+is published and verified from official PyPI. Check the
 [release audit](assessments/v02-release-readiness.md) before upgrading a deployed
-book or application. The draft [0.2.2 release notes](releases/v0.2.2.md) describe
+book or application. The [0.2.2 release notes](releases/v0.2.2.md) describe
 the canonical dataframe boundary.
 
 ## Public imports and observation models

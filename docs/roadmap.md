@@ -300,5 +300,5 @@ inputs while executing governed dataframe work on detached canonical Polars.
 Private Pandera validation does not coerce, mutate or delete source data, and
 Narwhals is restricted to recognition, conversion and native-output restoration.
 ADR-0028 records the decision, requirement reconciliation and measured runtime,
-memory and packaging costs. Release identity and exact-wheel publication gates
-remain in the release-preparation phase.
+memory and packaging costs. Version 0.2.2 was published and verified from
+official PyPI on 2026-11-05; v0.3 moving-range work may resume on this boundary.

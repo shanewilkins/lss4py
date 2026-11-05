@@ -8,10 +8,9 @@ It is not yet a full SPC, capability, simulation, or deliverables platform.
 
 ## Release status
 
-The working tree prepares the unreleased **0.2.2 candidate**. Version 0.2.1 is
-published and verified from PyPI; the new candidate adds the accepted canonical
-Polars analytical boundary without changing governed results. See the
-[draft 0.2.2 release notes](docs/releases/v0.2.2.md), [canonicalization
+Version **0.2.2** is published and verified from PyPI. It adds the accepted
+canonical Polars analytical boundary without changing governed results. See the
+[0.2.2 release notes](docs/releases/v0.2.2.md), [canonicalization
 evidence](docs/assessments/v022-canonicalization-evidence.md), and
 [migration guide](docs/migration-v0.2.md).
 

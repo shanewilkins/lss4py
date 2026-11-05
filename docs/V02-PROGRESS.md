@@ -1,8 +1,7 @@
 # LSS4PY v0.2 progress and continuation
 
-Updated 2026-11-05. **The 0.2.2 canonical dataframe architecture is accepted.**
-The governed 0.2.1 behavior remains frozen while package identity, final
-distribution checks, tagging, publication and verification remain pending.
+Updated 2026-11-05. **Version 0.2.2 is published and verified from official
+PyPI.** The governed 0.2.1 behavior remains frozen as differential evidence.
 [ADR-0028](adr/0028-canonicalize-supported-eager-analytical-inputs-to-polars.md)
 records the accepted execution boundary and measured costs. The
 [0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md),
@@ -52,13 +51,11 @@ requirements Satisfied and only TR-038 Partial for actual publication.
 
 ## Next work, in order
 
-1. Tag/publish the locally verified 0.2.2 candidate through the governed workflow,
-   which rebuilds and rechecks the distributions before upload and then verifies
-   the exact official PyPI package in a fresh environment. Publication and
-   official-index verification have not run for 0.2.2.
-2. Update the sibling book's normal package dependency/lockfile and render Chapter 9
+1. Update the sibling book's normal package dependency/lockfile and render Chapter 9
    after that official package is verified. UR-046/TR-045 retain this book gap;
    no local source override replaces publication integration.
+2. Resume the v0.3 moving-range control-chart slice on the finalized dataframe
+   boundary.
 
 ## Deferred scope
 

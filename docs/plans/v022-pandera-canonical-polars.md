@@ -411,7 +411,8 @@ reports no warning/error diagnostics; the eight-case differential gate, all 28 R
 reference cases and the locked vulnerability audit pass. The wheel and source
 distribution pass Twine and exact identity validation. The exact wheel passes
 32 base, 42 pandas, 44 storage/PyArrow and 58 ecosystem tests. Official-index
-verification remains a post-publication gate and is not claimed locally.
+verification subsequently passed in a fresh environment after trusted publication
+to PyPI through GitHub Actions run 42047717176.
 
 Update package and runtime identity to 0.2.2 only after the implementation gates
 pass.

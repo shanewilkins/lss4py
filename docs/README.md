@@ -32,7 +32,7 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 - [v0.2.2 canonicalization evidence](assessments/v022-canonicalization-evidence.md)
   records exact differential results and measured performance and packaging costs.
 - [v0.2 release-readiness audit](assessments/v02-release-readiness.md) records acceptance blockers and verified release gates.
-- [Draft v0.2.2 release notes](releases/v0.2.2.md), [v0.2.1 release notes](releases/v0.2.1.md)
+- [v0.2.2 release notes](releases/v0.2.2.md), [v0.2.1 release notes](releases/v0.2.1.md)
   and the [migration guide](migration-v0.2.md) describe the current release contract.
 - [v0.2.1 FLO-backed White Belt plan](plans/v021-flo-white-belt.md) records the completed standalone sprint.
 - [v0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md) records final local gates and release handoff; [release notes](releases/v0.2.1.md) describe the selected candidate.
