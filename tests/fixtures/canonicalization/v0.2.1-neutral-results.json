@@ -1,0 +1,559 @@
+{
+  "capability": {
+    "confidence_interval": [
+      -0.08772382271744783,
+      1.421057156050781
+    ],
+    "confidence_level": 0.95,
+    "count": 3,
+    "cp": 1.0,
+    "cp_confidence_interval": [
+      0.1591157062778213,
+      1.9206455826398414
+    ],
+    "cpk": 0.6666666666666666,
+    "cpk_confidence_interval": [
+      -0.08772382271744783,
+      1.421057156050781
+    ],
+    "cpl": 0.6666666666666666,
+    "cpu": 1.3333333333333333,
+    "interpretation_context": "Overall sample variation; short-term capability is unverified.",
+    "lsl": 0.0,
+    "mean": 2.0,
+    "metadata": {
+      "numpy_version": "2.5.4",
+      "scipy_version": "1.18.1",
+      "z_to_spec": 2.0
+    },
+    "method": "normal",
+    "missing": 0,
+    "name": "Capability indices: X",
+    "provenance": {
+      "assumptions": [
+        {
+          "code": "NORMAL_STABLE_INDEPENDENT",
+          "message": "Normality, stability, and independence are assumed, not tested.",
+          "severity": "info"
+        }
+      ],
+      "cohort_definition": null,
+      "input_schema_fingerprint": "39c4238f1f90faeca689f1230776cc9a2a11abaeb6c46cb2f0f26a6880b213a5",
+      "method": "capability_indices",
+      "method_version": "1.1",
+      "package_version": "0.2.1",
+      "parameters": {
+        "ci": true,
+        "column": "x",
+        "confidence_level": 0.95,
+        "cp_interval_method": "chi_square",
+        "cpk_interval_method": "normal_approximation",
+        "ddof": 1,
+        "materialization": "eager native input; new numeric arrays; no source mutation",
+        "missing": "omit",
+        "observation_count": 3,
+        "runtime_versions": {
+          "narwhals": "2.28.0",
+          "numpy": "2.5.4",
+          "scipy": "1.18.1"
+        },
+        "sigma_shift": 0.0,
+        "source_order": "input row positions; pandas index ignored",
+        "specification": {
+          "cohort": null,
+          "decision_context": null,
+          "defect_definition": null,
+          "direction": "lower",
+          "group_by": [],
+          "lsl": 0.0,
+          "name": "X",
+          "opportunities_per_unit": null,
+          "opportunity_definition": null,
+          "schema_version": "1.0",
+          "target": null,
+          "time_window": null,
+          "unit": "mm",
+          "usl": 6.0
+        },
+        "variation_estimator": "overall_sample_std",
+        "z_score_method": "governing_specification_distance"
+      },
+      "warnings": [
+        {
+          "code": "SMALL_SAMPLE",
+          "message": "Capability estimates and intervals are uncertain with fewer than 50 observations.",
+          "severity": "warning"
+        }
+      ]
+    },
+    "result_type": "CapabilityResult",
+    "sigma": 1.0,
+    "target": null,
+    "total": 3,
+    "unit": "mm",
+    "usl": 6.0,
+    "variation_estimator": "overall_sample_std",
+    "z_score": 2.0
+  },
+  "defects": {
+    "bucket_defects": [
+      1,
+      0,
+      1
+    ],
+    "bucket_first_time_yields": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "bucket_rework": [
+      0,
+      1,
+      0
+    ],
+    "defect_count": 2,
+    "defects_per_unit": 0.4,
+    "dpmo": 100000.0,
+    "first_time_yield": 0.85,
+    "interpretation_context": "Opportunity-based counting estimates; no defective-unit count or causal effect is inferred. RTY multiplies bucket FTYs under the retained R convention.",
+    "metadata": {},
+    "name": "Defect and Rework Yield",
+    "opportunities": 20,
+    "provenance": {
+      "assumptions": [
+        {
+          "code": "SHARED_OPPORTUNITY_BUCKETS",
+          "message": "Aligned disjoint defect/rework losses share one opportunity population.",
+          "severity": "info"
+        }
+      ],
+      "cohort_definition": "All 3 supplied source rows; no implicit cohort filter",
+      "input_schema_fingerprint": "39c4238f1f90faeca689f1230776cc9a2a11abaeb6c46cb2f0f26a6880b213a5",
+      "method": "process_yield",
+      "method_version": "1.1",
+      "package_version": "0.2.1",
+      "parameters": {
+        "counting_method": "shared_opportunity_buckets",
+        "defects_column": "defects",
+        "formula_source": "SixSigma 0.11.1 ss.ca.yield",
+        "materialization": "eager native input; new numeric arrays; no source mutation",
+        "missing": "raise",
+        "observation_count": 3,
+        "opportunities": 20,
+        "rework_column": "rework",
+        "runtime_versions": {
+          "narwhals": "2.28.0",
+          "numpy": "2.5.4",
+          "scipy": "1.18.1"
+        },
+        "source_order": "input row positions; pandas index ignored",
+        "units": 5
+      },
+      "warnings": [
+        {
+          "code": "OPPORTUNITY_YIELD_INTERPRETATION",
+          "message": "Bucket-product RTY is a counting estimate, not observed unit success.",
+          "severity": "warning"
+        }
+      ]
+    },
+    "result_type": "DefectYieldResult",
+    "rework_count": 1,
+    "rolled_throughput_yield": 0.8573749999999999,
+    "schema_version": "1.0",
+    "units": 5,
+    "yield_fraction": 0.9
+  },
+  "distribution": {
+    "count": 3,
+    "density_bandwidth": null,
+    "density_method": null,
+    "density_x": [],
+    "density_y": [],
+    "ecdf_probabilities": [
+      0.3333333333333333,
+      0.6666666666666666,
+      1.0
+    ],
+    "ecdf_values": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "histogram_bin_method": "auto",
+    "histogram_counts": [
+      1,
+      1,
+      1
+    ],
+    "histogram_density": [
+      0.5000000000000001,
+      0.5000000000000001,
+      0.4999999999999998
+    ],
+    "histogram_edges": [
+      1.0,
+      1.6666666666666665,
+      2.333333333333333,
+      3.0
+    ],
+    "interpretation_context": "Distribution and anomaly evidence prompts investigation; flags are not exclusions and normality diagnostics do not establish independence or stability.",
+    "iqr": 1.0,
+    "keys": null,
+    "kurtosis": null,
+    "lower_fence": 0.0,
+    "lower_whisker": 1.0,
+    "mean": 2.0,
+    "median": 2.0,
+    "metadata": {
+      "evidence_sensitivity": "Serialized observations, ECDF and Q-Q coordinates reproduce valid source values.",
+      "numpy_version": "2.5.4",
+      "scipy_version": "1.18.1"
+    },
+    "missing": 0,
+    "name": "Distribution profile: x",
+    "normality_alpha": 0.05,
+    "outlier_keys": null,
+    "outlier_method": "iqr",
+    "outlier_multiplier": 1.5,
+    "outlier_source_positions": [],
+    "outlier_values": [],
+    "provenance": {
+      "assumptions": [],
+      "cohort_definition": "All 3 supplied source rows; no implicit cohort filter",
+      "input_schema_fingerprint": "39c4238f1f90faeca689f1230776cc9a2a11abaeb6c46cb2f0f26a6880b213a5",
+      "method": "distribution_profile",
+      "method_version": "1.0",
+      "package_version": "0.2.1",
+      "parameters": {
+        "cohort": null,
+        "column": "x",
+        "density": false,
+        "density_bandwidth": "scott",
+        "density_grid_points": 256,
+        "histogram_bins": "auto",
+        "key_column": null,
+        "materialization": "eager native input; new numeric arrays; no source mutation",
+        "missing": "omit",
+        "normality_alpha": 0.05,
+        "observation_count": 3,
+        "outlier_method": "iqr",
+        "outlier_multiplier": 1.5,
+        "percentile_method": "linear",
+        "qq_distribution": "normal",
+        "runtime_versions": {
+          "narwhals": "2.28.0",
+          "numpy": "2.5.4",
+          "scipy": "1.18.1"
+        },
+        "source_order": "input row positions; pandas index ignored",
+        "unit": "mm"
+      },
+      "warnings": [
+        {
+          "code": "KURTOSIS_UNAVAILABLE",
+          "message": "Bias-corrected kurtosis requires at least four valid measurements.",
+          "severity": "warning"
+        }
+      ]
+    },
+    "q1": 1.5,
+    "q3": 2.5,
+    "qq_distribution": "normal",
+    "qq_intercept": 2.0,
+    "qq_line_x": [
+      -0.8193286198336103,
+      0.8193286198336103
+    ],
+    "qq_line_y": [
+      1.0,
+      3.0
+    ],
+    "qq_observed": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "qq_r": 1.0,
+    "qq_slope": 1.2205114965995947,
+    "qq_theoretical": [
+      -0.8193286198336103,
+      0.0,
+      0.8193286198336103
+    ],
+    "result_type": "DistributionProfileResult",
+    "shapiro_p_value": 1.0,
+    "shapiro_statistic": 1.0,
+    "skew": 0.0,
+    "source_positions": [
+      0,
+      1,
+      2
+    ],
+    "std": 1.0,
+    "total": 3,
+    "unit": "mm",
+    "upper_fence": 4.0,
+    "upper_whisker": 3.0,
+    "values": [
+      1.0,
+      2.0,
+      3.0
+    ]
+  },
+  "funnel": {
+    "denominator": 3,
+    "interpretation_context": "Stage yield is the fraction of items that successfully transition from one stage to the next. Created-to-Booked measures conversion from intake to booking. Use to identify where items are lost and prioritize stage-specific improvements.",
+    "metadata": {},
+    "method": "funnel_stages",
+    "name": "Created-to-Booked Yield",
+    "numerator": 2,
+    "provenance": {
+      "assumptions": [
+        {
+          "code": "BINARY_STAGE_OUTCOME",
+          "message": "Assumes items are either present or absent at each stage (binary classification)",
+          "severity": "info"
+        }
+      ],
+      "cohort_definition": "All 3 supplied source rows; no implicit cohort filter",
+      "input_schema_fingerprint": "39c4238f1f90faeca689f1230776cc9a2a11abaeb6c46cb2f0f26a6880b213a5",
+      "method": "created_to_booked_yield",
+      "method_version": "1.1",
+      "package_version": "0.2.1",
+      "parameters": {
+        "as_percentage": true,
+        "booked_column": "booked",
+        "created_column": "created",
+        "materialization": "eager native input; new numeric arrays; no source mutation",
+        "missing": "raise",
+        "observation_count": 3,
+        "process_model": false,
+        "runtime_versions": {
+          "narwhals": "2.28.0",
+          "numpy": "2.5.4",
+          "scipy": "1.18.1"
+        },
+        "source_order": "input row positions; pandas index ignored"
+      },
+      "warnings": []
+    },
+    "result_type": "YieldResult",
+    "unit": "percentage",
+    "value": 66.66666666666666
+  },
+  "mean_ci": {
+    "confidence_interval": [
+      -0.48413771175033027,
+      4.48413771175033
+    ],
+    "confidence_level": 0.95,
+    "count": 3,
+    "critical_value": 4.302652729749462,
+    "degrees_of_freedom": 2,
+    "distribution": "student_t",
+    "interpretation_context": "Estimates the population mean under the declared sampling assumptions. The normality diagnostic is not an automatic accept/reject gate.",
+    "mean": 2.0,
+    "metadata": {
+      "numpy_version": "2.5.4",
+      "scipy_version": "1.18.1"
+    },
+    "missing": 0,
+    "name": "Mean confidence interval: x",
+    "normality_alpha": 0.05,
+    "population_variance": null,
+    "provenance": {
+      "assumptions": [
+        {
+          "code": "INDEPENDENT_OBSERVATIONS",
+          "message": "The interval assumes independent observations.",
+          "severity": "info"
+        },
+        {
+          "code": "REPRESENTATIVE_COHORT",
+          "message": "Inference applies only to the declared sampling frame or cohort.",
+          "severity": "info"
+        }
+      ],
+      "cohort_definition": "All 3 supplied source rows; no implicit cohort filter",
+      "input_schema_fingerprint": "39c4238f1f90faeca689f1230776cc9a2a11abaeb6c46cb2f0f26a6880b213a5",
+      "method": "mean_confidence_interval",
+      "method_version": "1.0",
+      "package_version": "0.2.1",
+      "parameters": {
+        "approximate_z": false,
+        "cohort": null,
+        "column": "x",
+        "confidence_level": 0.95,
+        "formula_source": "SixSigma 0.11.1 ss.ci",
+        "materialization": "eager native input; new numeric arrays; no source mutation",
+        "missing": "omit",
+        "normality_alpha": 0.05,
+        "observation_count": 3,
+        "population_variance": null,
+        "runtime_versions": {
+          "narwhals": "2.28.0",
+          "numpy": "2.5.4",
+          "scipy": "1.18.1"
+        },
+        "source_order": "input row positions; pandas index ignored",
+        "unit": "mm"
+      },
+      "warnings": [
+        {
+          "code": "SMALL_SAMPLE",
+          "message": "Fewer than 30 valid measurements; review normality and sampling assumptions.",
+          "severity": "warning"
+        }
+      ]
+    },
+    "result_type": "MeanCIResult",
+    "shapiro_p_value": 1.0,
+    "shapiro_statistic": 1.0,
+    "standard_deviation": 1.0,
+    "standard_error": 0.5773502691896258,
+    "total": 3,
+    "unit": "mm",
+    "variance_source": "sample"
+  },
+  "summary": {
+    "coefficient_of_variation": 0.5,
+    "count": 3,
+    "group_keys": {},
+    "interpretation_context": "Describes observed measurements, not process stability or capability. CV is a ratio; multiply by 100 for percent. MAD is unscaled.",
+    "iqr": 1.0,
+    "kurtosis": null,
+    "mad": 1.0,
+    "max_value": 3.0,
+    "mean": 2.0,
+    "measurement_sum": 6.0,
+    "median": 2.0,
+    "metadata": {
+      "aggregation": "descriptive_summary",
+      "numpy_version": "2.5.4",
+      "scipy_version": "1.18.1"
+    },
+    "min_value": 1.0,
+    "missing": 0,
+    "mode_frequency": 1,
+    "modes": [],
+    "name": "Descriptive statistics: x",
+    "percentiles": {
+      "p25": 1.5,
+      "p50": 2.0,
+      "p75": 2.5,
+      "p90": 2.8,
+      "p95": 2.9,
+      "p99": 2.98
+    },
+    "provenance": {
+      "assumptions": [],
+      "cohort_definition": "All 3 supplied source rows; no implicit cohort filter",
+      "input_schema_fingerprint": "39c4238f1f90faeca689f1230776cc9a2a11abaeb6c46cb2f0f26a6880b213a5",
+      "method": "describe",
+      "method_version": "1.1",
+      "package_version": "0.2.1",
+      "parameters": {
+        "bias_corrected": true,
+        "column": "x",
+        "cv_near_zero_relative_tolerance": 1e-12,
+        "ddof": 1,
+        "excess_kurtosis": true,
+        "group_by": [],
+        "group_keys": {},
+        "mad_scale": "unscaled",
+        "materialization": "eager native input; new numeric arrays; no source mutation",
+        "measurement_scale": "ratio",
+        "missing": "omit",
+        "observation_count": 3,
+        "percentile_method": "linear",
+        "percentiles": [
+          25.0,
+          50.0,
+          75.0,
+          90.0,
+          95.0,
+          99.0
+        ],
+        "runtime_versions": {
+          "narwhals": "2.28.0",
+          "numpy": "2.5.4",
+          "scipy": "1.18.1"
+        },
+        "source_order": "input row positions; pandas index ignored",
+        "unit": "mm"
+      },
+      "warnings": [
+        {
+          "code": "NO_REPEATED_MODE",
+          "message": "All valid values are unique; no repeated-value mode.",
+          "severity": "warning"
+        },
+        {
+          "code": "INSUFFICIENT_KURTOSIS",
+          "message": "Bias-corrected kurtosis needs at least 4 values.",
+          "severity": "warning"
+        }
+      ]
+    },
+    "range": 2.0,
+    "result_type": "DescriptiveResult",
+    "skew": 0.0,
+    "std": 1.0,
+    "total": 3,
+    "unique_count": 3,
+    "unit": "mm",
+    "variance": 1.0
+  },
+  "timing": {
+    "interpretation_context": "Lead time is the total elapsed time from process start to completion. Includes both value-add and wait time. Use to establish baseline performance and identify improvement opportunities.",
+    "keys": null,
+    "metadata": {
+      "key_column": null,
+      "row_positions": [
+        0,
+        1,
+        2
+      ]
+    },
+    "name": "Lead Time",
+    "percentiles": null,
+    "provenance": {
+      "assumptions": [
+        {
+          "code": "TIMESTAMP_ORDERING",
+          "message": "Assumes end_column >= start_column (time flows forward)",
+          "severity": "info"
+        }
+      ],
+      "cohort_definition": "All 3 supplied source rows; no implicit cohort filter",
+      "input_schema_fingerprint": "39c4238f1f90faeca689f1230776cc9a2a11abaeb6c46cb2f0f26a6880b213a5",
+      "method": "lead_time",
+      "method_version": "1.1",
+      "package_version": "0.2.1",
+      "parameters": {
+        "end_column": "end",
+        "materialization": "eager native input; new numeric arrays; no source mutation",
+        "missing": "raise",
+        "observation_count": 3,
+        "process_model": false,
+        "runtime_versions": {
+          "narwhals": "2.28.0",
+          "numpy": "2.5.4",
+          "scipy": "1.18.1"
+        },
+        "source_order": "input row positions; pandas index ignored",
+        "start_column": "start",
+        "unit": "hours"
+      },
+      "warnings": []
+    },
+    "result_type": "TimingResult",
+    "unit": "hours",
+    "values": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  }
+}

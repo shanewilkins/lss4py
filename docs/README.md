@@ -23,6 +23,10 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 - [Roadmap](roadmap.md) sequences requirement delivery without promising dates.
 - [Next analytical slices](plans/next-analytical-slices.md) record the current
   completed capability-Z and defect/rework-yield slices without changing release ownership.
+- [v0.2.2 Pandera and canonical Polars plan](plans/v022-pandera-canonical-polars.md)
+  defines the approved dataframe-validation infrastructure release before moving-range work.
+- [v0.2.2 canonicalization baseline](assessments/v022-canonicalization-baseline.md)
+  freezes the accepted 0.2.1 behavior and Phase 1 verification evidence.
 - [v0.2 release-readiness audit](assessments/v02-release-readiness.md) records acceptance blockers and verified release gates.
 - [v0.2.1 release notes](releases/v0.2.1.md) and [migration guide](migration-v0.2.md) describe the published contract.
 - [v0.2.1 FLO-backed White Belt plan](plans/v021-flo-white-belt.md) records the completed standalone sprint.

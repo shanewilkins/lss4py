@@ -41,6 +41,8 @@ def unsupported_input(request):
         "booked_to_completed_yield",
         "rolled_yield",
         "describe",
+        "mean_confidence_interval",
+        "distribution_profile",
         "capability_indices",
         "process_yield",
         "validate_data",
@@ -49,7 +51,11 @@ def unsupported_input(request):
 )
 def test_tabular_methods_require_eager_frames(method, unsupported_input):
     """Reject unsupported/lazy inputs before attempting field resolution or analysis."""
-    parameters = {"column": "x"} if method == "describe" else {}
+    parameters = (
+        {"column": "x"}
+        if method in ("describe", "mean_confidence_interval", "distribution_profile")
+        else {}
+    )
     if method in ("validate_data", "normalize_data"):
         parameters = {"contract": lss4py.DataContract((lss4py.ColumnRule("x"),))}
     if method == "process_yield":
