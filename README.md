@@ -10,8 +10,8 @@ It is not yet a full SPC, capability, simulation, or deliverables platform.
 
 The working tree prepares the unreleased **0.2.1 candidate**. The
 [v0.2.1 sprint acceptance](docs/assessments/v021-sprint-acceptance.md)
-records the accepted standalone implementation scope. Actual publication and
-verification of the official PyPI package remain pending. See the
+records the accepted standalone implementation scope. Version 0.2.1 is published
+and verified from PyPI. Post-release work is building the v0.3 Yellow Belt MVP. See the
 [release notes](docs/releases/v0.2.1.md) and [migration guide](docs/migration-v0.2.md).
 
 ## Stable Today
@@ -29,6 +29,8 @@ It includes these public functions:
 - `rolled_yield`
 - `process_yield` (defect/rework counts, opportunity Yield/FTY/RTY, and DPMO)
 - `describe` (typed descriptive statistics, optionally grouped)
+- `mean_confidence_interval` (mean estimate, t/z interval, and Shapiro-Wilk diagnostic)
+- `distribution_profile` (histogram, ECDF, Q-Q, IQR, shape and optional KDE evidence)
 - `capability_indices` (Cp/Cpk/components/intervals and explicit specification Z)
 - `reconstruct_orders` (declared numeric activity-to-order accounting policy)
 - `validate_order_summary` (prepared numeric order contract and consistency checks)
@@ -40,8 +42,10 @@ supports explicit nearest-rank percentiles and measurement sums;
 `process_cycle_efficiency(aggregation="cohort")` returns a ratio of sums with
 cohort identities and denominator evidence.
 
-See the [descriptive statistics guide](docs/descriptive-statistics.md) for examples
-and the statistical conventions.
+See the [descriptive statistics guide](docs/descriptive-statistics.md) and
+[mean confidence interval guide](docs/mean-confidence-interval.md) for examples
+and statistical conventions. The [distribution profile guide](docs/distribution-profile.md)
+documents prepared diagnostic evidence and optional Matplotlib renderers.
 
 It also includes a process-model IR for integrating FLO-derived process structure with observed tabular data:
 

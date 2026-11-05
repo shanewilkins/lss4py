@@ -20,7 +20,9 @@ from lss4py import (
     capability_indices,
     created_to_booked_yield,
     describe,
+    distribution_profile,
     lead_time,
+    mean_confidence_interval,
     process_yield,
 )
 from lss4py._bundle_schema import bundle_fingerprint
@@ -65,6 +67,8 @@ def results(frame_factory):
         "funnel": created_to_booked_yield(data, created_column="created", booked_column="booked"),
         "defects": process_yield(data, rework_column="rework", opportunities=20, units=5),
         "summary": describe(data, column="x", unit="mm"),
+        "distribution": distribution_profile(data, column="x", unit="mm"),
+        "mean_ci": mean_confidence_interval(data, column="x", unit="mm"),
         "capability": capability_indices(data, column="x", specification=spec, ci=True),
     }, spec
 
@@ -110,6 +114,8 @@ def test_all_result_families_roundtrip(frame_factory, monkeypatch):
     for name in (
         "lead_time",
         "describe",
+        "distribution_profile",
+        "mean_confidence_interval",
         "capability_indices",
         "process_yield",
         "created_to_booked_yield",

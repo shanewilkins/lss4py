@@ -27,7 +27,7 @@ jobs:
           persist-credentials: false
       - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2
         with:
-          r-version: "4.6.1"
+          r-version: "4.6.2"
           use-public-rspm: true
       - name: Restore isolated R dependencies
         run: Rscript --vanilla tools/r-reference/bootstrap.R

@@ -5,7 +5,7 @@ SixSigma reference calculations. R packages are managed by `renv.lock`; Python
 packages remain managed by `pyproject.toml` and `uv.lock`. Normal Python tests read
 the checked-in JSON fixtures and do not start R.
 
-Install **R 4.6.1** separately and put `Rscript` on `PATH`. The bootstrap pins
+Install **R 4.6.2** separately and put `Rscript` on `PATH`. The bootstrap pins
 **renv 1.3.1**, and the lockfile pins **SixSigma 0.11.1**, **jsonlite 2.0.0**, and
 their recursive dependencies. Source package installation requires a C/C++ build
 toolchain (and, on Linux, the usual R development/system libraries).
@@ -25,7 +25,7 @@ restores the same lockfile. Verification requires no downloads once restored and
 rejects a different R version or any missing/mismatched locked package.
 
 Verification runs the committed fixture generator against original inputs in a
-temporary directory. It compares all seventeen valid and six invalid-domain cases:
+temporary directory. It compares all twenty valid and eight invalid-domain cases:
 numerical results use each fixture's absolute/relative tolerances; structure,
 parameters, warnings, error messages, classes, and nonfinite string tokens compare
 exactly. It leaves checked-in outputs, hashes, and provenance untouched. The

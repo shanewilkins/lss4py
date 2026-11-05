@@ -44,6 +44,42 @@ def _restore_arrays(payload: dict, kind: str) -> None:
         for name in ("confidence_interval", "cp_confidence_interval", "cpk_confidence_interval"):
             if payload[name] is not None:
                 payload[name] = tuple(payload[name])
+    if kind == "MeanCIResult":
+        payload["confidence_interval"] = tuple(payload["confidence_interval"])
+    if kind == "DistributionProfileResult":
+        _restore_distribution_arrays(payload)
+
+
+def _restore_distribution_arrays(payload: dict) -> None:
+    """Restore distribution arrays with explicit identity and count dtypes."""
+    integer_arrays = {
+        "source_positions",
+        "histogram_counts",
+        "outlier_source_positions",
+    }
+    for name in (
+        "values",
+        "source_positions",
+        "histogram_edges",
+        "histogram_counts",
+        "histogram_density",
+        "ecdf_values",
+        "ecdf_probabilities",
+        "qq_theoretical",
+        "qq_observed",
+        "qq_line_x",
+        "qq_line_y",
+        "outlier_values",
+        "outlier_source_positions",
+        "density_x",
+        "density_y",
+    ):
+        payload[name] = np.array(
+            payload[name],
+            dtype=int if name in integer_arrays else float,
+        )
+    for name in ("keys", "outlier_keys"):
+        payload[name] = None if payload[name] is None else np.array(payload[name], dtype=object)
 
 
 def restore_provenance(payload: dict) -> Any:

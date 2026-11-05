@@ -93,8 +93,9 @@ an empty list; an empty grouping-column selection is invalid.
 Each result records backend identity, statistical options, exclusions, unit,
 group keys, method/package versions, creation time, and NumPy/SciPy versions.
 The summary describes observed data: it does not establish normality, stability,
-capability, causality, or statistical independence. Confidence intervals and
-inferential tests remain separate work.
+capability, causality, or statistical independence. Use the separate
+[`mean_confidence_interval`](mean-confidence-interval.md) operation when the
+question is uncertainty around a population mean.
 
 Contract tests in `tests/test_descriptive.py` cover pandas/Polars equivalence,
 hand-calculated moment references, grouping, invalid inputs, serialization,

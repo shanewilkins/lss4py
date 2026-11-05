@@ -24,7 +24,7 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 - [Next analytical slices](plans/next-analytical-slices.md) record the current
   completed capability-Z and defect/rework-yield slices without changing release ownership.
 - [v0.2 release-readiness audit](assessments/v02-release-readiness.md) records acceptance blockers and verified release gates.
-- [Draft release notes](releases/v0.2.0.md) and [migration guide](migration-v0.2.md) describe the unreleased contract.
+- [v0.2.1 release notes](releases/v0.2.1.md) and [migration guide](migration-v0.2.md) describe the published contract.
 - [v0.2.1 FLO-backed White Belt plan](plans/v021-flo-white-belt.md) records the completed standalone sprint.
 - [v0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md) records final local gates and release handoff; [release notes](releases/v0.2.1.md) describe the selected candidate.
 - [White Belt book sprint plan](plans/white-belt-book-preview.md) splits current
@@ -41,6 +41,10 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 - [FLO-backed book workflow](flo-book-workflow.md): actual model and CSV, derived policy, audited results and modeled rendering.
 - [White Belt prepared-data preview](book-preview.md)
 - [White Belt simulation ingestion](simulation-ingestion.md)
+- [Mean confidence interval](mean-confidence-interval.md): t/z interval policy,
+  Shapiro-Wilk diagnostics, genuine R references and interpretation boundaries.
+- [Distribution profile and diagnostic plots](distribution-profile.md):
+  histogram, ECDF, Q-Q, IQR flags, optional KDE and no-hidden-analysis renderers.
 
 - [Auditable analysis bundles](analysis-bundles.md)
 

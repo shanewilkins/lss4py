@@ -40,5 +40,81 @@
       "relative": 1e-12
     },
     "tolerance_reason": "Small deterministic samples; tolerance covers float64 rounding only. Integer counts and labels are exact."
+  },
+  {
+    "id": "symmetric-five-distribution",
+    "method": "distribution_profile",
+    "input_kind": "frame",
+    "parameters": {
+      "column": "x",
+      "histogram_bins": 2
+    },
+    "expected": {
+      "total": 6,
+      "count": 5,
+      "missing": 1,
+      "values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0
+      ],
+      "source_positions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "mean": 3.0,
+      "median": 3.0,
+      "std": 1.5811388300841898,
+      "skew": 0.0,
+      "kurtosis": -1.2,
+      "histogram_bin_method": "2",
+      "histogram_edges": [
+        1.0,
+        3.0,
+        5.0
+      ],
+      "histogram_counts": [
+        2,
+        3
+      ],
+      "histogram_density": [
+        0.2,
+        0.3
+      ],
+      "ecdf_values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0
+      ],
+      "ecdf_probabilities": [
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ],
+      "q1": 2.0,
+      "q3": 4.0,
+      "iqr": 2.0,
+      "lower_fence": -1.0,
+      "upper_fence": 7.0,
+      "lower_whisker": 1.0,
+      "upper_whisker": 5.0,
+      "outlier_values": [],
+      "outlier_source_positions": []
+    },
+    "basis": "Valid values 1..5 give n=5, sum=15, sample variance=10/4, linear quartiles 2 and 4, IQR fences -1 and 7, and no flags. Two equal-width bins [1,3) and [3,5] contain 2 and 3 values; dividing by n times width 2 gives densities 0.2 and 0.3. Ordered ranks divided by five give the ECDF.",
+    "tolerance": {
+      "absolute": 1e-12,
+      "relative": 1e-12
+    },
+    "tolerance_reason": "Direct integer, rank, quartile and equal-width-bin arithmetic; tolerance covers float64 representation only."
   }
 ]

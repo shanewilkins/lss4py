@@ -24,8 +24,10 @@ from lss4py import (
     capability_indices,
     created_to_booked_yield,
     describe,
+    distribution_profile,
     lead_time,
     load_event_log,
+    mean_confidence_interval,
     process_cycle_efficiency,
     rolled_yield,
     takt_time,
@@ -113,6 +115,13 @@ def test_intake_baseline(fixtures, read_csv, backend, expected, export_json):
         "booked_completed": booked_to_completed_yield(frame, process_model=model),
         "rolled": rolled_yield(frame, process_model=model),
         "summary": describe(prepared, column="lead_hours", unit="hours"),
+        "distribution": distribution_profile(
+            prepared,
+            column="lead_hours",
+            histogram_bins="sturges",
+            unit="hours",
+        ),
+        "mean_ci": mean_confidence_interval(prepared, column="lead_hours", unit="hours"),
     }
     exported = export_json("intake-baseline", results)
     baseline = expected["intake"]
@@ -131,6 +140,11 @@ def test_intake_baseline(fixtures, read_csv, backend, expected, export_json):
     assert exported["lead"]["unit"] == exported["wait"]["unit"] == "hours"
     assert exported["pce"]["unit"] == "percentage"
     assert exported["summary"]["count"] == 4
+    assert exported["distribution"]["histogram_counts"]
+    assert sum(exported["distribution"]["histogram_counts"]) == 4
+    assert exported["mean_ci"]["mean"] == pytest.approx(baseline["lead_mean"])
+    assert exported["mean_ci"]["confidence_interval"][0] < baseline["lead_mean"]
+    assert exported["mean_ci"]["confidence_interval"][1] > baseline["lead_mean"]
     assert takt_time(available_time=8, customer_demand=4) == baseline["takt"]
     for key, method in (
         ("lead", "lead_time"),
@@ -140,6 +154,8 @@ def test_intake_baseline(fixtures, read_csv, backend, expected, export_json):
         ("booked_completed", "booked_to_completed_yield"),
         ("rolled", "rolled_yield"),
         ("summary", "describe"),
+        ("distribution", "distribution_profile"),
+        ("mean_ci", "mean_confidence_interval"),
     ):
         assert_provenance(exported[key], method, backend)
 

@@ -39,6 +39,7 @@ def test_catalog_has_certified_and_independent_cases_for_supported_methods():
     ]
     assert {method for entry in supported for method in entry["metadata"]["intended_analyses"]} == {
         "describe",
+        "distribution_profile",
         "lead_time",
         "wait_time",
         "process_cycle_efficiency",
@@ -239,8 +240,9 @@ def test_r_snapshot_is_reference_only_and_preserves_observed_semantics():
         "ss.ca.cpk",
         "ss.ca.z",
         "ss.ca.yield",
+        "ss.ci",
     }
-    assert len(entry["expected"]) == 17 and len(entry["invalid"]) == 6
+    assert len(entry["expected"]) == 20 and len(entry["invalid"]) == 8
 
 
 def test_r_invalid_inputs_preserve_observed_semantics():

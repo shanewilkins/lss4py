@@ -72,7 +72,7 @@ functions, not a fourth callable API.
 | R `SixSigma` API | R behavior | Proposed LSS4PY API | Status | Current evidence / parity requirement |
 |---|---|---|---|---|
 | `ss.rr` | Crossed or nested Gage R&R, ANOVA, variance components, study variation, ndc, and six diagnostic plots | `gage_rr(...)` returning `GageRRResult` | Gap | Support crossed and nested studies. Keep ANOVA/variance tables and plotting separate, while matching variance-component and distinct-category calculations. |
-| `ss.ci` | Confidence interval for a mean plus normality diagnostics and plots | `mean_confidence_interval(...)` returning `MeanCIResult`; `plot_mean_diagnostics(result)` | Gap | Separate inference from side effects. Match confidence bounds and document any deliberate difference in normality tests. |
+| `ss.ci` | Confidence interval for a mean plus normality diagnostics and plots | `mean_confidence_interval(...)` returning `MeanCIResult`; `distribution_profile(...)` and typed-result renderers | Partial | Unknown-variance t, known-variance z and explicit approximate-z bounds pass three genuine R cases across eager backends. Shapiro-Wilk is a governed SciPy diagnostic rather than an exact R statistic claim. Separate Matplotlib interval, histogram, ECDF, Q-Q and box renderers consume prepared evidence without reproducing R's combined plot layout. |
 
 ## Quality loss
 

@@ -14,7 +14,9 @@ METHODS = {
     "map_process",
     "reconstruct_orders",
     "capability_indices",
+    "mean_confidence_interval",
     "describe",
+    "distribution_profile",
     "deadline_performance",
     "lead_time",
     "wait_time",
@@ -49,6 +51,8 @@ def test_catalog_covers_supported_calculations():
         ("demand_pace", ("takt_time",)),
         ("summarize_measurements", ("describe",)),
         ("process_capability", ("capability_indices",)),
+        ("estimate_mean", ("mean_confidence_interval",)),
+        ("profile_distribution", ("distribution_profile",)),
         ("stage_conversion", ("booked_to_completed_yield", "created_to_booked_yield")),
         ("overall_conversion", ("rolled_yield",)),
         ("unknown", ()),
@@ -85,7 +89,7 @@ def test_guidance_cannot_execute_an_analysis(monkeypatch):
 
     for name in METHODS:
         monkeypatch.setattr(lss4py, name, fail)
-    assert len(get_candidates()) == 13
+    assert len(get_candidates()) == 15
     assert get_analysis("describe").name == "describe"
     assert "data" not in inspect.signature(get_candidates).parameters
 

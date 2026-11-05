@@ -405,5 +405,69 @@
     },
     "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
     "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "ci-t-unknown-variance",
+    "method": "ss.ci",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12]
+    },
+    "expected": {
+      "status": "returned",
+      "value": [8.036756838522443, 11.963243161477557],
+      "result_class": "numeric",
+      "warnings": [
+        "\nThe sample size is lower than 30. Check Normality\n\n"
+      ]
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "ci-z-known-variance",
+    "method": "ss.ci",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "sigma2": 4
+    },
+    "expected": {
+      "status": "returned",
+      "value": [8.2469549188468374, 11.753045081153163],
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "ci-z-approximation",
+    "method": "ss.ci",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "x": [8, 9, 10, 11, 12],
+      "approx.z": true
+    },
+    "expected": {
+      "status": "returned",
+      "value": [8.6140961756503227, 11.385903824349677],
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
   }
 ]

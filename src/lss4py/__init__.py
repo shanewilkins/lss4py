@@ -2,6 +2,8 @@ from lss4py._kernels.capability import capability_indices
 from lss4py._kernels.data_quality import normalize_data, validate_data
 from lss4py._kernels.defect_yield import process_yield
 from lss4py._kernels.descriptive import describe
+from lss4py._kernels.distribution import distribution_profile
+from lss4py._kernels.inference import mean_confidence_interval
 from lss4py._kernels.orders import deadline_performance, validate_order_summary
 from lss4py._kernels.reconstruction import reconstruct_orders
 from lss4py._kernels.timing import (
@@ -31,12 +33,14 @@ from lss4py.domain import (
     DataValidationReport,
     DefectYieldResult,
     DescriptiveResult,
+    DistributionProfileResult,
     EventLog,
     EventLogBindingsIR,
     EventStream,
     InputReference,
     IntervalEventLog,
     LeadTimeBindingIR,
+    MeanCIResult,
     MetricBindingsIR,
     MetricSemanticsIR,
     NormalizedData,
@@ -114,8 +118,12 @@ __all__ = [
     "CapabilityResult",
     "capability_indices",
     "DescriptiveResult",
+    "DistributionProfileResult",
+    "MeanCIResult",
     "DefectYieldResult",
     "describe",
+    "distribution_profile",
+    "mean_confidence_interval",
     "EventLogBindingsIR",
     "EventLog",
     "EventLogCSVAdapter",

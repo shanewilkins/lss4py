@@ -9,6 +9,7 @@ stopifnot(requireNamespace("jsonlite", quietly = TRUE))
 stopifnot(as.character(utils::packageVersion("SixSigma")) == "0.11.1")
 inputs <- jsonlite::read_json(file.path(root, "inputs.json"), simplifyVector = TRUE)
 x <- inputs$columns$x
+grDevices::pdf(NULL)
 
 observe <- function(api, arguments) {
   warnings <- character()
@@ -16,7 +17,10 @@ observe <- function(api, arguments) {
     withCallingHandlers(
       do.call(getExportedValue("SixSigma", api), arguments),
       warning = function(w) {
-        warnings <<- c(warnings, conditionMessage(w))
+        message <- conditionMessage(w)
+        if (!grepl("qplot\\(\\).*deprecated|Using `size` aesthetic", message)) {
+          warnings <<- c(warnings, message)
+        }
         invokeRestart("muffleWarning")
       }
     ),
@@ -62,7 +66,10 @@ expected <- list(
   )),
   reference("yield-total-loss", "ss.ca.yield", list(
     defects = c(6, 3), rework = c(0, 1), opportunities = 10
-  ))
+  )),
+  reference("ci-t-unknown-variance", "ss.ci", list(x = x)),
+  reference("ci-z-known-variance", "ss.ci", list(x = x, sigma2 = 4)),
+  reference("ci-z-approximation", "ss.ci", list(x = x, approx.z = TRUE))
 )
 invalid <- list(
   reference("cp-no-limits", "ss.ca.cp", list(x = x)),
@@ -76,7 +83,9 @@ invalid <- list(
   )),
   reference("yield-length-mismatch", "ss.ca.yield", list(
     defects = c(1, 2, 3), rework = c(0, 1), opportunities = 100
-  ))
+  )),
+  reference("ci-single-value", "ss.ci", list(x = 10)),
+  reference("ci-nonnumeric", "ss.ci", list(x = c("a", "b", "c")))
 )
 
 save_or_verify <- function(name, value) {
@@ -104,4 +113,5 @@ if (!verify) {
   )
   save_or_verify("provenance.json", provenance)
 }
+grDevices::dev.off()
 cat(if (verify) "R reference outputs reproduced exactly\n" else "R reference outputs generated\n")

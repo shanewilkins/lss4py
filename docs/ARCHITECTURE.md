@@ -169,8 +169,10 @@ supported workflow; other workflow modules remain experimental placeholders.
 These modules remain experimental. Calculations must work without plotting or
 document-generation dependencies. Reporting consumes typed results rather than
 reaching into adapters or workflows. The CLI consumes the public API only.
-The initial `reporting.visualization.plot_timing` consumes a completed timing
-result and returns native axes; its optional imports occur only when called.
+Reporting visualization consumes completed timing, mean-interval and distribution
+results and returns native Matplotlib axes; optional imports occur only when a
+renderer is called. Histogram, ECDF, Q-Q, box and interval renderers use prepared
+result evidence rather than performing hidden statistical analysis.
 
 ### Ecosystem integration
 

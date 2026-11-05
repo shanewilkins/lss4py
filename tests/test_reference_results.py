@@ -12,6 +12,7 @@ from lss4py import (
     booked_to_completed_yield,
     created_to_booked_yield,
     describe,
+    distribution_profile,
     lead_time,
     process_cycle_efficiency,
     rolled_yield,
@@ -22,6 +23,7 @@ from tests.reference_catalog import load_catalog
 
 METHODS: dict[str, Callable[..., Any]] = {
     "describe": describe,
+    "distribution_profile": distribution_profile,
     "lead_time": lead_time,
     "wait_time": wait_time,
     "process_cycle_efficiency": process_cycle_efficiency,

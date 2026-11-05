@@ -157,6 +157,17 @@ Existing numeric/unit APIs retain their behavior. The supported aliases cover
 seconds/minutes/hours; days, operating-day calendars and implicit conversion are
 outside this slice. See task S2a and [ADR-0027](adr/0027-explicit-duration-conversion-and-private-pint-registry.md).
 
+### v0.3 mean inference increment
+
+The first post-0.2.1 Yellow Belt increment implements a governed confidence
+interval for one population mean. It separates unknown-variance t inference,
+known-population-variance z inference and an explicit sample-spread z
+approximation; reports bounded Shapiro-Wilk diagnostics; preserves missingness,
+backend identity, assumptions and provenance; and passes three genuine R
+`SixSigma` `ss.ci` cases across eager backends. This advances UR-021, UR-030,
+TR-022 and TR-028 without claiming the still-open diagnostic plotting,
+distribution-profile or comparison families.
+
 ### Pydantic integration-boundary pilot
 
 - **Status:** Complete 2026-10-26; see the

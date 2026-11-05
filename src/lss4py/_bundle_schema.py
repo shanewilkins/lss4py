@@ -160,6 +160,72 @@ RESULT_FIELDS = {
         "unit",
         "group_keys",
     },
+    "DistributionProfileResult": {
+        "values",
+        "keys",
+        "source_positions",
+        "unit",
+        "count",
+        "total",
+        "missing",
+        "mean",
+        "median",
+        "std",
+        "skew",
+        "kurtosis",
+        "histogram_bin_method",
+        "histogram_edges",
+        "histogram_counts",
+        "histogram_density",
+        "ecdf_values",
+        "ecdf_probabilities",
+        "qq_distribution",
+        "qq_theoretical",
+        "qq_observed",
+        "qq_line_x",
+        "qq_line_y",
+        "qq_slope",
+        "qq_intercept",
+        "qq_r",
+        "q1",
+        "q3",
+        "iqr",
+        "outlier_method",
+        "outlier_multiplier",
+        "lower_fence",
+        "upper_fence",
+        "lower_whisker",
+        "upper_whisker",
+        "outlier_values",
+        "outlier_source_positions",
+        "outlier_keys",
+        "shapiro_statistic",
+        "shapiro_p_value",
+        "normality_alpha",
+        "density_method",
+        "density_bandwidth",
+        "density_x",
+        "density_y",
+    },
+    "MeanCIResult": {
+        "mean",
+        "standard_deviation",
+        "standard_error",
+        "count",
+        "total",
+        "missing",
+        "confidence_level",
+        "confidence_interval",
+        "distribution",
+        "critical_value",
+        "degrees_of_freedom",
+        "variance_source",
+        "population_variance",
+        "shapiro_statistic",
+        "shapiro_p_value",
+        "normality_alpha",
+        "unit",
+    },
     "CapabilityResult": {
         "cp",
         "cpk",
@@ -195,6 +261,8 @@ METHODS = {
     },
     "DefectYieldResult": {"process_yield"},
     "DescriptiveResult": {"describe"},
+    "DistributionProfileResult": {"distribution_profile"},
+    "MeanCIResult": {"mean_confidence_interval"},
     "CapabilityResult": {"capability_indices"},
 }
 
@@ -387,6 +455,232 @@ def _capability(result: dict) -> None:
         _require(_text(result[name]), f"Invalid capability {name}.")
 
 
+def _mean_ci(result: dict) -> None:
+    """Validate inferential estimates, interval policy and optional normality diagnostics."""
+    _numeric_fields(
+        result,
+        (
+            "mean",
+            "standard_deviation",
+            "standard_error",
+            "critical_value",
+            "population_variance",
+            "shapiro_statistic",
+            "shapiro_p_value",
+        ),
+    )
+    _sample_counts(result)
+    for name in ("confidence_level", "normality_alpha"):
+        _require(_number(result[name]) and 0 < result[name] < 1, f"Invalid {name}.")
+    _interval(result["confidence_interval"])
+    _require(result["distribution"] in ("student_t", "normal"), "Invalid interval distribution.")
+    _require(
+        result["variance_source"] in ("sample", "known_population"),
+        "Invalid variance source.",
+    )
+    degrees = result["degrees_of_freedom"]
+    _require(degrees is None or _integer(degrees) and degrees > 0, "Invalid degrees of freedom.")
+    if result["distribution"] == "student_t":
+        _require(degrees == result["count"] - 1, "Student t degrees of freedom mismatch.")
+    else:
+        _require(degrees is None, "Normal intervals cannot have t degrees of freedom.")
+    if result["variance_source"] == "known_population":
+        _require(result["population_variance"] is not None, "Known variance is missing.")
+    else:
+        _require(result["population_variance"] is None, "Sample variance source is inconsistent.")
+    for name in ("shapiro_statistic", "shapiro_p_value"):
+        _require(
+            (result[name] is None) == (result["shapiro_statistic"] is None),
+            "Incomplete Shapiro-Wilk diagnostic.",
+        )
+    if result["shapiro_p_value"] is not None:
+        _require(0 <= result["shapiro_p_value"] <= 1, "Invalid Shapiro-Wilk p-value.")
+    _require(result["unit"] is None or _text(result["unit"]), "Invalid inference unit.")
+
+
+def _numeric_array(value: Any, label: str, *, nonempty: bool = True) -> None:
+    """Require a finite JSON numerical array."""
+    _require(isinstance(value, list), f"Invalid {label}.")
+    _require(not nonempty or bool(value), f"Invalid {label}.")
+    _require(all(_number(item) for item in value), f"Invalid {label}.")
+
+
+def _distribution_profile(result: dict) -> None:
+    """Validate exact observations and internally aligned prepared diagnostic evidence."""
+    _sample_counts(result)
+    count = result["count"]
+    for name in (
+        "values",
+        "source_positions",
+        "histogram_edges",
+        "histogram_counts",
+        "histogram_density",
+        "ecdf_values",
+        "ecdf_probabilities",
+        "qq_theoretical",
+        "qq_observed",
+        "qq_line_x",
+        "qq_line_y",
+    ):
+        _numeric_array(result[name], name)
+    for name in ("outlier_values", "outlier_source_positions", "density_x", "density_y"):
+        _numeric_array(result[name], name, nonempty=False)
+    _require(len(result["values"]) == count, "Distribution observation count mismatch.")
+    _require(
+        len(result["source_positions"]) == count
+        and all(_integer(position) for position in result["source_positions"])
+        and len(set(result["source_positions"])) == count,
+        "Invalid distribution source positions.",
+    )
+    keys = result["keys"]
+    _require(keys is None or isinstance(keys, list) and len(keys) == count, "Invalid profile keys.")
+    if keys is not None:
+        _json_tree(keys)
+        _require(
+            len({canonical_json(key) for key in keys}) == count,
+            "Distribution profile keys must be unique.",
+        )
+    _numeric_fields(
+        result,
+        (
+            "mean",
+            "median",
+            "std",
+            "skew",
+            "kurtosis",
+            "qq_slope",
+            "qq_intercept",
+            "qq_r",
+            "q1",
+            "q3",
+            "iqr",
+            "lower_fence",
+            "upper_fence",
+            "lower_whisker",
+            "upper_whisker",
+            "shapiro_statistic",
+            "shapiro_p_value",
+            "density_bandwidth",
+        ),
+    )
+    _require(result["std"] >= 0 and result["iqr"] >= 0, "Invalid distribution spread.")
+    _require(
+        result["q1"] <= result["median"] <= result["q3"],
+        "Invalid distribution quartile order.",
+    )
+    _require(
+        result["lower_whisker"] <= result["upper_whisker"],
+        "Invalid distribution whiskers.",
+    )
+    edges = result["histogram_edges"]
+    histogram_counts = result["histogram_counts"]
+    _require(
+        len(edges) == len(histogram_counts) + 1
+        and all(left < right for left, right in zip(edges, edges[1:], strict=False)),
+        "Invalid histogram edges.",
+    )
+    _require(
+        all(_integer(value) for value in histogram_counts)
+        and sum(histogram_counts) == count
+        and len(result["histogram_density"]) == len(histogram_counts),
+        "Invalid histogram evidence.",
+    )
+    for name in ("ecdf_values", "ecdf_probabilities", "qq_theoretical", "qq_observed"):
+        _require(len(result[name]) == count, f"Invalid {name} length.")
+    _require(
+        result["ecdf_values"] == sorted(result["ecdf_values"]),
+        "ECDF values must be ordered.",
+    )
+    _require(
+        result["ecdf_values"] == sorted(result["values"]),
+        "ECDF values differ from observations.",
+    )
+    _require(
+        all(
+            left < right
+            for left, right in zip(
+                result["ecdf_probabilities"],
+                result["ecdf_probabilities"][1:],
+                strict=False,
+            )
+        )
+        and result["ecdf_probabilities"][-1] == 1,
+        "Invalid ECDF probabilities.",
+    )
+    _require(
+        result["qq_distribution"] == "normal"
+        and len(result["qq_line_x"]) == len(result["qq_line_y"]) == 2,
+        "Invalid Q-Q evidence.",
+    )
+    _require(
+        result["outlier_method"] in ("iqr", "none")
+        and _number(result["outlier_multiplier"])
+        and result["outlier_multiplier"] > 0,
+        "Invalid outlier policy.",
+    )
+    if result["outlier_method"] == "none":
+        _require(
+            result["lower_fence"] is None
+            and result["upper_fence"] is None
+            and result["outlier_values"] == [],
+            "Disabled outlier policy retained flags.",
+        )
+    outlier_count = len(result["outlier_values"])
+    _require(
+        len(result["outlier_source_positions"]) == outlier_count
+        and all(_integer(position) for position in result["outlier_source_positions"]),
+        "Invalid outlier positions.",
+    )
+    outlier_keys = result["outlier_keys"]
+    _require(
+        outlier_keys is None
+        or isinstance(outlier_keys, list)
+        and len(outlier_keys) == outlier_count,
+        "Invalid outlier keys.",
+    )
+    if outlier_keys is not None:
+        _json_tree(outlier_keys)
+    positions = dict(zip(result["source_positions"], result["values"], strict=True))
+    _require(
+        all(
+            position in positions and positions[position] == value
+            for position, value in zip(
+                result["outlier_source_positions"], result["outlier_values"], strict=True
+            )
+        ),
+        "Outlier evidence differs from observations.",
+    )
+    _require(
+        _number(result["normality_alpha"]) and 0 < result["normality_alpha"] < 1,
+        "Invalid profile normality alpha.",
+    )
+    _require(
+        (result["shapiro_statistic"] is None) == (result["shapiro_p_value"] is None),
+        "Incomplete profile Shapiro-Wilk diagnostic.",
+    )
+    if result["shapiro_p_value"] is not None:
+        _require(0 <= result["shapiro_p_value"] <= 1, "Invalid profile Shapiro-Wilk p-value.")
+    density_method = result["density_method"]
+    if density_method is None:
+        _require(
+            result["density_bandwidth"] is None
+            and result["density_x"] == []
+            and result["density_y"] == [],
+            "Unavailable density must not retain evidence.",
+        )
+    else:
+        _require(
+            density_method == "gaussian_kde"
+            and _number(result["density_bandwidth"])
+            and result["density_bandwidth"] > 0
+            and len(result["density_x"]) == len(result["density_y"])
+            and len(result["density_x"]) >= 32,
+            "Invalid density evidence.",
+        )
+    _require(result["unit"] is None or _text(result["unit"]), "Invalid profile unit.")
+    _require(_text(result["histogram_bin_method"]), "Invalid histogram method.")
+
+
 def _reconstruction(result: dict) -> None:
     """Require inspectable finite reconstruction tables in portable snapshots."""
     metadata = result["metadata"]
@@ -433,6 +727,8 @@ RESULT_CHECKS = {
     "YieldResult": _yield,
     "DefectYieldResult": _defect_yield,
     "DescriptiveResult": _descriptive,
+    "DistributionProfileResult": _distribution_profile,
+    "MeanCIResult": _mean_ci,
     "CapabilityResult": _capability,
 }
 

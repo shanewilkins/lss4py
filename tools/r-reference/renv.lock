@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.6.1",
+    "Version": "4.6.2",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -11,7 +11,7 @@
   "Packages": {
     "MASS": {
       "Package": "MASS",
-      "Version": "7.3-65",
+      "Version": "7.3-66",
       "Source": "Repository",
       "Priority": "recommended",
       "Date": "2025-02-19",
@@ -268,7 +268,7 @@
     },
     "class": {
       "Package": "class",
-      "Version": "7.3-23",
+      "Version": "7.3-24",
       "Source": "Repository",
       "Priority": "recommended",
       "Date": "2025-01-01",
@@ -871,7 +871,7 @@
     },
     "lattice": {
       "Package": "lattice",
-      "Version": "0.22-9",
+      "Version": "0.23-1",
       "Source": "Repository",
       "Date": "2026-02-03",
       "Priority": "recommended",

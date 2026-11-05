@@ -482,6 +482,177 @@ class DescriptiveResult(AnalyticalResult):
         return base
 
 
+@dataclass(slots=True)
+class DistributionProfileResult(AnalyticalResult):
+    """Prepared distribution evidence with exact observation identity."""
+
+    values: np.ndarray = field(default_factory=lambda: np.array([]))
+    keys: np.ndarray | None = None
+    source_positions: np.ndarray = field(default_factory=lambda: np.array([], dtype=int))
+    unit: str | None = None
+    count: int = 0
+    total: int = 0
+    missing: int = 0
+    mean: float = 0.0
+    median: float = 0.0
+    std: float = 0.0
+    skew: float | None = None
+    kurtosis: float | None = None
+    histogram_bin_method: str = "auto"
+    histogram_edges: np.ndarray = field(default_factory=lambda: np.array([]))
+    histogram_counts: np.ndarray = field(default_factory=lambda: np.array([], dtype=int))
+    histogram_density: np.ndarray = field(default_factory=lambda: np.array([]))
+    ecdf_values: np.ndarray = field(default_factory=lambda: np.array([]))
+    ecdf_probabilities: np.ndarray = field(default_factory=lambda: np.array([]))
+    qq_distribution: str = "normal"
+    qq_theoretical: np.ndarray = field(default_factory=lambda: np.array([]))
+    qq_observed: np.ndarray = field(default_factory=lambda: np.array([]))
+    qq_line_x: np.ndarray = field(default_factory=lambda: np.array([]))
+    qq_line_y: np.ndarray = field(default_factory=lambda: np.array([]))
+    qq_slope: float = 0.0
+    qq_intercept: float = 0.0
+    qq_r: float | None = None
+    q1: float = 0.0
+    q3: float = 0.0
+    iqr: float = 0.0
+    outlier_method: Literal["iqr", "none"] = "iqr"
+    outlier_multiplier: float = 1.5
+    lower_fence: float | None = None
+    upper_fence: float | None = None
+    lower_whisker: float = 0.0
+    upper_whisker: float = 0.0
+    outlier_values: np.ndarray = field(default_factory=lambda: np.array([]))
+    outlier_source_positions: np.ndarray = field(default_factory=lambda: np.array([], dtype=int))
+    outlier_keys: np.ndarray | None = None
+    shapiro_statistic: float | None = None
+    shapiro_p_value: float | None = None
+    normality_alpha: float = 0.05
+    density_method: str | None = None
+    density_bandwidth: float | None = None
+    density_x: np.ndarray = field(default_factory=lambda: np.array([]))
+    density_y: np.ndarray = field(default_factory=lambda: np.array([]))
+
+    def to_frame(self, backend: str = "polars"):
+        """Return detached observations with explicit source identity and anomaly flags."""
+        flagged = set(self.outlier_source_positions.tolist())
+        rows = {
+            "source_position": self.source_positions.tolist(),
+            "key": (
+                self.keys.tolist()
+                if self.keys is not None
+                else self.source_positions.astype(object).tolist()
+            ),
+            "value": self.values.tolist(),
+            "is_outlier": [position in flagged for position in self.source_positions.tolist()],
+        }
+        return _native_result_frame(rows, backend)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize exact observations and all prepared diagnostic evidence."""
+        base = super().to_dict()
+        base.update(
+            {
+                "values": self.values.tolist(),
+                "keys": self.keys.tolist() if self.keys is not None else None,
+                "source_positions": self.source_positions.tolist(),
+                "unit": self.unit,
+                "count": self.count,
+                "total": self.total,
+                "missing": self.missing,
+                "mean": self.mean,
+                "median": self.median,
+                "std": self.std,
+                "skew": self.skew,
+                "kurtosis": self.kurtosis,
+                "histogram_bin_method": self.histogram_bin_method,
+                "histogram_edges": self.histogram_edges.tolist(),
+                "histogram_counts": self.histogram_counts.tolist(),
+                "histogram_density": self.histogram_density.tolist(),
+                "ecdf_values": self.ecdf_values.tolist(),
+                "ecdf_probabilities": self.ecdf_probabilities.tolist(),
+                "qq_distribution": self.qq_distribution,
+                "qq_theoretical": self.qq_theoretical.tolist(),
+                "qq_observed": self.qq_observed.tolist(),
+                "qq_line_x": self.qq_line_x.tolist(),
+                "qq_line_y": self.qq_line_y.tolist(),
+                "qq_slope": self.qq_slope,
+                "qq_intercept": self.qq_intercept,
+                "qq_r": self.qq_r,
+                "q1": self.q1,
+                "q3": self.q3,
+                "iqr": self.iqr,
+                "outlier_method": self.outlier_method,
+                "outlier_multiplier": self.outlier_multiplier,
+                "lower_fence": self.lower_fence,
+                "upper_fence": self.upper_fence,
+                "lower_whisker": self.lower_whisker,
+                "upper_whisker": self.upper_whisker,
+                "outlier_values": self.outlier_values.tolist(),
+                "outlier_source_positions": self.outlier_source_positions.tolist(),
+                "outlier_keys": (
+                    self.outlier_keys.tolist() if self.outlier_keys is not None else None
+                ),
+                "shapiro_statistic": self.shapiro_statistic,
+                "shapiro_p_value": self.shapiro_p_value,
+                "normality_alpha": self.normality_alpha,
+                "density_method": self.density_method,
+                "density_bandwidth": self.density_bandwidth,
+                "density_x": self.density_x.tolist(),
+                "density_y": self.density_y.tolist(),
+            }
+        )
+        return base
+
+
+@dataclass(slots=True)
+class MeanCIResult(AnalyticalResult):
+    """Confidence interval for a population mean with an optional normality diagnostic."""
+
+    mean: float = 0.0
+    standard_deviation: float = 0.0
+    standard_error: float = 0.0
+    count: int = 0
+    total: int = 0
+    missing: int = 0
+    confidence_level: float = 0.95
+    confidence_interval: tuple[float, float] = (0.0, 0.0)
+    distribution: Literal["student_t", "normal"] = "student_t"
+    critical_value: float = 0.0
+    degrees_of_freedom: int | None = None
+    variance_source: Literal["sample", "known_population"] = "sample"
+    population_variance: float | None = None
+    shapiro_statistic: float | None = None
+    shapiro_p_value: float | None = None
+    normality_alpha: float = 0.05
+    unit: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize the inferential result without backend-specific objects."""
+        base = super().to_dict()
+        base.update(
+            {
+                "mean": self.mean,
+                "standard_deviation": self.standard_deviation,
+                "standard_error": self.standard_error,
+                "count": self.count,
+                "total": self.total,
+                "missing": self.missing,
+                "confidence_level": self.confidence_level,
+                "confidence_interval": self.confidence_interval,
+                "distribution": self.distribution,
+                "critical_value": self.critical_value,
+                "degrees_of_freedom": self.degrees_of_freedom,
+                "variance_source": self.variance_source,
+                "population_variance": self.population_variance,
+                "shapiro_statistic": self.shapiro_statistic,
+                "shapiro_p_value": self.shapiro_p_value,
+                "normality_alpha": self.normality_alpha,
+                "unit": self.unit,
+            }
+        )
+        return base
+
+
 class OrderReconstructionResult(AnalyticalResult):
     """Inspectable order, activity/pass and source evidence under one declared policy.
 

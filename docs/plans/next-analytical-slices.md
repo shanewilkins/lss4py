@@ -55,23 +55,24 @@ Zero-opportunity, recycled-length and excess-loss R behavior is retained as refe
 evidence and explicitly differs from Python validation. Python sum/division/product
 implement documented small formulas under ADR-0020 without a new dependency.
 
-## 3. Review the next study boundary
+## 3. Mean confidence interval and normality diagnostic — implemented
 
-The Z/yield, prepared preview, numeric ingestion and book activity-to-order
-reconstruction slices are implemented. The next task is the
-[v0.2 acceptance audit follow-through](../assessments/v02-release-readiness.md):
-the older timing and contract corrections are now implemented and release
-controls are enforced. Review/tag the candidate, publish, then verify the official
-package and integrate the book. See the
-[continuation guide](../V02-PROGRESS.md), draft
-[release notes](../releases/v0.2.0.md) and [migration guide](../migration-v0.2.md).
+`mean_confidence_interval` returns a typed, serializable mean estimate, standard
+error, t or normal interval policy, exclusions and Shapiro-Wilk diagnostic.
+Unknown variance retains Student's t at every sample size; known population
+variance and the sample-spread z approximation are explicit. Three genuine
+R `SixSigma` `ss.ci` cases pass across all eager backend variants. The diagnostic
+does not select a method or establish independence, stability or capability.
+`distribution_profile` now retains exact observation identity, histogram, ECDF,
+normal Q-Q, IQR anomaly, shape, Shapiro-Wilk and optional Gaussian KDE evidence.
+Matplotlib renderers consume those arrays without hidden analysis and return
+native caller-owned axes. See the [distribution guide](../distribution-profile.md).
 
-After release readiness and book integration, select the next Yellow Belt
-stability/control-chart slice against the roadmap and reference coverage. Defer
+The next Yellow Belt slice is basic stability/control-chart infrastructure
+against the roadmap and reference coverage. Defer
 full capability-study orchestration until distribution and stability inputs have
 governed contracts. Calculating capability indices alone is not a complete study.
-No automatic method selection or plotting layer is needed to close the current
-contract gaps.
+No automatic method selection is needed to close the current contract gaps.
 
 ## Completion gate for each slice
 

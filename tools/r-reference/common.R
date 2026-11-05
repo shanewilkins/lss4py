@@ -1,8 +1,8 @@
 # Explicit opt-in tooling; never activate renv in the Python project root.
 script <- grep("^--file=", commandArgs(), value = TRUE)
 project <- dirname(normalizePath(sub("^--file=", "", script[[1]])))
-if (getRversion() != "4.6.1") {
-  stop("Reference tooling requires R 4.6.1; install that runtime separately.")
+if (getRversion() != "4.6.2") {
+  stop("Reference tooling requires R 4.6.2; install that runtime separately.")
 }
 library <- file.path(project, ".library")
 bootstrap_library <- file.path(project, ".bootstrap")
