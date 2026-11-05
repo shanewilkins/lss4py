@@ -1,10 +1,18 @@
 # Toolchain policy
 
-Updated 2026-10-26. `pyproject.toml` defines tool policy and `uv.lock` selects
+Updated 2026-11-05. `pyproject.toml` defines tool policy and `uv.lock` selects
 versions. Local hooks invoke `uv run --locked`; CI and release checks use the
 same configuration. Run `uv run --locked pre-commit run --all-files
 --hook-stage pre-push` to exercise the source gates locally. Ruff includes source
 security checks; dependency audits run separately in CI and release builds.
+
+Hypothesis is a development-only dependency for bounded property tests. The
+initial suites exercise moving-range identities, limits, signals, frozen Phase II
+reuse, capability-study observed risk, nested evidence, and strict result
+round-trips. Governed fixed examples and R fixtures remain the numerical parity
+sources; generated examples supplement rather than replace them. Property suites
+use explicit per-test example budgets and bounded finite strategies so ordinary
+CI remains predictable and overflow domains stay separately testable.
 
 CI and release workflows pin uv 0.13.5. The build backend is constrained to
 `uv_build>=0.13.5,<0.14.0`, allowing that uv version's bundled backend without

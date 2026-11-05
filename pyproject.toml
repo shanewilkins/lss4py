@@ -59,6 +59,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.0",
     "import-linter>=2.1",
     "matplotlib>=3.10.0",  # Optional plotting contract development and typing
     "pandas>=2.2.0",  # Backend parity tests
