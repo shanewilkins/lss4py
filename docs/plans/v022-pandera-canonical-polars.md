@@ -84,6 +84,12 @@ canonicalization refactor begins.
 
 ## Phase 2: dependency and installation contract
 
+**Status:** Complete. Pandera 0.35.0 resolves on Python 3.14.2 with locked
+Polars 2.1.0. Isolated-wheel tests verify the bounded Polars extra, absence of
+pandas and PyArrow from the base installation, no Pandera import side effects or
+global Narwhals-backend mutation, and base/pandas/storage/ecosystem installation
+contracts.
+
 Add Pandera as a bounded direct dependency with Polars support. The intended
 constraint is:
 

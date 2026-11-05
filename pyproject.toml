@@ -15,6 +15,7 @@ dependencies = [
     "opentelemetry-api>=1.31.0",
     "opentelemetry-exporter-otlp>=1.31.0",
     "opentelemetry-sdk>=1.31.0",
+    "pandera[polars]>=0.35,<0.36",  # Private structural validation on canonical Polars only
     "pint>=0.25,<1",  # Explicit duration conversion; registry stays private
     "polars>=1.0.0",
     "pydantic>=2.12,<3",  # Portable exchange validation; FLO remains optional

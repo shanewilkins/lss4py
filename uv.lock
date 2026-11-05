@@ -770,6 +770,7 @@ dependencies = [
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp" },
     { name = "opentelemetry-sdk" },
+    { name = "pandera", extra = ["polars"] },
     { name = "pint" },
     { name = "polars" },
     { name = "pydantic" },
@@ -833,6 +834,7 @@ requires-dist = [
     { name = "opentelemetry-exporter-otlp", specifier = ">=1.31.0" },
     { name = "opentelemetry-sdk", specifier = ">=1.31.0" },
     { name = "pandas", marker = "extra == 'pandas'", specifier = ">=2.2.0" },
+    { name = "pandera", extras = ["polars"], specifier = ">=0.35,<0.36" },
     { name = "pint", specifier = ">=0.25,<1" },
     { name = "pm4py", marker = "extra == 'process-mining'", specifier = ">=2.7.0" },
     { name = "polars", specifier = ">=1.0.0" },
@@ -1001,6 +1003,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0e/46/a133ac6c4cef4d3939383c00cc19baa16ee85fd70af0c5990e7a9ca8767f/msgpack-1.2.4-cp314-cp314t-win32.whl", hash = "sha256:ad5bc540cbc34db236f8535721a9a872d12a9d88d1322470f1fc7c5e9dadfdb2", size = 76441, upload-time = "2026-10-26T17:55:09.711Z" },
     { url = "https://files.pythonhosted.org/packages/d4/f5/8d22ec454c188f1795107a3fd9f68ada485076ebf394a4aaaa5fbb6093e7/msgpack-1.2.4-cp314-cp314t-win_amd64.whl", hash = "sha256:287e52c2ebaa94f8eca045628374859f51584e77bc07086e6835a9bb2204c774", size = 84321, upload-time = "2026-10-26T17:55:10.947Z" },
     { url = "https://files.pythonhosted.org/packages/41/52/1390514aee47d14ca3fe6ea0cf236fddc55021867ace30daf8761deba36f/msgpack-1.2.4-cp314-cp314t-win_arm64.whl", hash = "sha256:f3f19fe5decd348b35b003ae5f32d3fa90877413a0183da676f748a3a7ab9270", size = 78589, upload-time = "2026-10-26T17:55:12.425Z" },
+]
+
+[[package]]
+name = "mypy-extensions"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d0/6f/43edf3be2748d0e40974a5ee046a8bb4c9961a4bdd3e7d5c6dcbf32d1af6/mypy_extensions-1.2.0.tar.gz", hash = "sha256:c6e275a07f1c2fc096b62940452d0eaa3f3af7de45d704787866240a7c6d5a51", size = 6566, upload-time = "2026-11-03T16:26:33.692Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/99/7b1adac7e97ce7bbda34792dc6e9b2f5cc5cffd1875883f78a818b2a2687/mypy_extensions-1.2.0-py3-none-any.whl", hash = "sha256:993e7a20aa5671eb41a7132cf555af30062da99729601601b9a8382b11cae768", size = 5114, upload-time = "2026-11-03T16:26:32.731Z" },
 ]
 
 [[package]]
@@ -1294,6 +1305,27 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f0/36/890746861b103d9da38b8b01317ad215f1495fe9bc2c7611f27d93917c46/pandas-3.1.1-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:42160e7f78b8a74df8c00e4f3a6010a47bba567fc514dc5029b5a722c2f37ef5", size = 12951459, upload-time = "2026-11-04T15:07:11.194Z" },
     { url = "https://files.pythonhosted.org/packages/70/b6/b3e0c6308d5ab92aa6a0c7f96020e8244bd77d87659343366c2c0e0ab84d/pandas-3.1.1-cp314-cp314t-win_amd64.whl", hash = "sha256:78978d0bf2fdb23f2eab1791abd685f03eb580f9247ab1583be8b74e4e270dbb", size = 11303679, upload-time = "2026-11-04T15:07:13.937Z" },
     { url = "https://files.pythonhosted.org/packages/7a/b3/2906768f0a40eccd37610b8bd6a4abd6938a89f01939bb2e22855085c4bb/pandas-3.1.1-cp314-cp314t-win_arm64.whl", hash = "sha256:f6c63d287fc2eddf698ebd3bd82089aba2dd4f520f6e4f341d28e125644a6137", size = 10634727, upload-time = "2026-11-04T15:07:16.571Z" },
+]
+
+[[package]]
+name = "pandera"
+version = "0.35.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+    { name = "pydantic" },
+    { name = "typeguard" },
+    { name = "typing-extensions" },
+    { name = "typing-inspect" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ca/44/a996e575da4f1adec5a4ff16eb43d69d0125901315ca9ac9613ac3b61009/pandera-0.35.0.tar.gz", hash = "sha256:d2d11bbf9b4dd19c227caf31ac57ac28a679bbe18577f9496dcf809143232389", size = 1132618, upload-time = "2026-10-25T02:33:03.012Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/29/17/239d1e64d290c26f126582445649bc7c925a7a80f2472b8bd04d6ec22f8d/pandera-0.35.0-py3-none-any.whl", hash = "sha256:ce5cab5e882480d07575361899a4140585b80c489410cf97b7ef6e8aa90de3b6", size = 557083, upload-time = "2026-10-25T02:33:01.376Z" },
+]
+
+[package.optional-dependencies]
+polars = [
+    { name = "polars" },
 ]
 
 [[package]]
@@ -2078,12 +2110,37 @@ wheels = [
 ]
 
 [[package]]
+name = "typeguard"
+version = "4.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b4/de/4420db493fa8fc0856d5e5c1b159c63a323d2de2317babe36b01568928e8/typeguard-4.6.0.tar.gz", hash = "sha256:e7414f09111317de3e335de92cd397c5c0ca00b1cc1676de12e1d444a79b3f21", size = 82330, upload-time = "2026-07-26T08:40:23.207Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8f/eb/461d5f167b6f5c7d97696f397c82f82e3480e003fce3f0a1cd1dd26e2eb2/typeguard-4.6.0-py3-none-any.whl", hash = "sha256:79878165bb86f2cf5d41d159a0ff1792a796cf496882d2fe1b1c6c7049b9cdd7", size = 36884, upload-time = "2026-07-26T08:40:21.868Z" },
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.16.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f6/cc/6253133b5bb138fc3306cebfbda2c520f545d36b5be2c7255cc528bb45d6/typing_extensions-4.16.0.tar.gz", hash = "sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5", size = 113555, upload-time = "2026-07-02T08:40:05.92Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl", hash = "sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8", size = 45571, upload-time = "2026-07-02T08:40:04.659Z" },
+]
+
+[[package]]
+name = "typing-inspect"
+version = "0.9.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mypy-extensions" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dc/74/1789779d91f1961fa9438e9a8710cdae6bd138c80d7303996933d117264a/typing_inspect-0.9.0.tar.gz", hash = "sha256:b23fc42ff6f6ef6954e4852c1fb512cdd18dbea03134f91f856a95ccc9461f78", size = 13825, upload-time = "2023-05-24T20:25:47.612Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/65/f3/107a22063bf27bdccf2024833d3445f4eea42b2e598abfbd46f6a63b6cb0/typing_inspect-0.9.0-py3-none-any.whl", hash = "sha256:9ee6fc59062311ef8547596ab6b955e1b8aa46242d854bfc78f4f6b0eff35f9f", size = 8827, upload-time = "2023-05-24T20:25:45.287Z" },
 ]
 
 [[package]]

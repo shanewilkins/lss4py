@@ -9,14 +9,14 @@ behavior before the internal execution and validation boundary changes.
 - Baseline commit:
   `074bf2e58abf45cd9da011f5aac0b8082a9f98d4`.
 - Locked dependency file SHA-256:
-  `870f7ed99a38a034ca511baf23854b808c54e4b1b15733947a66f2324b8e70c4`.
+  `c0dc2bcb498064faaf96df7f02465211a4a8142cdd9a78e5a8dc8bf6c5c2edd9`.
 - Neutral result fixture SHA-256:
   `3dc056c5bebb6ed287bfab02004db113f74d6124c81eb8dc6eb24893d15090ed`.
 - Runtime: local macOS, Python 3.14.2, locked dependencies.
 
-An unlocked local tool invocation briefly refreshed compatible packages in
-`uv.lock`. That unrelated resolution was discarded. All results below were
-reproduced against the committed lock, including Pydantic 2.14.2.
+The Phase 1 commit includes a compatible dependency refresh without changing
+the declared dependency ranges. All results below were reproduced against that
+committed lock, including Pydantic 2.14.3.
 
 The neutral fixture records complete payloads for every current result family
 represented by the governed bundle tests. It removes only nondeterministic
