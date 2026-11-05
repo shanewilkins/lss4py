@@ -153,6 +153,15 @@ serialization, bundles and the standalone bundle validator.
 
 ## Phase 4: private Pandera validation
 
+**Status:** Complete. A single private adapter compiles open, noncoercing
+Pandera Polars schemas and translates aggregated failures into LSS4PY
+`DataIssue` codes without retaining measurements or third-party wording.
+Pandera covers required columns, broad logical dtypes, missingness, finite
+bounds, exact integer values and declared key uniqueness. LSS4PY retains blank
+text, timestamp parsing/order, timezone, units, full-row duplicate policy and
+other analytical semantics. Public data-quality execution remains unchanged
+until Phase 5.1.
+
 Create one private integration module rather than importing Pandera throughout
 kernels.
 
