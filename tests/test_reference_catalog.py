@@ -240,9 +240,10 @@ def test_r_snapshot_is_reference_only_and_preserves_observed_semantics():
         "ss.ca.cpk",
         "ss.ca.z",
         "ss.ca.yield",
+        "ss.cc",
         "ss.ci",
     }
-    assert len(entry["expected"]) == 20 and len(entry["invalid"]) == 8
+    assert len(entry["expected"]) == 22 and len(entry["invalid"]) == 9
 
 
 def test_r_invalid_inputs_preserve_observed_semantics():

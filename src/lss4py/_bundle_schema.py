@@ -248,6 +248,36 @@ RESULT_FIELDS = {
         "unit",
         "variation_estimator",
     },
+    "CapabilityStudyResult": {
+        "schema_version",
+        "specification",
+        "short_term_capability",
+        "short_term_distribution",
+        "short_term_nonconformance",
+        "long_term_capability",
+        "long_term_distribution",
+        "long_term_nonconformance",
+    },
+    "ControlChartResult": {
+        "schema_version",
+        "chart",
+        "phase",
+        "moving_ranges",
+        "pair_start_positions",
+        "pair_end_positions",
+        "pair_start_keys",
+        "pair_end_keys",
+        "lcl",
+        "center_line",
+        "ucl",
+        "signal_indices",
+        "signal_source_positions",
+        "observation_count",
+        "baseline_observation_count",
+        "nsigmas",
+        "unit",
+        "baseline_result_fingerprint",
+    },
 }
 METHODS = {
     "ProcessMapResult": {"map_process"},
@@ -264,6 +294,8 @@ METHODS = {
     "DistributionProfileResult": {"distribution_profile"},
     "MeanCIResult": {"mean_confidence_interval"},
     "CapabilityResult": {"capability_indices"},
+    "CapabilityStudyResult": {"capability_study"},
+    "ControlChartResult": {"control_chart"},
 }
 
 
@@ -453,6 +485,194 @@ def _capability(result: dict) -> None:
     _require(result["unit"] is None or _text(result["unit"]), "Invalid capability unit.")
     for name in ("method", "variation_estimator"):
         _require(_text(result[name]), f"Invalid capability {name}.")
+
+
+def _control_chart(result: dict) -> None:
+    """Validate aligned MR pairs, limits, signals, and Phase I/II evidence."""
+    _require(result["schema_version"] == "1.0", "Unsupported control-chart schema.")
+    _require(result["chart"] == "moving_range", "Unsupported control-chart family.")
+    _require(result["phase"] in ("I", "II"), "Invalid control-chart phase.")
+    for name in ("moving_ranges", "pair_start_positions", "pair_end_positions"):
+        _numeric_array(result[name], name)
+    ranges = result["moving_ranges"]
+    count = len(ranges)
+    _require(all(value >= 0 for value in ranges), "Moving ranges must be nonnegative.")
+    _require(
+        result["observation_count"] == count + 1 and result["observation_count"] >= 2,
+        "Control-chart observation count mismatch.",
+    )
+    _require(
+        _integer(result["baseline_observation_count"])
+        and result["baseline_observation_count"] >= 2,
+        "Invalid baseline observation count.",
+    )
+    starts, ends = result["pair_start_positions"], result["pair_end_positions"]
+    _require(
+        all(_integer(value) for value in starts + ends)
+        and starts == list(range(count))
+        and ends == list(range(1, count + 1)),
+        "Invalid adjacent source-pair positions.",
+    )
+    start_keys, end_keys = result["pair_start_keys"], result["pair_end_keys"]
+    _require((start_keys is None) == (end_keys is None), "Incomplete control-chart pair keys.")
+    if start_keys is not None:
+        _require(
+            isinstance(start_keys, list)
+            and isinstance(end_keys, list)
+            and len(start_keys) == len(end_keys) == count,
+            "Invalid control-chart pair keys.",
+        )
+        _json_tree(start_keys)
+        _json_tree(end_keys)
+    for name in ("lcl", "center_line", "ucl", "nsigmas"):
+        _require(_number(result[name]), f"Invalid control-chart field: {name}.")
+    _require(
+        0 <= result["lcl"] <= result["center_line"] <= result["ucl"],
+        "Control-chart limits are not ordered.",
+    )
+    _require(result["nsigmas"] > 0, "Control-chart nsigmas must be positive.")
+    indices = result["signal_indices"]
+    positions = result["signal_source_positions"]
+    _require(
+        isinstance(indices, list)
+        and all(_integer(value) and value < count for value in indices)
+        and indices == sorted(set(indices)),
+        "Invalid control-chart signal indices.",
+    )
+    expected_indices = [
+        index
+        for index, value in enumerate(ranges)
+        if value < result["lcl"] or value > result["ucl"]
+    ]
+    _require(indices == expected_indices, "Control-chart signals disagree with limits.")
+    _require(
+        positions == [ends[index] for index in indices],
+        "Control-chart signal source positions disagree.",
+    )
+    _require(result["unit"] is None or _text(result["unit"]), "Invalid control-chart unit.")
+    fingerprint = result["baseline_result_fingerprint"]
+    if result["phase"] == "I":
+        _require(fingerprint is None, "Phase I cannot cite a baseline result.")
+        _require(
+            result["baseline_observation_count"] == result["observation_count"],
+            "Phase I baseline count mismatch.",
+        )
+    else:
+        _require(_text(fingerprint), "Phase II requires a baseline fingerprint.")
+
+
+def _nonconformance(
+    value: Any,
+    observations: list,
+    specification: dict,
+    label: str,
+) -> None:
+    """Validate one observed specification-risk summary."""
+    _object(
+        value,
+        {"total", "below_lsl", "above_usl", "nonconforming", "nonconforming_rate"},
+        label,
+    )
+    for name in ("total", "below_lsl", "above_usl", "nonconforming"):
+        _require(
+            _integer(value[name]) and value[name] >= 0,
+            f"Invalid {label} count: {name}.",
+        )
+    total = len(observations)
+    _require(value["total"] == total, f"{label} total disagrees with observation count.")
+    _require(
+        value["nonconforming"] == value["below_lsl"] + value["above_usl"]
+        and value["nonconforming"] <= total,
+        f"Invalid {label} nonconforming counts.",
+    )
+    _require(
+        _number(value["nonconforming_rate"])
+        and 0 <= value["nonconforming_rate"] <= 1
+        and math.isclose(
+            value["nonconforming_rate"],
+            value["nonconforming"] / total,
+            rel_tol=0,
+            abs_tol=1e-15,
+        ),
+        f"Invalid {label} nonconforming rate.",
+    )
+    lsl, usl = specification["lsl"], specification["usl"]
+    expected_below = 0 if lsl is None else sum(item < lsl for item in observations)
+    expected_above = 0 if usl is None else sum(item > usl for item in observations)
+    _require(
+        value["below_lsl"] == expected_below and value["above_usl"] == expected_above,
+        f"{label} counts disagree with observations and specification.",
+    )
+
+
+def _capability_study(result: dict) -> None:
+    """Validate nested short-/long-term evidence and observed risk."""
+    _require(result["schema_version"] == "1.0", "Unsupported capability-study schema.")
+    _specification(result["specification"])
+    short_capability = result["short_term_capability"]
+    short_distribution = result["short_term_distribution"]
+    validate_result(short_capability)
+    validate_result(short_distribution)
+    _require(
+        short_capability["result_type"] == "CapabilityResult"
+        and short_distribution["result_type"] == "DistributionProfileResult",
+        "Invalid short-term capability-study evidence.",
+    )
+    _require(
+        short_capability["count"] == len(short_distribution["values"]),
+        "Short-term study counts disagree.",
+    )
+    _require(
+        short_capability["lsl"] == result["specification"]["lsl"]
+        and short_capability["usl"] == result["specification"]["usl"]
+        and short_capability["target"] == result["specification"]["target"]
+        and short_capability["unit"] == result["specification"]["unit"]
+        and short_distribution["unit"] == result["specification"]["unit"],
+        "Short-term study specification disagrees.",
+    )
+    _nonconformance(
+        result["short_term_nonconformance"],
+        short_distribution["values"],
+        result["specification"],
+        "short-term nonconformance",
+    )
+    long_values = (
+        result["long_term_capability"],
+        result["long_term_distribution"],
+        result["long_term_nonconformance"],
+    )
+    _require(
+        all(value is None for value in long_values)
+        or all(value is not None for value in long_values),
+        "Incomplete long-term capability-study evidence.",
+    )
+    if long_values[0] is not None:
+        long_capability, long_distribution, long_nonconformance = long_values
+        validate_result(long_capability)
+        validate_result(long_distribution)
+        _require(
+            long_capability["result_type"] == "CapabilityResult"
+            and long_distribution["result_type"] == "DistributionProfileResult",
+            "Invalid long-term capability-study evidence.",
+        )
+        _require(
+            long_capability["count"] == len(long_distribution["values"]),
+            "Long-term study counts disagree.",
+        )
+        _require(
+            long_capability["lsl"] == result["specification"]["lsl"]
+            and long_capability["usl"] == result["specification"]["usl"]
+            and long_capability["target"] == result["specification"]["target"]
+            and long_capability["unit"] == result["specification"]["unit"]
+            and long_distribution["unit"] == result["specification"]["unit"],
+            "Long-term study specification disagrees.",
+        )
+        _nonconformance(
+            long_nonconformance,
+            long_distribution["values"],
+            result["specification"],
+            "long-term nonconformance",
+        )
 
 
 def _mean_ci(result: dict) -> None:
@@ -730,6 +950,8 @@ RESULT_CHECKS = {
     "DistributionProfileResult": _distribution_profile,
     "MeanCIResult": _mean_ci,
     "CapabilityResult": _capability,
+    "CapabilityStudyResult": _capability_study,
+    "ControlChartResult": _control_chart,
 }
 
 
@@ -929,6 +1151,16 @@ def _result_context(entry: dict, body: dict) -> None:
         linked = [body["specifications"][k] for k in entry["specification_ids"]]
         _require(declared in linked, "Result specification is not preserved by its links.")
         _spec_result_context(result, declared)
+    if result["result_type"] == "CapabilityStudyResult":
+        for name in (
+            "short_term_capability",
+            "short_term_distribution",
+            "long_term_capability",
+            "long_term_distribution",
+        ):
+            child = result[name]
+            if child is not None:
+                _result_context({**entry, "result": child}, body)
 
 
 def _parameter_context(result: dict) -> None:

@@ -469,5 +469,110 @@
     },
     "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
     "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "cc-mr-phase-i",
+    "method": "ss.cc",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "type": "mr",
+      "data": [
+        {
+          "x": 10
+        },
+        {
+          "x": 11
+        },
+        {
+          "x": 9
+        },
+        {
+          "x": 10
+        },
+        {
+          "x": 14
+        }
+      ],
+      "CTQ": "x"
+    },
+    "expected": {
+      "status": "returned",
+      "value": {
+        "LCL": 0,
+        "CL": 2,
+        "UCL": 6.5330638385883368,
+        "phase": "I",
+        "out": []
+      },
+      "result_class": "list",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 1.9999999999999999e-11,
+      "relative": 1.9999999999999999e-11
+    },
+    "tolerance_reason": "SixSigma numerically integrates d2/d3; tolerate only the resulting float64 difference from the equivalent closed-form n=2 constants.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "cc-mr-phase-ii",
+    "method": "ss.cc",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "type": "mr",
+      "data": [
+        {
+          "x": 10
+        },
+        {
+          "x": 20
+        },
+        {
+          "x": 19
+        },
+        {
+          "x": 18
+        },
+        {
+          "x": 17
+        }
+      ],
+      "cdata": [
+        {
+          "x": 10
+        },
+        {
+          "x": 11
+        },
+        {
+          "x": 9
+        },
+        {
+          "x": 10
+        },
+        {
+          "x": 14
+        }
+      ],
+      "CTQ": "x"
+    },
+    "expected": {
+      "status": "returned",
+      "value": {
+        "LCL": 0,
+        "CL": 2,
+        "UCL": 6.5330638385883368,
+        "phase": "II",
+        "out": 1
+      },
+      "result_class": "list",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 1.9999999999999999e-11,
+      "relative": 1.9999999999999999e-11
+    },
+    "tolerance_reason": "SixSigma numerically integrates d2/d3; tolerate only the resulting float64 difference from the equivalent closed-form n=2 constants.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
   }
 ]

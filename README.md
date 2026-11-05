@@ -32,6 +32,8 @@ It includes these public functions:
 - `mean_confidence_interval` (mean estimate, t/z interval, and Shapiro-Wilk diagnostic)
 - `distribution_profile` (histogram, ECDF, Q-Q, IQR, shape and optional KDE evidence)
 - `capability_indices` (Cp/Cpk/components/intervals and explicit specification Z)
+- `capability_study` (explicit short-/long-term capability, diagnostics, and observed risk)
+- `control_chart` (MR(2) Phase I limits and frozen Phase II monitoring)
 - `reconstruct_orders` (declared numeric activity-to-order accounting policy)
 - `validate_order_summary` (prepared numeric order contract and consistency checks)
 - `deadline_performance` (fixed-deadline misses with explicit eligible/ineligible cases)
@@ -42,7 +44,9 @@ supports explicit nearest-rank percentiles and measurement sums;
 `process_cycle_efficiency(aggregation="cohort")` returns a ratio of sums with
 cohort identities and denominator evidence.
 
-See the [descriptive statistics guide](docs/descriptive-statistics.md) and
+See the [descriptive statistics guide](docs/descriptive-statistics.md), the
+[capability-study guide](docs/capability-study.md), the
+[moving-range control-chart guide](docs/control-charts.md), and
 [mean confidence interval guide](docs/mean-confidence-interval.md) for examples
 and statistical conventions. The [distribution profile guide](docs/distribution-profile.md)
 documents prepared diagnostic evidence and optional Matplotlib renderers.
@@ -315,7 +319,7 @@ See the [defect/rework yield guide](docs/defect-yield.md) for the separate
 These areas are not part of the stable book-facing API today:
 
 - full capability studies and within-subgroup variation
-- SPC reporting
+- SPC rendering, broader chart families, and run/trend/zone rules
 - simulation workflows
 - bottleneck workflows
 - before/after comparison workflows
@@ -339,8 +343,10 @@ Other modules and ideas in the repository should be treated as experimental, int
 
 The [numerical-reference catalog](docs/reference-fixtures.md) checks current methods
 against NIST-certified and independently derived expected values. R SixSigma
-Cp/Cpk estimates, intervals, and specification Z distances now pass R baselines; broader
-R parity remains future work. See [capability indices](docs/capability-indices.md).
+Cp/Cpk estimates, intervals, specification Z distances, and retained MR(2)
+Phase I/II cases now pass R baselines; broader R parity remains future work. See
+[capability indices](docs/capability-indices.md) and
+[moving-range control charts](docs/control-charts.md).
 
 Optional [R reference tooling](tools/r-reference/README.md) has its own dependency
 lock and CI workflow. Install R 4.6.1 separately, then run

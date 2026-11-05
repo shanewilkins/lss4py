@@ -54,6 +54,8 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
   Shapiro-Wilk diagnostics, genuine R references and interpretation boundaries.
 - [Distribution profile and diagnostic plots](distribution-profile.md):
   histogram, ECDF, Q-Q, IQR flags, optional KDE and no-hidden-analysis renderers.
+- [Moving-range control charts](control-charts.md): MR(2) Phase I limits,
+  frozen Phase II reuse, adjacent source-pair identity, and current boundaries.
 
 - [Auditable analysis bundles](analysis-bundles.md)
 
@@ -62,6 +64,8 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
 - [Descriptive statistics](descriptive-statistics.md)
 - [Defect and rework yield](defect-yield.md)
 - [Cp and Cpk](capability-indices.md)
+- [Capability studies](capability-study.md): explicit short-/long-term samples,
+  nested capability/distribution evidence, observed risk, and current boundaries.
 - [CTQs and specifications](specifications.md)
 - [Analysis guidance](analysis-guidance.md)
 - [Analytical backend contracts](backend-contracts.md)

@@ -14,6 +14,8 @@ METHODS = {
     "map_process",
     "reconstruct_orders",
     "capability_indices",
+    "capability_study",
+    "control_chart",
     "mean_confidence_interval",
     "describe",
     "distribution_profile",
@@ -50,9 +52,12 @@ def test_catalog_covers_supported_calculations():
         ("value_add_share", ("process_cycle_efficiency",)),
         ("demand_pace", ("takt_time",)),
         ("summarize_measurements", ("describe",)),
-        ("process_capability", ("capability_indices",)),
+        ("process_capability", ("capability_indices", "capability_study")),
+        ("capability_study", ("capability_study",)),
         ("estimate_mean", ("mean_confidence_interval",)),
         ("profile_distribution", ("distribution_profile",)),
+        ("process_stability", ("control_chart",)),
+        ("special_cause_monitoring", ("control_chart",)),
         ("stage_conversion", ("booked_to_completed_yield", "created_to_booked_yield")),
         ("overall_conversion", ("rolled_yield",)),
         ("unknown", ()),
@@ -68,6 +73,9 @@ def test_filters_match_supported_input_and_design_without_inspecting_data():
     )
     assert get_candidates("elapsed_time", data_type="numeric") == ()
     assert get_candidates(design_type="planning") == (get_analysis("takt_time"),)
+    assert get_candidates(design_type="sequential_observational") == (
+        get_analysis("control_chart"),
+    )
     assert get_candidates(design_type="randomized_trial") == ()
     assert get_candidates(data_type="unsupported") == ()
     assert get_candidates("waiting_time", data_type="interval_event_log") == ()
@@ -89,7 +97,7 @@ def test_guidance_cannot_execute_an_analysis(monkeypatch):
 
     for name in METHODS:
         monkeypatch.setattr(lss4py, name, fail)
-    assert len(get_candidates()) == 15
+    assert len(get_candidates()) == 17
     assert get_analysis("describe").name == "describe"
     assert "data" not in inspect.signature(get_candidates).parameters
 

@@ -6,7 +6,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from lss4py.domain import DistributionProfileResult, MeanCIResult, TimingResult
+from lss4py.domain import (
+    ControlChartResult,
+    DistributionProfileResult,
+    MeanCIResult,
+    TimingResult,
+)
 from lss4py.errors import ValidationError
 
 if TYPE_CHECKING:
@@ -68,6 +73,40 @@ def plot_mean_interval(result: MeanCIResult, *, ax: Axes | None = None) -> Axes:
         ax.set_yticks([])
         ax.set_xlabel(f"Mean ({result.unit})" if result.unit else "Mean")
         ax.set_title(result.name)
+        ax.legend()
+    return ax
+
+
+def plot_control_chart(result: ControlChartResult, *, ax: Axes | None = None) -> Axes:
+    """Draw stored moving ranges, limits, and signals without recalculation."""
+    if not isinstance(result, ControlChartResult):
+        raise ValidationError("plot_control_chart requires a ControlChartResult.")
+    plt, sns = _plotting()
+    positions = result.pair_end_positions
+    labels = (
+        list(map(str, positions))
+        if result.pair_end_keys is None
+        else list(map(str, result.pair_end_keys))
+    )
+    with sns.axes_style("whitegrid"):
+        if ax is None:
+            _, ax = plt.subplots(layout="constrained")
+        ax.plot(positions, result.moving_ranges, marker="o", label="Moving range")
+        if len(result.signal_indices):
+            ax.scatter(
+                result.signal_source_positions,
+                result.moving_ranges[result.signal_indices],
+                color="red",
+                label="Signal",
+                zorder=3,
+            )
+        ax.axhline(result.lcl, color="black", label="LCL")
+        ax.axhline(result.center_line, color="black", linestyle="--", label="Center line")
+        ax.axhline(result.ucl, color="black", label="UCL")
+        ax.set_xticks(positions, labels)
+        ax.set_xlabel("Ending key" if result.pair_end_keys is not None else "Ending observation")
+        ax.set_ylabel(f"Moving range ({result.unit})" if result.unit else "Moving range")
+        ax.set_title(f"{result.name} — Phase {result.phase}")
         ax.legend()
     return ax
 

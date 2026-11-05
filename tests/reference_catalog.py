@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).parent / "fixtures" / "reference"
-R_APIS = {"ss.ca.cp", "ss.ca.cpk", "ss.ca.z", "ss.ca.yield", "ss.ci"}
+R_APIS = {"ss.ca.cp", "ss.ca.cpk", "ss.ca.z", "ss.ca.yield", "ss.cc", "ss.ci"}
 METHODS = {
     "describe",
     "distribution_profile",
