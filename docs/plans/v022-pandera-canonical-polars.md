@@ -240,6 +240,59 @@ Replace repeated Narwhals analytical extraction with shared Polars helpers for:
 
 ### 5.3 Analytical families
 
+**Batch 1 status:** Complete. Descriptive statistics, mean confidence intervals
+and distribution profiles now canonicalize only their required analytical
+columns and execute extraction, grouping, key identity and source-position
+selection on Polars. The canonical input envelope retains the original backend,
+row count and semantic source-schema fingerprint so existing provenance remains
+byte-compatible. Focused family, cross-backend, bundle/reporting and exact
+Phase 1 neutral-payload checks pass, as do the locked source gates, all 28
+governed R cases and the 32/42/44/58 exact-wheel matrix.
+
+**Batch 2 status:** Complete. Capability indices and defect/rework yield now
+materialize only their declared measurement or count columns and execute on
+canonical Polars. Capability reuses shared nullable measurement extraction;
+defect/rework yield retains its stricter exact nonnegative count and integer
+precision policy over canonical values. Original backend provenance, source
+schema fingerprints, count-bucket ordering, source immutability and neutral
+payloads remain compatible. Focused family, cross-backend, bundle/reporting,
+locked source, all 28 governed R cases and the 32/42/44/58 exact-wheel checks
+pass.
+
+**Batch 3 status:** Complete. Generic-frame lead, wait, per-row and cohort
+process-cycle-efficiency, prepared-order validation, deadline performance and
+stage/rolled-yield execution now materialize only their required columns and
+calculate on canonical Polars. Calendar endpoint parsing now consumes canonical
+Polars without weakening ISO, timezone or microsecond policies. Obsolete
+Narwhals duration and stage-calculation helpers were removed. The interval-event
+log branch remains deliberately unchanged for batch 4. Focused family,
+cross-backend, integration/event-log regression, bundle/reporting, exact neutral
+payload, locked source, all 28 governed R cases and the 32/42/44/58 exact-wheel
+checks pass.
+
+**Batch 4 status:** Complete. Interval-event normalization now recognizes eager
+pandas, Polars and PyArrow sources through the canonical boundary, validates and
+aggregates detached Polars columns, and returns source-aware canonical provenance
+for per-case lead time. Numeric activity-log reconstruction now executes against
+a detached canonical Polars copy while retaining complete source records,
+positions and metadata. Direct-follow `EventStream` process mapping is already a
+typed non-dataframe path and required no conversion. Focused event-log,
+reconstruction, cross-backend, integration, bundle/reporting, exact neutral
+payload, locked source, all 28 governed R cases and the 32/42/44/58 exact-wheel
+checks pass.
+
+**Batch 5 status:** Complete. Provenance construction now accepts only
+`CanonicalFrame`, eliminating the legacy Narwhals result path while preserving
+the original backend, row count, semantic schema fingerprint and serialized
+context. Explicit duration conversion now validates and calculates selected
+columns on canonical Polars, with native-backend restoration centralized in the
+private frame conversion boundary. Bundle, result export and restoration code
+required no execution changes because it already consumes typed contracts;
+complete bundle/reporting and neutral-payload tests remain exact. Narwhals imports
+are now confined to `_frames.py` and enforced by a static source-boundary test.
+The locked source gates, all 28 governed R cases and the 32/42/44/58 exact-wheel
+checks pass.
+
 Migrate in bounded batches:
 
 1. descriptive statistics, mean inference and distribution profiles;
@@ -253,12 +306,15 @@ exercise all supported source backends and verify source immutability.
 
 ### 5.4 Boundary enforcement
 
+**Status:** Complete.
+
 At completion:
 
 - Narwhals remains only in private input recognition and canonicalization;
 - analytical kernels execute no Narwhals expressions;
 - kernels contain no pandas- or PyArrow-specific branches; and
-- import-linter enforces the new dependency direction.
+- the source-boundary test enforces Narwhals confinement, while import-linter
+  continues to enforce layer direction.
 
 ## Phase 6: differential and performance evidence
 

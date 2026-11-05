@@ -12,21 +12,21 @@ from typing import Any, Literal, cast
 import numpy as np
 
 from lss4py._event_log import event_log_lead_time
-from lss4py._frames import eager_frame
+from lss4py._frames import canonical_frame, eager_frame
 from lss4py._kernels._calendar import calendar_seconds
-from lss4py._kernels._contracts import boolean_option, row_identity
+from lss4py._kernels._contracts import boolean_option
 from lss4py._kernels._helpers import (
     TimeUnit,
     build_provenance,
     event_log_bindings_available,
-    measurement_values,
-    require_columns,
-    resolve_cycle_time_series,
     resolve_lead_time_columns,
-    resolve_lead_time_series,
-    resolve_value_add_time_series,
 )
 from lss4py._kernels.orders import case_measurements, require_valid, semantic_context
+from lss4py._polars_extract import (
+    measurement_values,
+    nonnegative_measurements,
+    portable_key_values,
+)
 from lss4py.domain import IntervalEventLog, ProcessModelIR, TimingResult
 from lss4py.errors import ValidationError
 from lss4py.guidance import AnalysisSuitability, register_analysis
@@ -104,17 +104,17 @@ def lead_time(
     if (
         start_column is None
         and end_column is None
-        and event_log_bindings_available(frame, process_model)
+        and event_log_bindings_available(frame.columns, process_model)
     ):
         assert process_model is not None
-        keys, result = event_log_lead_time(
+        canonical, keys, result = event_log_lead_time(
             native_data,
             process_model=process_model,
             seconds_per_unit=_SECONDS_PER_UNIT[unit],
         )
         provenance = build_provenance(
             method_name="lead_time",
-            frame=frame,
+            frame=canonical,
             parameters={
                 "unit": unit,
                 "process_model": True,
@@ -157,8 +157,14 @@ def lead_time(
         start_column=start_column,
         end_column=end_column,
     )
-    row_keys, row_metadata = row_identity(frame, key_column)
-    require_columns(frame, resolved_start_column, resolved_end_column)
+    selected = (
+        (resolved_start_column, resolved_end_column)
+        if key_column is None
+        else (resolved_start_column, resolved_end_column, key_column)
+    )
+    canonical = canonical_frame(native_data, selected)
+    frame = canonical.to_polars(copy=False)
+    row_keys, row_metadata = portable_key_values(frame, key_column)
 
     durations_seconds = calendar_seconds(frame, resolved_start_column, resolved_end_column)
 
@@ -172,7 +178,7 @@ def lead_time(
     # Build and return typed result with provenance
     provenance = build_provenance(
         method_name="lead_time",
-        frame=frame,
+        frame=canonical,
         parameters={
             "start_column": resolved_start_column,
             "end_column": resolved_end_column,
@@ -256,19 +262,19 @@ def wait_time(
         TimingResult with per-row wait times, including full provenance.
     """
     _time_unit(unit)
-    frame = eager_frame(data)
-
-    row_keys, row_metadata = row_identity(frame, key_column)
-    lead = resolve_lead_time_series(
-        frame,
-        process_model=process_model,
-        lead_time_column=lead_time_column,
+    eager_frame(data)
+    _duration_column(lead_time_column, "Lead time", "lead_time_column")
+    _duration_column(cycle_time_column, "Cycle time", "cycle_time_column")
+    selected = (
+        (lead_time_column, cycle_time_column)
+        if key_column is None
+        else (lead_time_column, cycle_time_column, key_column)
     )
-    cycle = resolve_cycle_time_series(
-        frame,
-        process_model=process_model,
-        cycle_time_column=cycle_time_column,
-    )
+    canonical = canonical_frame(data, cast(tuple[str, ...], selected))
+    frame = canonical.to_polars(copy=False)
+    row_keys, row_metadata = portable_key_values(frame, key_column)
+    lead = nonnegative_measurements(frame, cast(str, lead_time_column))
+    cycle = nonnegative_measurements(frame, cast(str, cycle_time_column))
 
     waits = lead - cycle
     if np.any(waits < 0):
@@ -277,7 +283,7 @@ def wait_time(
     # Build and return typed result with provenance
     provenance = build_provenance(
         method_name="wait_time",
-        frame=frame,
+        frame=canonical,
         parameters={
             "unit": unit,
             "lead_time_column": lead_time_column,
@@ -397,19 +403,19 @@ def process_cycle_efficiency(
             cohort=cohort,
             value_add_convention=value_add_convention,
         )
-    frame = eager_frame(data)
-
-    row_keys, row_metadata = row_identity(frame, key_column)
-    lead = resolve_lead_time_series(
-        frame,
-        process_model=process_model,
-        lead_time_column=lead_time_column,
+    eager_frame(data)
+    _duration_column(lead_time_column, "Lead time", "lead_time_column")
+    _duration_column(value_add_time_column, "Value-add time", "value_add_time_column")
+    selected = (
+        (lead_time_column, value_add_time_column)
+        if key_column is None
+        else (lead_time_column, value_add_time_column, key_column)
     )
-    value_add = resolve_value_add_time_series(
-        frame,
-        process_model=process_model,
-        value_add_time_column=value_add_time_column,
-    )
+    canonical = canonical_frame(data, cast(tuple[str, ...], selected))
+    frame = canonical.to_polars(copy=False)
+    row_keys, row_metadata = portable_key_values(frame, key_column)
+    lead = nonnegative_measurements(frame, cast(str, lead_time_column))
+    value_add = nonnegative_measurements(frame, cast(str, value_add_time_column))
 
     if np.any(lead <= 0):
         raise ValidationError("Lead time must be greater than zero for process cycle efficiency.")
@@ -425,7 +431,7 @@ def process_cycle_efficiency(
     # Build and return typed result with provenance
     provenance = build_provenance(
         method_name="process_cycle_efficiency",
-        frame=frame,
+        frame=canonical,
         parameters={
             "lead_time_column": lead_time_column,
             "value_add_time_column": value_add_time_column,
@@ -484,7 +490,11 @@ def _cohort_pce(
         data, case_id_column, (lead_time_column, value_add_time_column), unit
     )
     require_valid(report)
-    frame = eager_frame(data)
+    canonical = canonical_frame(
+        data,
+        (case_id_column, lead_time_column, value_add_time_column),
+    )
+    frame = canonical.to_polars(copy=False)
     lead, va = (measurement_values(frame, col) for col in (lead_time_column, value_add_time_column))
     lead_sum, va_sum = _cohort_sums(lead, va)
     parameters = {
@@ -497,7 +507,7 @@ def _cohort_pce(
         "as_percentage": as_percentage,
         "missing": "raise",
     }
-    provenance = build_provenance("process_cycle_efficiency", frame, parameters)
+    provenance = build_provenance("process_cycle_efficiency", canonical, parameters)
     provenance.method_version = "1.1"
     provenance.cohort_definition = cohort
     return TimingResult(
@@ -583,6 +593,15 @@ def _cohort_bindings(bindings: tuple, value_add_convention: str | None) -> None:
         raise ValidationError("Cohort PCE requires explicit case, lead-time and VA bindings.")
     if not isinstance(value_add_convention, str) or not value_add_convention.strip():
         raise ValidationError("Cohort PCE requires an explicit value_add_convention.")
+
+
+def _duration_column(column: str | None, label: str, parameter: str) -> None:
+    """Require the explicit duration bindings supported by the current release."""
+    if column is None:
+        raise ValidationError(
+            f"{label} requires an explicit {parameter}. "
+            "Event-log inference is being refactored for v0.3."
+        )
 
 
 def _cohort_sums(lead: np.ndarray, va: np.ndarray) -> tuple[float, float]:

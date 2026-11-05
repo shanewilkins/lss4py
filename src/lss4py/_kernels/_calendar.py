@@ -2,13 +2,13 @@
 
 from datetime import UTC, datetime
 
-import narwhals as nw
 import numpy as np
+import polars as pl
 
 from lss4py.errors import ValidationError
 
 
-def calendar_seconds(frame: nw.DataFrame, start_column: str, end_column: str) -> np.ndarray:
+def calendar_seconds(frame: pl.DataFrame, start_column: str, end_column: str) -> np.ndarray:
     """Calculate elapsed seconds on explicit ISO/native datetime pairs without guessing formats."""
     start = _instants(frame, start_column)
     end = _instants(frame, end_column)
@@ -18,10 +18,10 @@ def calendar_seconds(frame: nw.DataFrame, start_column: str, end_column: str) ->
         raise ValidationError("Calendar endpoints require consistent timezone awareness.") from exc
 
 
-def _instants(frame: nw.DataFrame, column: str) -> list[datetime]:
+def _instants(frame: pl.DataFrame, column: str) -> list[datetime]:
     """Reject numeric/missing endpoints and normalize aware instants to UTC."""
     series = frame[column]
-    if series.dtype != nw.String and not isinstance(series.dtype, nw.Datetime):
+    if series.dtype != pl.String and not isinstance(series.dtype, pl.Datetime):
         raise ValidationError(
             f"Column '{column}' contains invalid timestamps; numeric clocks need numeric contracts."
         )

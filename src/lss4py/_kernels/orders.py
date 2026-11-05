@@ -6,9 +6,10 @@ from typing import Any
 
 import numpy as np
 
-from lss4py._frames import eager_frame
-from lss4py._kernels._helpers import build_provenance, measurement_values
+from lss4py._frames import canonical_frame
+from lss4py._kernels._helpers import build_provenance
 from lss4py._kernels.data_quality import validate_data
+from lss4py._polars_extract import measurement_values
 from lss4py.domain import ColumnRule, DataContract, DataIssue, DataValidationReport, YieldResult
 from lss4py.domain.order_summary import OrderSummaryContract
 from lss4py.errors import ValidationError
@@ -49,7 +50,8 @@ def validate_order_summary(data: Any, *, contract: OrderSummaryContract) -> Data
         return replace(report, issues=(*report.issues, issue))
     if not report.valid:
         return report
-    frame = eager_frame(data)
+    canonical = canonical_frame(data, contract.time_columns)
+    frame = canonical.to_polars(copy=False)
     values = {name: measurement_values(frame, name) for name in contract.time_columns}
     conditions = _order_checks(contract, values)
     return _order_report(report, conditions)
@@ -172,7 +174,8 @@ def deadline_performance(
             raise ValidationError("Cutoff and deadline must be nonnegative.")
     report = case_measurements(data, case_id_column, (arrival_column, readiness_column), unit)
     require_valid(report)
-    frame = eager_frame(data)
+    canonical = canonical_frame(data, (case_id_column, arrival_column, readiness_column))
+    frame = canonical.to_polars(copy=False)
     arrival, ready = (measurement_values(frame, col) for col in (arrival_column, readiness_column))
     if np.any(ready < arrival):
         raise ValidationError("Readiness precedes arrival.")
@@ -210,7 +213,7 @@ def deadline_performance(
         "deadline": deadline,
         "missing": "raise",
     }
-    provenance = build_provenance("deadline_performance", frame, parameters)
+    provenance = build_provenance("deadline_performance", canonical, parameters)
     provenance.cohort_definition = cohort
     return YieldResult(
         name="Fixed deadline miss rate",

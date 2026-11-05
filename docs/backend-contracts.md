@@ -6,13 +6,14 @@ PyArrow Tables through a shared Narwhals boundary. Unsupported inputs raise
 or non-string column identities fail explicitly. Lazy/distributed plans are never
 collected. Canonical CSV/domain ingestion still materializes Polars.
 
-Data-quality inspection and normalization are the first migrated analytical
-path. They select declared columns into a detached Polars frame and use Pandera
-only through LSS4PY's private structural-validation adapter. Reports continue
-to identify the caller's original backend, retain the complete source column
-list and use source row positions rather than pandas indexes. Other analytical
-kernels remain on their existing Narwhals execution path until their bounded
-Phase 5 migrations complete.
+All tabular analytical paths select their declared columns into detached
+canonical Polars frames. Data-quality operations use Pandera only through
+LSS4PY's private structural-validation adapter; numerical kernels use shared
+Polars extraction primitives. Results continue to identify the caller's original
+backend, retain semantic source-schema fingerprints and use source row positions
+rather than pandas indexes. Narwhals is confined to private eager-input
+recognition, conversion to canonical Polars and native-backend restoration for
+explicit preparation outputs.
 
 Typed `NumericEventLog` reconstruction has its own method-specific observation
 contract and canonical frame; it does not pretend to accept arbitrary native

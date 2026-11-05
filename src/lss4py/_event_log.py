@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-import narwhals as nw
 import numpy as np
 import polars as pl
 
+from lss4py._frames import CanonicalFrame, canonical_frame, eager_frame
 from lss4py.domain import EventLogBindingsIR, IntervalEventLog, ProcessModelIR
-from lss4py.errors import ValidationError
+from lss4py.errors import UnsupportedInputError, ValidationError
 
 CANONICAL_EVENT_LOG_COLUMNS = (
     "case_id",
@@ -45,21 +45,6 @@ def _required_binding_columns(bindings: EventLogBindingsIR) -> tuple[str, str, s
             "Interval event logs require case_id, step_id, started_at, and completed_at bindings."
         )
     return cast(tuple[str, str, str, str], values)
-
-
-def event_log_bindings_available(
-    frame: nw.DataFrame,
-    process_model: ProcessModelIR | None,
-) -> bool:
-    """Return whether a process model supplies complete bindings present in a frame."""
-    if process_model is None:
-        return False
-
-    try:
-        required = _required_binding_columns(process_model.bindings.event_log)
-    except ValidationError:
-        return False
-    return all(column in frame.columns for column in required)
 
 
 def _datetime_expression(frame: pl.DataFrame, column: str, alias: str) -> pl.Expr:
@@ -149,31 +134,24 @@ def _validate_overlaps(frame: pl.DataFrame, process_model: ProcessModelIR) -> No
         )
 
 
-def _to_polars(data: Any) -> pl.DataFrame:
-    """Materialize a supported eager interval input as Polars."""
+def _canonical_event_frame(data: Any, columns: tuple[str, ...] | None = None) -> CanonicalFrame:
+    """Materialize supported eager interval input through the canonical boundary."""
+    native_input = data.to_polars(copy=False) if isinstance(data, IntervalEventLog) else data
     try:
-        native_input = data.to_polars(copy=False) if isinstance(data, IntervalEventLog) else data
-        portable_frame = nw.from_native(native_input, eager_only=True)
-        native_frame = portable_frame.to_native()
-        if isinstance(native_frame, pl.DataFrame):
-            return native_frame
-        # pandas string columns can export missing values as NaN. Preserve the
-        # portable null mask before Polars infers strings such as "NaN" as IDs.
-        records = {
-            column: [
-                None if missing else value
-                for value, missing in zip(
-                    portable_frame[column].to_list(),
-                    portable_frame[column].is_null().to_list(),
-                    strict=True,
-                )
-            ]
-            for column in portable_frame.columns
-        }
-        return pl.DataFrame(records, strict=False)
-    except Exception as exc:
+        source = eager_frame(native_input)
+    except (UnsupportedInputError, ValidationError, TypeError, pl.exceptions.PolarsError) as exc:
         raise ValidationError(
             "Interval event-log data must be an eager pandas, Polars, or PyArrow frame."
+        ) from exc
+    selected = tuple(source.columns) if columns is None else columns
+    missing = [column for column in selected if column not in source.columns]
+    if missing:
+        raise ValidationError("Missing required event-log columns: " + ", ".join(missing))
+    try:
+        return canonical_frame(native_input, selected)
+    except (UnsupportedInputError, TypeError, pl.exceptions.PolarsError) as exc:
+        raise ValidationError(
+            "Interval event-log data could not be materialized as canonical Polars."
         ) from exc
 
 
@@ -184,8 +162,21 @@ def normalize_interval_event_log(
     process_model: ProcessModelIR | None = None,
 ) -> pl.DataFrame:
     """Normalize eager dataframe input to a validated Polars interval-event frame."""
-    frame = _to_polars(data)
+    canonical = _canonical_event_frame(data)
+    return _normalize_interval_event_frame(
+        canonical.to_polars(copy=False),
+        bindings=bindings,
+        process_model=process_model,
+    )
 
+
+def _normalize_interval_event_frame(
+    frame: pl.DataFrame,
+    *,
+    bindings: EventLogBindingsIR,
+    process_model: ProcessModelIR | None = None,
+) -> pl.DataFrame:
+    """Normalize and validate an already detached Polars interval frame."""
     case_column, step_column, start_column, end_column = _required_binding_columns(bindings)
     required = (case_column, step_column, start_column, end_column)
     missing = [column for column in required if column not in frame.columns]
@@ -229,12 +220,16 @@ def event_log_lead_time(
     *,
     process_model: ProcessModelIR,
     seconds_per_unit: float,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[CanonicalFrame, np.ndarray, np.ndarray]:
     """Calculate per-case elapsed time and keys from an interval event log."""
     bindings = process_model.bindings.event_log
-    case_column, _, start_column, end_column = _required_binding_columns(bindings)
-    frame = normalize_interval_event_log(
+    case_column, step_column, start_column, end_column = _required_binding_columns(bindings)
+    canonical = _canonical_event_frame(
         data,
+        (case_column, step_column, start_column, end_column),
+    )
+    frame = _normalize_interval_event_frame(
+        canonical.to_polars(copy=False),
         bindings=bindings,
         process_model=process_model,
     )
@@ -253,4 +248,4 @@ def event_log_lead_time(
         .to_numpy()
     )
     keys = summary.get_column(case_column).to_numpy()
-    return keys, values
+    return canonical, keys, values

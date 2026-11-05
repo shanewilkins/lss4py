@@ -5,13 +5,13 @@ from __future__ import annotations
 from numbers import Real
 from typing import Any, Literal
 
-import narwhals as nw
 import numpy as np
 import scipy
 from scipy import stats
 
-from lss4py._frames import eager_frame
-from lss4py._kernels._helpers import build_provenance, measurement_values
+from lss4py._frames import CanonicalFrame, canonical_frame
+from lss4py._kernels._helpers import build_provenance
+from lss4py._polars_extract import measurement_values
 from lss4py.domain import AssumptionNote, CapabilityResult, Specification
 from lss4py.errors import ValidationError
 from lss4py.guidance import AnalysisSuitability, register_analysis
@@ -150,7 +150,7 @@ def _z_distance(result: CapabilityResult, shift: float) -> None:
 
 
 def _result(
-    frame: nw.DataFrame,
+    frame: CanonicalFrame,
     specification: Specification,
     parameters: dict[str, Any],
     total: int,
@@ -252,7 +252,8 @@ def capability_indices(
     _specification(specification)
     _options(missing, ci, confidence_level)
     shift = _sigma_shift(sigma_shift)
-    frame = eager_frame(data)
+    canonical = canonical_frame(data, (column,))
+    frame = canonical.to_polars(copy=False)
     values = measurement_values(frame, column)
     valid = values[~np.isnan(values)]
     if missing == "raise" and len(valid) != len(values):
@@ -270,7 +271,7 @@ def capability_indices(
         "cp_interval_method": "chi_square",
         "cpk_interval_method": "normal_approximation",
     }
-    result = _result(frame, specification, parameters, len(values), len(valid))
+    result = _result(canonical, specification, parameters, len(values), len(valid))
     if result.missing:
         _warn(result, "MISSING_OMITTED", f"Excluded {result.missing} null/NaN measurements.")
     if len(valid) < 2:

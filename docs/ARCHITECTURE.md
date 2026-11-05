@@ -21,15 +21,20 @@ Eager pandas / Polars / PyArrow ──────┤
 ProcessModelIR ───────────────▶ public analysis functions
                                       │
                                       ▼
+                         canonical Polars columns
+                                      │
+                                      ▼
                               private _kernels
                                       │
                                       ▼
                          typed AnalyticalResult models
 ```
 
-Polars is the concrete ingestion and interval-log materialization engine. Narwhals
-is the compatibility boundary for supported eager analytical inputs. Numerical
-primitives may use NumPy, SciPy, or statsmodels behind LSS4PY result contracts.
+Polars is the concrete ingestion, validation and analytical execution engine.
+Narwhals is confined to the private `_frames.py` compatibility boundary, where it
+recognizes supported eager inputs, copies selected columns to Polars and restores
+native output for explicit preparation operations. Numerical primitives may use
+NumPy, SciPy, or statsmodels behind LSS4PY result contracts.
 
 ## Analytical ownership
 
@@ -215,12 +220,15 @@ See [duration units](duration-units.md) and [ADR-0027](adr/0027-explicit-duratio
 | Integration | Domain contracts, errors, portable JSON | Kernels, adapters, workflows, reporting, observability, CLI, guidance |
 | CLI | Package-root public API | Adapters and private kernels |
 
-`lint_imports_config.ini` enforces the corresponding forbidden-import contracts.
+`lint_imports_config.ini` enforces the corresponding layer contracts.
+`tests/test_dataframe_boundary.py` additionally prevents Narwhals imports outside
+the private frame recognition and conversion boundary.
 
 ## Backend support policy
 
 - Core file adapters materialize eager Polars frames.
-- Public tabular analyses accept governed eager inputs through Narwhals.
+- Public tabular analyses recognize governed eager inputs through Narwhals and
+  execute selected analytical columns on detached canonical Polars frames.
 - pandas and Polars require parity tests for every claimed tabular method.
 - PyArrow passes the declared current eager contracts, including ISO/native timestamp precision. Unsupported shapes remain outside the accepted boundary.
 - Lazy, streaming, and distributed inputs are out of scope until a separate ADR

@@ -10,9 +10,7 @@ from math import isfinite
 from numbers import Integral, Real
 from typing import TYPE_CHECKING, Any
 
-import narwhals as nw
-
-from lss4py._frames import detect_backend, eager_frame
+from lss4py._frames import canonical_frame, eager_frame, replace_native_columns
 from lss4py.domain.units import DurationConversion
 from lss4py.errors import ValidationError
 
@@ -113,14 +111,13 @@ def convert_duration_columns(
     selected = _columns(columns, frame.columns)
     if not len(frame):
         raise ValidationError("Duration conversion requires at least one observation.")
+    canonical = canonical_frame(data, selected)
+    polars_frame = canonical.to_polars(copy=False)
     factor = float(_registry().Quantity(1.0, source).to(target).magnitude)
-    replacements = [
-        nw.new_series(
-            name, _converted(frame[name].to_list(), factor, name), backend=frame.implementation
-        )
-        for name in selected
-    ]
-    result = frame.with_columns(*replacements)
+    replacements = {
+        name: _converted(polars_frame[name].to_list(), factor, name) for name in selected
+    }
+    result = replace_native_columns(data, replacements)
     evidence = {
         "result_type": "DurationConversion",
         "schema_version": "1.0",
@@ -135,8 +132,8 @@ def convert_duration_columns(
         "calendar_conversion": "none",
         "row_count": len(frame),
         "source_rows": list(range(len(frame))),
-        "backend": detect_backend(frame),
+        "backend": canonical.source_backend,
         "registry": "lss4py.private.duration.v1",
         "software_versions": {"pint": version("pint")},
     }
-    return DurationConversion(result.to_native(), json.dumps(evidence, allow_nan=False, indent=2))
+    return DurationConversion(result, json.dumps(evidence, allow_nan=False, indent=2))

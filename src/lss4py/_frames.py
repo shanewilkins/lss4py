@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Iterable
 from copy import deepcopy
 from dataclasses import dataclass
@@ -27,6 +29,7 @@ class CanonicalFrame:
     source_row_count: int
     selected_columns: tuple[str, ...]
     source_positions: tuple[int, ...] | None
+    source_schema_fingerprint: str
     execution_backend: Literal["polars"] = "polars"
 
     def to_polars(self, *, copy: bool = True) -> pl.DataFrame:
@@ -94,6 +97,7 @@ def canonical_frame(
         row_count,
         selected,
         tuple(range(row_count)) if retain_source_positions else None,
+        semantic_schema_fingerprint(frame),
     )
 
 
@@ -125,3 +129,27 @@ def _materialize_polars(frame: nw.DataFrame, backend: Backend) -> pl.DataFrame:
         else:
             columns.append(frame.select(name).to_polars()[name].clone())
     return pl.DataFrame(columns)
+
+
+def semantic_schema_fingerprint(frame: nw.DataFrame) -> str:
+    """Hash ordered names and backend-neutral logical dtypes."""
+    schema = [(name, _dtype_kind(dtype)) for name, dtype in frame.schema.items()]
+    return hashlib.sha256(json.dumps(schema, separators=(",", ":")).encode()).hexdigest()
+
+
+def replace_native_columns(data: Any, replacements: dict[str, list[Any]]) -> Any:
+    """Return a new native eager frame with replacement columns in source order."""
+    frame = eager_frame(data)
+    series = [
+        nw.new_series(name, values, backend=frame.implementation)
+        for name, values in replacements.items()
+    ]
+    return frame.with_columns(*series).to_native()
+
+
+def _dtype_kind(dtype: Any) -> str:
+    if dtype.is_numeric():
+        return "numeric"
+    if isinstance(dtype, nw.Datetime):
+        return f"datetime:{dtype.time_zone}"
+    return str(dtype)

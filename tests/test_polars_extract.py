@@ -2,18 +2,11 @@
 
 from datetime import date
 
-import narwhals as nw
 import numpy as np
 import polars as pl
 import pytest
 
-from lss4py._kernels._contracts import row_identity
-from lss4py._kernels._helpers import (
-    binary_stage_series as legacy_binary_stage_series,
-)
-from lss4py._kernels._helpers import measurement_values as legacy_measurement_values
-from lss4py._kernels._helpers import numeric_series as legacy_numeric_series
-from lss4py._kernels.descriptive import _group_value, _groups
+from lss4py._kernels.descriptive import _group_value
 from lss4py._polars_extract import (
     binary_stage_values,
     first_observed_groups,
@@ -35,12 +28,14 @@ from lss4py.errors import ValidationError
         [None, None, None, None],
     ],
 )
-def test_measurement_values_match_legacy_extraction(values):
+def test_measurement_values_retain_nullable_float_semantics(values):
     """Retain nullable float arrays and numerical values exactly."""
     frame = pl.DataFrame({"value": values})
-    expected = legacy_measurement_values(nw.from_native(frame), "value")
     actual = measurement_values(frame, "value")
-    np.testing.assert_equal(actual, expected)
+    np.testing.assert_equal(
+        actual,
+        np.asarray([np.nan if value is None else value for value in values], dtype=float),
+    )
 
 
 @pytest.mark.parametrize(
@@ -56,25 +51,17 @@ def test_measurement_values_retain_governed_failures(values, message):
     frame = pl.DataFrame({"value": values})
     with pytest.raises(ValidationError, match=message):
         measurement_values(frame, "value")
-    with pytest.raises(ValidationError, match=message):
-        legacy_measurement_values(nw.from_native(frame), "value")
 
 
 @pytest.mark.parametrize("values", [[0.0, 2.5], [-1.0, 2.0], [1.0, None]])
-def test_nonnegative_measurements_match_legacy(values):
+def test_nonnegative_measurements_retain_complete_domain(values):
     """Share completeness, finiteness, and nonnegative policy."""
     frame = pl.DataFrame({"value": values})
-    legacy = nw.from_native(frame)
     if any(value is None or value < 0 for value in values):
         with pytest.raises(ValidationError):
             nonnegative_measurements(frame, "value")
-        with pytest.raises(ValidationError):
-            legacy_numeric_series(legacy, "value")
     else:
-        np.testing.assert_equal(
-            nonnegative_measurements(frame, "value"),
-            legacy_numeric_series(legacy, "value"),
-        )
+        np.testing.assert_equal(nonnegative_measurements(frame, "value"), values)
 
 
 @pytest.mark.parametrize(
@@ -85,13 +72,10 @@ def test_nonnegative_measurements_match_legacy(values):
         [1.0, 0.0, 1.0],
     ],
 )
-def test_binary_stage_values_match_legacy(values):
+def test_binary_stage_values_retain_exact_binary_domain(values):
     """Accept booleans and exact numeric binary observations."""
     frame = pl.DataFrame({"stage": values})
-    np.testing.assert_equal(
-        binary_stage_values(frame, "stage"),
-        legacy_binary_stage_series(nw.from_native(frame), "stage"),
-    )
+    np.testing.assert_equal(binary_stage_values(frame, "stage"), np.asarray(values, dtype=np.int64))
 
 
 @pytest.mark.parametrize("values", [[1, 0.5], [True, None], [1, None]])
@@ -100,8 +84,6 @@ def test_binary_stage_values_retain_invalid_domains(values):
     frame = pl.DataFrame({"stage": values}, strict=False)
     with pytest.raises(ValidationError):
         binary_stage_values(frame, "stage")
-    with pytest.raises(ValidationError):
-        legacy_binary_stage_series(nw.from_native(frame), "stage")
 
 
 def test_missing_mask_combines_null_nan_and_object_missingness():
@@ -127,16 +109,15 @@ def test_source_positions_apply_only_valid_boolean_masks():
 
 
 @pytest.mark.parametrize("key_column", [None, "key"])
-def test_portable_keys_match_legacy_identity(key_column):
+def test_portable_keys_retain_identity_and_position_metadata(key_column):
     """Preserve keys and positional metadata without backend labels."""
     frame = pl.DataFrame({"key": ["b", "a"], "value": [1, 2]})
-    expected = row_identity(nw.from_native(frame), key_column)
     actual = portable_key_values(frame, key_column)
     if key_column is None:
-        assert actual == expected
+        assert actual == (None, {"row_positions": [0, 1], "key_column": None})
     else:
-        np.testing.assert_equal(actual[0], expected[0])
-        assert actual[1] == expected[1]
+        np.testing.assert_equal(actual[0], np.asarray(["b", "a"], dtype=object))
+        assert actual[1] == {"row_positions": [0, 1], "key_column": "key"}
 
 
 @pytest.mark.parametrize("keys", [["a", "a"], ["", "b"], [1.0, float("inf")], [None, "a"]])
@@ -145,8 +126,6 @@ def test_portable_keys_retain_governed_failures(keys):
     frame = pl.DataFrame({"key": keys}, strict=False)
     with pytest.raises(ValidationError):
         portable_key_values(frame, "key")
-    with pytest.raises(ValidationError):
-        row_identity(nw.from_native(frame), "key")
 
 
 def test_first_observed_groups_match_legacy_order_and_positions():
@@ -163,9 +142,12 @@ def test_first_observed_groups_match_legacy_order_and_positions():
             ],
         }
     )
-    expected = _groups(nw.from_native(frame), ["team", "day"])
     actual = first_observed_groups(frame, ("team", "day"), _group_value)
-    assert [(keys, list(rows)) for keys, rows in actual] == expected
+    assert [(keys, list(rows)) for keys, rows in actual] == [
+        ({"team": "B", "day": "2026-01-02"}, [0, 2]),
+        ({"team": "A", "day": "2026-01-01"}, [1]),
+        ({"team": None, "day": "2026-01-01"}, [3, 4]),
+    ]
 
 
 def test_require_columns_reports_all_missing_in_requested_order():
