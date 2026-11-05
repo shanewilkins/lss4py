@@ -1,10 +1,12 @@
 # Preparing for v0.2
 
-This guide covers the current working tree and proposed v0.2 contract. It is not
-a published-version guarantee. The candidate now consistently reports 0.2.0; there are no local
-release tags establishing a complete published-0.1-to-0.2 API diff. Check the
+This guide covers the current working tree and v0.2 contract. It is not a
+published-version guarantee. The working tree is preparing the 0.2.2
+infrastructure release from the accepted 0.2.1 behavior; package identity changes
+remain part of release preparation. Check the
 [release audit](assessments/v02-release-readiness.md) before upgrading a deployed
-book or application. The draft [release notes](releases/v0.2.0.md) list additions.
+book or application. The draft [0.2.2 release notes](releases/v0.2.2.md) describe
+the canonical dataframe boundary.
 
 ## Public imports and observation models
 
@@ -24,6 +26,10 @@ Polars or supported Arrow inputs directly to governed analytical APIs. Do not
 convert frames merely to satisfy an assumed pandas-index identity contract.
 Bind explicit case fields or retain source positions, and consult the
 [backend limits](backend-contracts.md). Lazy/distributed inputs are unsupported.
+Internally, governed columns are copied into detached canonical Polars frames;
+Pandera supplies private noncoercing structural checks, while public errors and
+analytical semantics remain LSS4PY-owned. No caller migration to Polars is
+required.
 
 ## Explicit preparation
 

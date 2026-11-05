@@ -9,8 +9,12 @@ import pytest
 
 from lss4py import ColumnRule, DataContract, normalize_data, validate_data
 from tests.test_bundles import results
+from tools.capture_dataframe_contract import capture_invalid_contract
 
 BASELINE = Path(__file__).parent / "fixtures" / "canonicalization" / "v0.2.1-neutral-results.json"
+INVALID_BASELINE = (
+    Path(__file__).parent / "fixtures" / "canonicalization" / "v0.2.1-invalid-contract.json"
+)
 
 
 def _neutral(result):
@@ -33,6 +37,11 @@ def test_complete_neutral_result_baseline(frame_factory, assert_equivalent):
         {name: _neutral(result) for name, result in actual.items()},
         expected,
     )
+
+
+def test_invalid_input_acceptance_and_exception_baseline():
+    """Retain pre-canonicalization rejection domains, exception classes, and messages."""
+    assert capture_invalid_contract() == json.loads(INVALID_BASELINE.read_text())
 
 
 def test_pandas_nullable_extension_dtypes_are_preserved_without_mutation():

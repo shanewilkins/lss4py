@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "method": "base_install_cost_comparison",
+  "baseline_revision": "0c217cd9869b3ec162f1e8ff755655cbca76781c",
+  "before": {
+    "schema_version": "1.0",
+    "method": "base_install_evidence",
+    "environment": {
+      "python": "3.14.2",
+      "builder_uv": "uv 0.13.7 (Homebrew 2026-11-03 aarch64-apple-darwin)",
+      "dependency_source": "uv.lock constraints"
+    },
+    "wheel": {
+      "filename": "lss4py-0.2.1-py3-none-any.whl",
+      "size_bytes": 135364
+    },
+    "installed_package_count": 39,
+    "installed_packages": [
+      "Pint",
+      "Pygments",
+      "annotated-types",
+      "certifi",
+      "charset-normalizer",
+      "click",
+      "flexcache",
+      "flexparser",
+      "googleapis-common-protos",
+      "grpcio",
+      "idna",
+      "lss4py",
+      "markdown-it-py",
+      "mdurl",
+      "narwhals",
+      "numpy",
+      "opentelemetry-api",
+      "opentelemetry-exporter-http-transport",
+      "opentelemetry-exporter-otlp",
+      "opentelemetry-exporter-otlp-common",
+      "opentelemetry-exporter-otlp-proto-common",
+      "opentelemetry-exporter-otlp-proto-grpc",
+      "opentelemetry-exporter-otlp-proto-http",
+      "opentelemetry-proto",
+      "opentelemetry-sdk",
+      "opentelemetry-semantic-conventions",
+      "platformdirs",
+      "polars",
+      "polars-runtime-32",
+      "protobuf",
+      "pydantic",
+      "pydantic_core",
+      "requests",
+      "rich",
+      "scipy",
+      "structlog",
+      "typing-inspection",
+      "typing_extensions",
+      "urllib3"
+    ],
+    "core_versions": {
+      "pandera": null,
+      "polars": "2.1.0",
+      "narwhals": "2.28.0"
+    },
+    "pandas_present": false,
+    "pyarrow_present": false,
+    "import_time": {
+      "repeats": 7,
+      "median_seconds": 0.6862875000224449,
+      "observations_seconds": [
+        9.231489999976475,
+        0.7079221250023693,
+        0.6989998330245726,
+        0.6862875000224449,
+        0.6824040409992449,
+        0.6684816250344738,
+        0.6803742909687571
+      ]
+    }
+  },
+  "after": {
+    "schema_version": "1.0",
+    "method": "base_install_evidence",
+    "environment": {
+      "python": "3.14.2",
+      "builder_uv": "uv 0.13.7 (Homebrew 2026-11-03 aarch64-apple-darwin)",
+      "dependency_source": "uv.lock constraints"
+    },
+    "wheel": {
+      "filename": "lss4py-0.2.1-py3-none-any.whl",
+      "size_bytes": 141500
+    },
+    "installed_package_count": 44,
+    "installed_packages": [
+      "Pint",
+      "Pygments",
+      "annotated-types",
+      "certifi",
+      "charset-normalizer",
+      "click",
+      "flexcache",
+      "flexparser",
+      "googleapis-common-protos",
+      "grpcio",
+      "idna",
+      "lss4py",
+      "markdown-it-py",
+      "mdurl",
+      "mypy_extensions",
+      "narwhals",
+      "numpy",
+      "opentelemetry-api",
+      "opentelemetry-exporter-http-transport",
+      "opentelemetry-exporter-otlp",
+      "opentelemetry-exporter-otlp-common",
+      "opentelemetry-exporter-otlp-proto-common",
+      "opentelemetry-exporter-otlp-proto-grpc",
+      "opentelemetry-exporter-otlp-proto-http",
+      "opentelemetry-proto",
+      "opentelemetry-sdk",
+      "opentelemetry-semantic-conventions",
+      "packaging",
+      "pandera",
+      "platformdirs",
+      "polars",
+      "polars-runtime-32",
+      "protobuf",
+      "pydantic",
+      "pydantic_core",
+      "requests",
+      "rich",
+      "scipy",
+      "structlog",
+      "typeguard",
+      "typing-inspect",
+      "typing-inspection",
+      "typing_extensions",
+      "urllib3"
+    ],
+    "core_versions": {
+      "pandera": "0.35.0",
+      "polars": "2.1.0",
+      "narwhals": "2.28.0"
+    },
+    "pandas_present": false,
+    "pyarrow_present": false,
+    "import_time": {
+      "repeats": 7,
+      "median_seconds": 0.6757535829674453,
+      "observations_seconds": [
+        9.08927150000818,
+        0.703561834001448,
+        0.6757535829674453,
+        0.8140617500175722,
+        0.6584822500008158,
+        0.6628851249697618,
+        0.6741267920006067
+      ]
+    }
+  },
+  "differences": {
+    "wheel_size_bytes": 6136,
+    "installed_package_count": 5,
+    "added_packages": [
+      "mypy_extensions",
+      "packaging",
+      "pandera",
+      "typeguard",
+      "typing-inspect"
+    ],
+    "removed_packages": [],
+    "import_median_seconds": -0.01053391705499962,
+    "import_median_ratio": 0.9846508685432052
+  }
+}

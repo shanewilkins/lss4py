@@ -292,3 +292,13 @@ Partial until that target version is actually published and verified; this is a
 postpublication gate, not an omitted prerelease check. No tag/publication or book
 lockfile change was made. The [source-fingerprinted assessment](assessments/v02-release-readiness.json)
 distinguishes prepublication readiness from completed publication.
+
+### 2026-11-05 canonical analytical dataframe boundary
+
+The accepted 0.2.2 infrastructure slice keeps eager pandas, Polars and PyArrow
+inputs while executing governed dataframe work on detached canonical Polars.
+Private Pandera validation does not coerce, mutate or delete source data, and
+Narwhals is restricted to recognition, conversion and native-output restoration.
+ADR-0028 records the decision, requirement reconciliation and measured runtime,
+memory and packaging costs. Release identity and exact-wheel publication gates
+remain in the release-preparation phase.

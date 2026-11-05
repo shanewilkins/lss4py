@@ -1,8 +1,11 @@
 # LSS4PY v0.2 progress and continuation
 
-Updated 2026-11-04. **The 0.2.1 standalone implementation scope is accepted.**
-Package metadata identifies the unreleased 0.2.1 candidate; official publication
-and verification remain pending. The [0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md),
+Updated 2026-11-05. **The 0.2.2 canonical dataframe architecture is accepted.**
+The governed 0.2.1 behavior remains frozen while package identity, final
+distribution checks, tagging, publication and verification remain pending.
+[ADR-0028](adr/0028-canonicalize-supported-eager-analytical-inputs-to-polars.md)
+records the accepted execution boundary and measured costs. The
+[0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md),
 [dated v0.2 acceptance audit](assessments/v02-release-readiness.md), and
 [machine-readable requirement matrix](assessments/v02-release-readiness.json) own
 their verification snapshots. The roadmap continues to own release scope;
@@ -11,7 +14,8 @@ requirement registers own status and criteria.
 ## Implemented and verified
 
 The private kernel boundary, explicit root exports, typed calculation results,
-Polars ingestion and optional eager analytical backends are implemented. Shared
+Polars ingestion, canonical Polars analytical execution and optional eager
+analytical backends are implemented. Shared
 backend contracts cover the original metrics and prepared book calculations;
 PyArrow now passes the supported ISO/native and measurement contracts. [Data quality](data-quality.md),
 [CTQs/specifications](specifications.md), thirteen registered

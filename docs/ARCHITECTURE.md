@@ -2,7 +2,7 @@
 
 **Document status:** Approved
 
-**Last updated:** 2026-10-23
+**Last updated:** 2026-11-05
 
 **Audience:** Maintainers, contributors, and auditors
 
@@ -30,7 +30,10 @@ ProcessModelIR ───────────────▶ public analysis 
                          typed AnalyticalResult models
 ```
 
-Polars is the concrete ingestion, validation and analytical execution engine.
+Polars is the concrete ingestion and analytical execution engine. Pandera
+provides private, noncoercing structural validation over canonical Polars;
+LSS4PY retains public validation and analytical semantics under
+[ADR-0028](adr/0028-canonicalize-supported-eager-analytical-inputs-to-polars.md).
 Narwhals is confined to the private `_frames.py` compatibility boundary, where it
 recognizes supported eager inputs, copies selected columns to Polars and restores
 native output for explicit preparation operations. Numerical primitives may use

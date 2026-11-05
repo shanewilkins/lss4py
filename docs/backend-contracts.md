@@ -13,7 +13,8 @@ Polars extraction primitives. Results continue to identify the caller's original
 backend, retain semantic source-schema fingerprints and use source row positions
 rather than pandas indexes. Narwhals is confined to private eager-input
 recognition, conversion to canonical Polars and native-backend restoration for
-explicit preparation outputs.
+explicit preparation outputs. This source-versus-execution boundary is governed by
+[ADR-0028](adr/0028-canonicalize-supported-eager-analytical-inputs-to-polars.md).
 
 Typed `NumericEventLog` reconstruction has its own method-specific observation
 contract and canonical frame; it does not pretend to accept arbitrary native

@@ -318,6 +318,19 @@ At completion:
 
 ## Phase 6: differential and performance evidence
 
+**Status:** Complete. The original neutral result payload remains exact across
+pandas, hostile-index pandas, Polars and PyArrow. A 13-case invalid-domain fixture
+captured directly from the pre-migration commit retains acceptance/rejection,
+exception classes and messages. Reproducible tools record six backend/shape
+conversion, validation, analysis and memory scenarios plus isolated base-wheel
+size, package count, import time, exact core dependency versions and optional
+backend absence. A Phase 1 before/after comparison records 10–39 ms of public
+validation overhead, 0.5–9.3 ms of `describe` overhead, 25–37 MiB more isolated
+process high-water memory, a 6,136-byte larger wheel and five added runtime
+distributions. All local budgets pass, the locked 103-distribution audit reports
+zero known vulnerabilities and no differential was waived. See
+`docs/assessments/v022-canonicalization-evidence.md`.
+
 Compare the old and new implementations over the governed corpus:
 
 - result values;
@@ -348,6 +361,15 @@ Record dependency and packaging effects:
 - confirmation that pandas and PyArrow do not leak into the base installation.
 
 ## Phase 7: ADR and governance
+
+**Status:** Complete. ADR-0028 accepts canonical Polars analytical execution,
+confines Narwhals to recognition/conversion/native restoration, makes Pandera
+private noncoercing validation machinery and records source-versus-execution
+provenance, identity, lazy-input and allocation policies. ADR-0018 is linked as
+partially superseded for analytical execution. UR-015 and TR-002/TR-010/TR-014/
+TR-017/TR-022 are reconciled, and architecture, backend, data-quality, extension,
+migration, roadmap/progress, documentation-index and draft release-note surfaces
+link the accepted decision.
 
 After implementation satisfies the differential and performance gates, add an
 accepted ADR titled approximately:

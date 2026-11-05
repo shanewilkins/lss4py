@@ -110,7 +110,9 @@ The FLO side supplies a normalized process model IR.
 
 The observed-data side recognizes supported eager dataframe inputs through a
 private Narwhals boundary and executes selected analytical columns on detached
-canonical Polars frames. Core file ingestion materializes validated Polars frames by default, as recorded in
+canonical Polars frames under
+[ADR-0028](docs/adr/0028-canonicalize-supported-eager-analytical-inputs-to-polars.md).
+Core file ingestion materializes validated Polars frames by default, as recorded in
 [ADR-0018](docs/adr/0018-use-polars-as-the-canonical-ingestion-backend.md). pandas
 remains an optional analytical-input backend rather than the package's canonical
 storage contract. See the [backend contract guide](docs/backend-contracts.md)

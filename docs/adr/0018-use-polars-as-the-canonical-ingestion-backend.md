@@ -6,6 +6,7 @@
 - Related requirements: UR-014, UR-015, UR-016, TR-002, TR-013, TR-014,
   TR-015, TR-017
 - Clarifies: ADR-0004, ADR-0008, ADR-0009, ADR-0017
+- Partially superseded by: ADR-0028 (analytical execution only)
 
 ## Context
 

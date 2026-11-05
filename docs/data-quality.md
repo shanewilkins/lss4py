@@ -11,7 +11,8 @@ noncoercing Pandera schema for structural checks. LSS4PY translates those
 findings into its own issue codes and retains ownership of timestamp parsing,
 portable key identity, units and cross-column semantics. Pandera is loaded only
 when a data-quality operation runs; importing LSS4PY does not activate a Pandera
-backend or mutate its global configuration.
+backend or mutate its global configuration. ADR-0028 governs this private
+validation and canonical execution boundary.
 
 ## Declare the checks
 

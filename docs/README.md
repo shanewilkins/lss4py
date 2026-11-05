@@ -15,6 +15,8 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
   separates method-specific analytical inputs, adapter formatting, and future OCEL interchange.
 - [Architecture decision records](adr/README.md) record durable technical and
   product-architecture decisions.
+- [Canonical analytical dataframe decision](adr/0028-canonicalize-supported-eager-analytical-inputs-to-polars.md)
+  records broad eager inputs, private Pandera validation and canonical Polars execution.
 - [Ecosystem integration decisions](adr/0022-ecosystem-integration-contracts-and-journey-gates.md)
   record the bridge, exchange/evidence contracts and two journey-protection test
   gates; ADR-0023 resolves plotting, and fishbone renderer ownership remains open.
@@ -27,8 +29,11 @@ LSS4PY. It distinguishes current repository evidence from intended future scope.
   defines the approved dataframe-validation infrastructure release before moving-range work.
 - [v0.2.2 canonicalization baseline](assessments/v022-canonicalization-baseline.md)
   freezes the accepted 0.2.1 behavior and Phase 1 verification evidence.
+- [v0.2.2 canonicalization evidence](assessments/v022-canonicalization-evidence.md)
+  records exact differential results and measured performance and packaging costs.
 - [v0.2 release-readiness audit](assessments/v02-release-readiness.md) records acceptance blockers and verified release gates.
-- [v0.2.1 release notes](releases/v0.2.1.md) and [migration guide](migration-v0.2.md) describe the published contract.
+- [Draft v0.2.2 release notes](releases/v0.2.2.md), [v0.2.1 release notes](releases/v0.2.1.md)
+  and the [migration guide](migration-v0.2.md) describe the current release contract.
 - [v0.2.1 FLO-backed White Belt plan](plans/v021-flo-white-belt.md) records the completed standalone sprint.
 - [v0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md) records final local gates and release handoff; [release notes](releases/v0.2.1.md) describe the selected candidate.
 - [White Belt book sprint plan](plans/white-belt-book-preview.md) splits current
