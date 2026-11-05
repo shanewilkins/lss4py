@@ -220,6 +220,14 @@ validation copy does not make public normalization Polars-only.
 
 ### 5.2 Shared extraction
 
+**Status:** Complete. A private Polars-only extraction module now defines
+required-column errors, null/NaN masks, nullable and strict-nonnegative numeric
+arrays, exact binary stages, source-position masks, portable keys and
+first-observed composite groups. Differential tests compare every primitive
+with the current Narwhals kernel behavior. Phase 5.3 migrates analytical
+families onto these helpers in bounded batches; the legacy helpers remain only
+until their callers move.
+
 Replace repeated Narwhals analytical extraction with shared Polars helpers for:
 
 - numeric measurements;
