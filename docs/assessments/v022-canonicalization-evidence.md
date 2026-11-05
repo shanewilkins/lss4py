@@ -17,7 +17,8 @@ The complete neutral result fixture remains byte-identical:
 - backends: pandas, pandas with hostile indexes, Polars and PyArrow; and
 - comparison: every represented result value, missing count, warning, source
   position, key/group order, semantic schema fingerprint and provenance field,
-  excluding only creation time, source backend name and backend version.
+  excluding creation time, source backend name, backend version and, after the
+  0.2.2 identity selection, the intentionally changed package version.
 
 The invalid-domain fixture was executed directly against the original commit:
 

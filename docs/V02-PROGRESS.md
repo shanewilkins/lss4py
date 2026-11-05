@@ -52,13 +52,11 @@ requirements Satisfied and only TR-038 Partial for actual publication.
 
 ## Next work, in order
 
-1. Re-run the governed source, distribution and exact-wheel gates for the selected
-   0.2.1 identity. The accepted sprint snapshot remains historical evidence for
-   the pre-version-selection implementation.
-2. Tag/publish 0.2.1 through the governed workflow. It requires source quality/Arrow,
-   metadata/version identity and installed-wheel checks, then verifies the exact
-   official PyPI package in a fresh environment. This has not run for 0.2.1.
-3. Update the sibling book's normal package dependency/lockfile and render Chapter 9
+1. Tag/publish the locally verified 0.2.2 candidate through the governed workflow,
+   which rebuilds and rechecks the distributions before upload and then verifies
+   the exact official PyPI package in a fresh environment. Publication and
+   official-index verification have not run for 0.2.2.
+2. Update the sibling book's normal package dependency/lockfile and render Chapter 9
    after that official package is verified. UR-046/TR-045 retain this book gap;
    no local source override replaces publication integration.
 

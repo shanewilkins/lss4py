@@ -18,10 +18,11 @@ INVALID_BASELINE = (
 
 
 def _neutral(result):
-    """Remove only computation time and source-backend identity."""
+    """Remove computation, source-backend, and release identity."""
     payload = result.to_dict()
     payload["provenance"].pop("backend")
     payload["provenance"].pop("created_at")
+    payload["provenance"].pop("package_version")
     payload["provenance"]["parameters"].pop("backend_version", None)
     return payload
 
@@ -32,6 +33,8 @@ def _neutral(result):
 def test_complete_neutral_result_baseline(frame_factory, assert_equivalent):
     """Freeze every current result family before changing dataframe execution."""
     expected = json.loads(BASELINE.read_text())
+    for payload in expected.values():
+        payload["provenance"].pop("package_version")
     actual, _ = results(frame_factory)
     assert_equivalent(
         {name: _neutral(result) for name, result in actual.items()},

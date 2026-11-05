@@ -22,6 +22,9 @@ The neutral fixture records complete payloads for every current result family
 represented by the governed bundle tests. It removes only nondeterministic
 creation time and source-backend identity. Differential tests reproduce the
 fixture from ordinary pandas, hostile-index pandas, Polars and PyArrow inputs.
+The fixture retains the 0.2.1 package version as historical evidence; comparisons
+after release identity selection remove that one field while separately requiring
+the current result provenance to report the current package version.
 
 ## Characterized dataframe behavior
 

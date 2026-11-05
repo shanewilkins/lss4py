@@ -1,6 +1,6 @@
 [project]
 name = "lss4py"
-version = "0.2.1"
+version = "0.2.2"
 description = "Python-first Lean Six Sigma analytics for telemetry-rich process improvement"
 readme = "README.md"
 license = "MIT"

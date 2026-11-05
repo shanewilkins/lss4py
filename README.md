@@ -8,11 +8,12 @@ It is not yet a full SPC, capability, simulation, or deliverables platform.
 
 ## Release status
 
-The working tree prepares the unreleased **0.2.1 candidate**. The
-[v0.2.1 sprint acceptance](docs/assessments/v021-sprint-acceptance.md)
-records the accepted standalone implementation scope. Version 0.2.1 is published
-and verified from PyPI. Post-release work is building the v0.3 Yellow Belt MVP. See the
-[release notes](docs/releases/v0.2.1.md) and [migration guide](docs/migration-v0.2.md).
+The working tree prepares the unreleased **0.2.2 candidate**. Version 0.2.1 is
+published and verified from PyPI; the new candidate adds the accepted canonical
+Polars analytical boundary without changing governed results. See the
+[draft 0.2.2 release notes](docs/releases/v0.2.2.md), [canonicalization
+evidence](docs/assessments/v022-canonicalization-evidence.md), and
+[migration guide](docs/migration-v0.2.md).
 
 ## Stable Today
 
@@ -388,7 +389,7 @@ CI and the release build also require the
 and the candidate LSS4PY wheel. Run it with
 `uv run --locked python tools/check_wheel.py --ecosystem`.
 To verify an already built release artifact without rebuilding it, pass
-`--wheel dist/lss4py-0.2.1-py3-none-any.whl`. Add `--artifacts-dir artifacts/ecosystem`
+`--wheel dist/lss4py-0.2.2-py3-none-any.whl`. Add `--artifacts-dir artifacts/ecosystem`
 to retain per-installation JUnit reports, the tested wheel's SHA-256 and ecosystem
 evidence. CI retains source JUnit/coverage XML and installed-wheel reports for 14 days.
 
