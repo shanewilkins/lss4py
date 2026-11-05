@@ -93,6 +93,28 @@ def test_invalid_integer_does_not_also_report_a_bound_failure():
     assert [(issue.code, issue.rows) for issue in issues] == [("INVALID_INTEGER", (0,))]
 
 
+def test_object_scalars_receive_row_level_structural_issues():
+    """Validate heterogeneous canonical objects without rejecting valid neighbors."""
+    frame = pl.DataFrame(
+        [
+            pl.Series(
+                "value",
+                [1, 2.5, True, "3", float("inf"), float("nan")],
+                dtype=pl.Object,
+            )
+        ]
+    )
+    issues = validate_frame(
+        frame,
+        DataContract((ColumnRule("value", minimum=0, nullable=True),)),
+    )
+    assert [(issue.code, issue.severity, issue.rows) for issue in issues] == [
+        ("INVALID_TYPE", "error", (2, 3)),
+        ("NONFINITE", "error", (4,)),
+        ("MISSING_VALUES", "warning", (5,)),
+    ]
+
+
 def test_missing_columns_and_nullable_source_positions_are_stable():
     """Retain governed missingness severity and caller source positions."""
     contract = DataContract(

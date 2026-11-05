@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -77,8 +78,6 @@ def canonical_frame(
     if not isinstance(retain_source_positions, bool):
         raise ValidationError("retain_source_positions must be boolean.")
     requested = tuple(columns)
-    if not requested:
-        raise ValidationError("Canonicalization requires at least one selected column.")
     if any(not isinstance(name, str) for name in requested):
         raise ValidationError("Selected column names must be strings.")
     selected = tuple(dict.fromkeys(requested))
@@ -103,4 +102,26 @@ def _materialize_polars(frame: nw.DataFrame, backend: Backend) -> pl.DataFrame:
     if backend == "pandas":
         native: Any = frame.to_native()
         frame = nw.from_native(native.copy(deep=True), eager_only=True)
-    return frame.to_polars().clone()
+    columns = []
+    for name, dtype in frame.schema.items():
+        if backend == "pandas" or dtype == nw.Object:
+            series = frame[name]
+            values = [
+                None if missing else deepcopy(value)
+                for value, missing in zip(
+                    series.to_list(),
+                    series.is_null().to_list(),
+                    strict=True,
+                )
+            ]
+            columns.append(
+                pl.Series(
+                    name,
+                    values,
+                    dtype=pl.Object if dtype == nw.Object else None,
+                    strict=True,
+                )
+            )
+        else:
+            columns.append(frame.select(name).to_polars()[name].clone())
+    return pl.DataFrame(columns)

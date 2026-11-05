@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Callable
+from datetime import datetime
+from math import isfinite, isnan
+from numbers import Integral, Real
 from typing import Any
 
 import pandera.polars as pa
@@ -113,8 +116,10 @@ def _missing_expression(name: str, dtype: pl.DataType) -> pl.Expr:
     return expression | pl.col(name).is_nan() if dtype.is_float() else expression
 
 
-def _missing_check(data: Any) -> pl.LazyFrame:
+def _missing_check(data: Any) -> bool | pl.LazyFrame:
     dtype = _dtype(data)
+    if dtype == pl.Object:
+        return _object_check(data, lambda value: not _missing_value(value))
     return data.lazyframe.select(~_missing_expression(data.key, dtype))
 
 
@@ -123,6 +128,11 @@ def _kind_check(kind: str) -> Callable[[Any], bool | pl.LazyFrame]:
         dtype = _dtype(data)
         if dtype == pl.Null:
             return True
+        if dtype == pl.Object:
+            return _object_check(
+                data,
+                lambda value: _missing_value(value) or _value_has_kind(value, kind),
+            )
         base = dtype.base_type()
         if kind in ("numeric", "integer"):
             valid = _numeric_dtype(dtype)
@@ -141,6 +151,13 @@ def _kind_check(kind: str) -> Callable[[Any], bool | pl.LazyFrame]:
 
 def _finite_check(data: Any) -> bool | pl.LazyFrame:
     dtype = _dtype(data)
+    if dtype == pl.Object:
+        return _object_check(
+            data,
+            lambda value: (
+                _missing_value(value) or not _value_has_kind(value, "numeric") or isfinite(value)
+            ),
+        )
     if not _numeric_dtype(dtype):
         return True
     missing = _missing_expression(data.key, dtype)
@@ -149,6 +166,8 @@ def _finite_check(data: Any) -> bool | pl.LazyFrame:
 
 def _integer_check(data: Any) -> bool | pl.LazyFrame:
     dtype = _dtype(data)
+    if dtype == pl.Object:
+        return _object_check(data, _valid_object_integer)
     if dtype.is_integer():
         return True
     if not dtype.is_float():
@@ -168,6 +187,16 @@ def _bound_check(
 ) -> Callable[[Any], bool | pl.LazyFrame]:
     def check(data: Any) -> bool | pl.LazyFrame:
         dtype = _dtype(data)
+        if dtype == pl.Object:
+            return _object_check(
+                data,
+                lambda value: _valid_object_bound(
+                    value,
+                    bound,
+                    minimum=minimum,
+                    integer=integer,
+                ),
+            )
         if not _numeric_dtype(dtype):
             return True
         column = pl.col(data.key)
@@ -185,6 +214,49 @@ def _bound_check(
 def _numeric_dtype(dtype: pl.DataType) -> bool:
     """Match the existing Python Real contract without accepting Decimal storage."""
     return dtype.is_integer() or dtype.is_float()
+
+
+def _object_check(data: Any, predicate: Callable[[Any], bool]) -> bool:
+    values = data.lazyframe.select(data.key).collect()[data.key].to_list()
+    return all(predicate(value) for value in values)
+
+
+def _missing_value(value: Any) -> bool:
+    return value is None or isinstance(value, float) and isnan(value)
+
+
+def _value_has_kind(value: Any, kind: str) -> bool:
+    if kind in ("numeric", "integer"):
+        return isinstance(value, Real) and not isinstance(value, bool)
+    if kind == "string":
+        return isinstance(value, str)
+    if kind == "boolean":
+        return isinstance(value, bool)
+    return isinstance(value, (str, datetime))
+
+
+def _valid_object_integer(value: Any) -> bool:
+    if _missing_value(value) or not _value_has_kind(value, "integer"):
+        return True
+    if isinstance(value, Integral):
+        return True
+    if not isfinite(value):
+        return True
+    return value == int(value) and -(2**53) <= value <= 2**53
+
+
+def _valid_object_bound(
+    value: Any,
+    bound: float,
+    *,
+    minimum: bool,
+    integer: bool,
+) -> bool:
+    if _missing_value(value) or not _value_has_kind(value, "numeric"):
+        return True
+    if not isfinite(value) or integer and not _valid_object_integer(value):
+        return True
+    return value >= bound if minimum else value <= bound
 
 
 def _positions(count: int, positions: tuple[int, ...] | None) -> tuple[int, ...]:
@@ -225,7 +297,7 @@ def _translate(
         if column is not None and index is not None:
             failures[(column, check)].add(index)
         elif column is not None:
-            failures[(column, check)].update(_present_rows(frame, column))
+            failures[(column, check)].update(_failed_rows(frame, contract, column, check))
 
     issues: list[DataIssue] = []
     for rule in contract.columns:
@@ -309,10 +381,59 @@ def _type_code(rule: ColumnRule) -> str:
 
 def _present_rows(frame: pl.DataFrame, column: str) -> set[int]:
     series = frame[column]
+    if series.dtype == pl.Object:
+        return {row for row, value in enumerate(series.to_list()) if not _missing_value(value)}
     missing = series.is_null()
     if series.dtype.is_float():
         missing = missing | series.is_nan()
     return {row for row, is_missing in enumerate(missing) if not is_missing}
+
+
+def _failed_rows(
+    frame: pl.DataFrame,
+    contract: DataContract,
+    column: str,
+    check: str,
+) -> set[int]:
+    if frame[column].dtype != pl.Object:
+        return _present_rows(frame, column)
+    rule = next(rule for rule in contract.columns if rule.name == column)
+    predicate = _object_predicate(rule, check)
+    return {row for row, value in enumerate(frame[column].to_list()) if not predicate(value)}
+
+
+def _object_predicate(rule: ColumnRule, check: str) -> Callable[[Any], bool]:
+    if check == _MISSING:
+        return lambda value: not _missing_value(value)
+    if check == f"lss4py_kind_{rule.kind}":
+        return lambda value: _missing_value(value) or _value_has_kind(value, rule.kind)
+    if check == _FINITE:
+        return lambda value: (
+            _missing_value(value) or not _value_has_kind(value, "numeric") or isfinite(value)
+        )
+    if check == _INTEGER:
+        return _valid_object_integer
+    if check == _MINIMUM:
+        minimum = rule.minimum
+        if minimum is None:
+            raise RuntimeError("Minimum check requires a declared minimum.")
+        return lambda value: _valid_object_bound(
+            value,
+            minimum,
+            minimum=True,
+            integer=rule.kind == "integer",
+        )
+    if check == _MAXIMUM:
+        maximum = rule.maximum
+        if maximum is None:
+            raise RuntimeError("Maximum check requires a declared maximum.")
+        return lambda value: _valid_object_bound(
+            value,
+            maximum,
+            minimum=False,
+            integer=rule.kind == "integer",
+        )
+    return lambda value: True
 
 
 def _later_duplicates(

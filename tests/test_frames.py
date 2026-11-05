@@ -137,11 +137,22 @@ def test_canonical_frame_preserves_arrow_dictionary_and_chunked_values():
     assert table.column("value").num_chunks == 2
 
 
-@pytest.mark.parametrize("columns", [(), ("missing",)])
-def test_canonical_frame_rejects_invalid_selection(columns):
-    """Use governed errors for empty and absent required-column selections."""
+def test_canonical_frame_allows_empty_selection_with_source_metadata():
+    """Support inspection when every declared contract column is absent."""
+    canonical = canonical_frame(
+        pl.DataFrame({"extra": [1, 2]}),
+        (),
+        retain_source_positions=True,
+    )
+    assert canonical.to_polars().shape == (0, 0)
+    assert canonical.source_row_count == 2
+    assert canonical.source_positions == (0, 1)
+
+
+def test_canonical_frame_rejects_absent_selection():
+    """Use a governed error for absent required-column selections."""
     with pytest.raises(ValidationError):
-        canonical_frame(pl.DataFrame({"value": [1]}), columns)
+        canonical_frame(pl.DataFrame({"value": [1]}), ("missing",))
 
 
 def test_canonical_frame_rejects_non_string_selected_names():
@@ -176,6 +187,23 @@ def test_canonical_frame_rejects_ambiguous_options():
             ("value",),
             retain_source_positions=invalid_position_option,
         )
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        [1, 2.5],
+        [True, 1],
+        ["1", 1],
+        [2**53 + 1, 2.5],
+    ],
+)
+def test_canonical_frame_preserves_pandas_object_scalars(values):
+    """Keep heterogeneous scalar identity for row-level structural validation."""
+    source = pd.DataFrame({"value": pd.Series(values, dtype=object)})
+    canonical = canonical_frame(source, ("value",))
+    assert canonical.to_polars()["value"].dtype == pl.Object
+    assert canonical.to_polars()["value"].to_list() == values
 
 
 def test_canonical_frame_rejects_lazy_input_without_collecting(monkeypatch):

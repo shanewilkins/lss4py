@@ -203,6 +203,15 @@ Do not convert every path in one patch.
 
 ### 5.1 Data-quality path
 
+**Status:** Complete. `validate_data` and `normalize_data` now recognize source
+inputs through Narwhals, select declared columns into a detached canonical
+Polars frame and execute structural checks through the private Pandera adapter.
+Portable timestamp/key identity, units, blank strings, timezone/order rules,
+profiles and normalization remain LSS4PY-owned. Complete report serialization,
+issue ordering, source backend/row identity, pandas object-column behavior and
+normalization output remain compatible with the Phase 1 baseline. Pandera stays
+lazy-imported until a data-quality operation executes.
+
 Migrate `validate_data`, `DataContract`, `ColumnRule` and
 `DataValidationReport` first. Preserve public serialization.
 
