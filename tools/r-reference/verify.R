@@ -51,4 +51,4 @@ for (artifact in c("expected.json", "invalid.json")) {
   }
 }
 unlink(work, recursive = TRUE)
-cat("All 28 SixSigma reference cases reproduced within declared tolerances.\n")
+cat("All 31 SixSigma reference cases reproduced within declared tolerances.\n")

@@ -84,6 +84,12 @@ canonicalization refactor begins.
 
 ## Phase 2: dependency and installation contract
 
+**Status:** Complete. Pandera 0.35.0 resolves on Python 3.14.2 with locked
+Polars 2.1.0. Isolated-wheel tests verify the bounded Polars extra, absence of
+pandas and PyArrow from the base installation, no Pandera import side effects or
+global Narwhals-backend mutation, and base/pandas/storage/ecosystem installation
+contracts.
+
 Add Pandera as a bounded direct dependency with Polars support. The intended
 constraint is:
 
@@ -107,6 +113,14 @@ Verify that:
 - no `PANDERA_USE_NARWHALS_BACKEND` setting is required.
 
 ## Phase 3: canonical analytical input boundary
+
+**Status:** Complete. The private boundary now selects only required columns,
+retains the complete source logical schema/backend/row count, optionally carries
+zero-based source positions, and materializes a caller-independent Polars frame.
+Characterization tests cover supported eager backends, hostile pandas indexes,
+categorical and Arrow edge dtypes, ordering, source mutation, ambiguous columns,
+missing selections and lazy rejection. Analytical kernels remain on the 0.2.1
+path until the incremental Phase 5 migration.
 
 Introduce a private canonical-input model carrying:
 
@@ -138,6 +152,15 @@ canonicalization. Any provenance-model change must be wired through result
 serialization, bundles and the standalone bundle validator.
 
 ## Phase 4: private Pandera validation
+
+**Status:** Complete. A single private adapter compiles open, noncoercing
+Pandera Polars schemas and translates aggregated failures into LSS4PY
+`DataIssue` codes without retaining measurements or third-party wording.
+Pandera covers required columns, broad logical dtypes, missingness, finite
+bounds, exact integer values and declared key uniqueness. LSS4PY retains blank
+text, timestamp parsing/order, timezone, units, full-row duplicate policy and
+other analytical semantics. Public data-quality execution remains unchanged
+until Phase 5.1.
 
 Create one private integration module rather than importing Pandera throughout
 kernels.
@@ -180,6 +203,15 @@ Do not convert every path in one patch.
 
 ### 5.1 Data-quality path
 
+**Status:** Complete. `validate_data` and `normalize_data` now recognize source
+inputs through Narwhals, select declared columns into a detached canonical
+Polars frame and execute structural checks through the private Pandera adapter.
+Portable timestamp/key identity, units, blank strings, timezone/order rules,
+profiles and normalization remain LSS4PY-owned. Complete report serialization,
+issue ordering, source backend/row identity, pandas object-column behavior and
+normalization output remain compatible with the Phase 1 baseline. Pandera stays
+lazy-imported until a data-quality operation executes.
+
 Migrate `validate_data`, `DataContract`, `ColumnRule` and
 `DataValidationReport` first. Preserve public serialization.
 
@@ -187,6 +219,14 @@ Migrate `validate_data`, `DataContract`, `ColumnRule` and
 validation copy does not make public normalization Polars-only.
 
 ### 5.2 Shared extraction
+
+**Status:** Complete. A private Polars-only extraction module now defines
+required-column errors, null/NaN masks, nullable and strict-nonnegative numeric
+arrays, exact binary stages, source-position masks, portable keys and
+first-observed composite groups. Differential tests compare every primitive
+with the current Narwhals kernel behavior. Phase 5.3 migrates analytical
+families onto these helpers in bounded batches; the legacy helpers remain only
+until their callers move.
 
 Replace repeated Narwhals analytical extraction with shared Polars helpers for:
 
@@ -199,6 +239,59 @@ Replace repeated Narwhals analytical extraction with shared Polars helpers for:
 - first-observed group ordering.
 
 ### 5.3 Analytical families
+
+**Batch 1 status:** Complete. Descriptive statistics, mean confidence intervals
+and distribution profiles now canonicalize only their required analytical
+columns and execute extraction, grouping, key identity and source-position
+selection on Polars. The canonical input envelope retains the original backend,
+row count and semantic source-schema fingerprint so existing provenance remains
+byte-compatible. Focused family, cross-backend, bundle/reporting and exact
+Phase 1 neutral-payload checks pass, as do the locked source gates, all 28
+governed R cases and the 32/42/44/58 exact-wheel matrix.
+
+**Batch 2 status:** Complete. Capability indices and defect/rework yield now
+materialize only their declared measurement or count columns and execute on
+canonical Polars. Capability reuses shared nullable measurement extraction;
+defect/rework yield retains its stricter exact nonnegative count and integer
+precision policy over canonical values. Original backend provenance, source
+schema fingerprints, count-bucket ordering, source immutability and neutral
+payloads remain compatible. Focused family, cross-backend, bundle/reporting,
+locked source, all 28 governed R cases and the 32/42/44/58 exact-wheel checks
+pass.
+
+**Batch 3 status:** Complete. Generic-frame lead, wait, per-row and cohort
+process-cycle-efficiency, prepared-order validation, deadline performance and
+stage/rolled-yield execution now materialize only their required columns and
+calculate on canonical Polars. Calendar endpoint parsing now consumes canonical
+Polars without weakening ISO, timezone or microsecond policies. Obsolete
+Narwhals duration and stage-calculation helpers were removed. The interval-event
+log branch remains deliberately unchanged for batch 4. Focused family,
+cross-backend, integration/event-log regression, bundle/reporting, exact neutral
+payload, locked source, all 28 governed R cases and the 32/42/44/58 exact-wheel
+checks pass.
+
+**Batch 4 status:** Complete. Interval-event normalization now recognizes eager
+pandas, Polars and PyArrow sources through the canonical boundary, validates and
+aggregates detached Polars columns, and returns source-aware canonical provenance
+for per-case lead time. Numeric activity-log reconstruction now executes against
+a detached canonical Polars copy while retaining complete source records,
+positions and metadata. Direct-follow `EventStream` process mapping is already a
+typed non-dataframe path and required no conversion. Focused event-log,
+reconstruction, cross-backend, integration, bundle/reporting, exact neutral
+payload, locked source, all 28 governed R cases and the 32/42/44/58 exact-wheel
+checks pass.
+
+**Batch 5 status:** Complete. Provenance construction now accepts only
+`CanonicalFrame`, eliminating the legacy Narwhals result path while preserving
+the original backend, row count, semantic schema fingerprint and serialized
+context. Explicit duration conversion now validates and calculates selected
+columns on canonical Polars, with native-backend restoration centralized in the
+private frame conversion boundary. Bundle, result export and restoration code
+required no execution changes because it already consumes typed contracts;
+complete bundle/reporting and neutral-payload tests remain exact. Narwhals imports
+are now confined to `_frames.py` and enforced by a static source-boundary test.
+The locked source gates, all 28 governed R cases and the 32/42/44/58 exact-wheel
+checks pass.
 
 Migrate in bounded batches:
 
@@ -213,14 +306,30 @@ exercise all supported source backends and verify source immutability.
 
 ### 5.4 Boundary enforcement
 
+**Status:** Complete.
+
 At completion:
 
 - Narwhals remains only in private input recognition and canonicalization;
 - analytical kernels execute no Narwhals expressions;
 - kernels contain no pandas- or PyArrow-specific branches; and
-- import-linter enforces the new dependency direction.
+- the source-boundary test enforces Narwhals confinement, while import-linter
+  continues to enforce layer direction.
 
 ## Phase 6: differential and performance evidence
+
+**Status:** Complete. The original neutral result payload remains exact across
+pandas, hostile-index pandas, Polars and PyArrow. A 13-case invalid-domain fixture
+captured directly from the pre-migration commit retains acceptance/rejection,
+exception classes and messages. Reproducible tools record six backend/shape
+conversion, validation, analysis and memory scenarios plus isolated base-wheel
+size, package count, import time, exact core dependency versions and optional
+backend absence. A Phase 1 before/after comparison records 10–39 ms of public
+validation overhead, 0.5–9.3 ms of `describe` overhead, 25–37 MiB more isolated
+process high-water memory, a 6,136-byte larger wheel and five added runtime
+distributions. All local budgets pass, the locked 103-distribution audit reports
+zero known vulnerabilities and no differential was waived. See
+`docs/assessments/v022-canonicalization-evidence.md`.
 
 Compare the old and new implementations over the governed corpus:
 
@@ -252,6 +361,15 @@ Record dependency and packaging effects:
 - confirmation that pandas and PyArrow do not leak into the base installation.
 
 ## Phase 7: ADR and governance
+
+**Status:** Complete. ADR-0028 accepts canonical Polars analytical execution,
+confines Narwhals to recognition/conversion/native restoration, makes Pandera
+private noncoercing validation machinery and records source-versus-execution
+provenance, identity, lazy-input and allocation policies. ADR-0018 is linked as
+partially superseded for analytical execution. UR-015 and TR-002/TR-010/TR-014/
+TR-017/TR-022 are reconciled, and architecture, backend, data-quality, extension,
+migration, roadmap/progress, documentation-index and draft release-note surfaces
+link the accepted decision.
 
 After implementation satisfies the differential and performance gates, add an
 accepted ADR titled approximately:
@@ -286,6 +404,15 @@ Update the architecture, backend contract, data-quality guide, extension guide,
 README, migration guide, roadmap/progress material and release notes.
 
 ## Phase 8: release preparation
+
+**Status:** Complete for the local release candidate. Source and runtime identity
+are 0.2.2. The locked source suite passes 2,449 tests at 95.76% coverage; Pylance
+reports no warning/error diagnostics; the eight-case differential gate, all 28 R
+reference cases and the locked vulnerability audit pass. The wheel and source
+distribution pass Twine and exact identity validation. The exact wheel passes
+32 base, 42 pandas, 44 storage/PyArrow and 58 ecosystem tests. Official-index
+verification subsequently passed in a fresh environment after trusted publication
+to PyPI through GitHub Actions run 42047717176.
 
 Update package and runtime identity to 0.2.2 only after the implementation gates
 pass.

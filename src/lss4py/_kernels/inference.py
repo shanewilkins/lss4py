@@ -9,9 +9,10 @@ import numpy as np
 import scipy
 from scipy import stats
 
-from lss4py._frames import eager_frame
+from lss4py._frames import canonical_frame
 from lss4py._kernels._distribution import shapiro_diagnostic
-from lss4py._kernels._helpers import build_provenance, measurement_values
+from lss4py._kernels._helpers import build_provenance
+from lss4py._polars_extract import measurement_values
 from lss4py.domain import AssumptionNote, MeanCIResult
 from lss4py.errors import ValidationError
 from lss4py.guidance import AnalysisSuitability, register_analysis
@@ -108,7 +109,8 @@ def mean_confidence_interval(
     if cohort is not None and (not isinstance(cohort, str) or not cohort.strip()):
         raise ValidationError("cohort must be a nonblank string when supplied.")
 
-    frame = eager_frame(data)
+    canonical = canonical_frame(data, (column,))
+    frame = canonical.to_polars(copy=False)
     supplied = measurement_values(frame, column)
     if missing == "raise" and np.isnan(supplied).any():
         raise ValidationError(f"Column '{column}' contains missing measurements.")
@@ -167,7 +169,7 @@ def mean_confidence_interval(
     }
     provenance = build_provenance(
         "mean_confidence_interval",
-        frame,
+        canonical,
         parameters,
         assumptions=[
             {

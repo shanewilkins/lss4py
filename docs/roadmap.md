@@ -168,6 +168,27 @@ backend identity, assumptions and provenance; and passes three genuine R
 TR-022 and TR-028 without claiming the still-open diagnostic plotting,
 distribution-profile or comparison families.
 
+### v0.3 moving-range stability increment
+
+The first governed SPC slice implements an MR(2) calculation with explicit
+adjacent source-pair identity, closed-form Phase I limits, strict signals and
+frozen Phase II reuse through a validated Phase I result. Missing observations
+are rejected rather than bridged. Two genuine R `ss.cc` cases pass across eager
+backends, and audited bundles restore the typed evidence without recalculation.
+This advances UR-010 and TR-024 without claiming individuals/subgroup/attribute
+charts, additional signal rules, constants lookup APIs, rendering, or the
+persistent control plans still required by TR-036.
+
+### v0.3 explicit capability-study increment
+
+The initial capability-study contract accepts an explicit short-term sample and
+optional separately supplied long-term sample. It composes complete capability
+and distribution evidence, observed nonconformance, specification context and
+strict nested bundle restoration without inferring sample roles or subgroup
+structure. This advances UR-024 and the `ss.study.ca` mapping while leaving the
+composed study figure, within-subgroup estimators, transformations, non-normal
+capability and an independent stability decision open.
+
 ### Pydantic integration-boundary pilot
 
 - **Status:** Complete 2026-10-26; see the
@@ -292,3 +313,21 @@ Partial until that target version is actually published and verified; this is a
 postpublication gate, not an omitted prerelease check. No tag/publication or book
 lockfile change was made. The [source-fingerprinted assessment](assessments/v02-release-readiness.json)
 distinguishes prepublication readiness from completed publication.
+
+### 2026-11-05 canonical analytical dataframe boundary
+
+The accepted 0.2.2 infrastructure slice keeps eager pandas, Polars and PyArrow
+inputs while executing governed dataframe work on detached canonical Polars.
+Private Pandera validation does not coerce, mutate or delete source data, and
+Narwhals is restricted to recognition, conversion and native-output restoration.
+ADR-0028 records the decision, requirement reconciliation and measured runtime,
+memory and packaging costs. Version 0.2.2 was published and verified from
+official PyPI on 2026-11-05; the v0.3 moving-range slice proceeded from this boundary.
+
+### 2026-11-05 moving-range control-chart slice
+
+The initial v0.3 stability increment now provides governed MR(2) Phase I
+estimation and frozen Phase II monitoring with source-pair identity, baseline
+fingerprinting, strict portable results, backend parity, and genuine R evidence.
+Broader SPC families, rendering, rule sets, automatic recalibration, and
+persistent control plans remain explicit future work.

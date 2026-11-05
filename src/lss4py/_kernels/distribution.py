@@ -9,10 +9,10 @@ import numpy as np
 import scipy
 from scipy import stats
 
-from lss4py._frames import eager_frame
-from lss4py._kernels._contracts import row_identity
+from lss4py._frames import canonical_frame
 from lss4py._kernels._distribution import shapiro_diagnostic
-from lss4py._kernels._helpers import build_provenance, measurement_values
+from lss4py._kernels._helpers import build_provenance
+from lss4py._polars_extract import measurement_values, portable_key_values, source_positions
 from lss4py.domain import AssumptionNote, DistributionProfileResult
 from lss4py.errors import ValidationError
 from lss4py.guidance import AnalysisSuitability, register_analysis
@@ -248,16 +248,18 @@ def distribution_profile(
         cohort=cohort,
     )
 
-    frame = eager_frame(data)
+    selected = (column,) if key_column is None else (column, key_column)
+    canonical = canonical_frame(data, selected)
+    frame = canonical.to_polars(copy=False)
     supplied = measurement_values(frame, column)
-    keys, _ = row_identity(frame, key_column)
+    keys, _ = portable_key_values(frame, key_column)
     valid_mask = ~np.isnan(supplied)
     if missing == "raise" and not valid_mask.all():
         raise ValidationError(f"Column '{column}' contains missing measurements.")
     values = supplied[valid_mask]
     if len(values) < 2:
         raise ValidationError("Distribution profiles require at least two valid measurements.")
-    source_positions = np.flatnonzero(valid_mask)
+    positions = source_positions(frame, valid_mask)
     valid_keys = None if keys is None else keys[valid_mask]
 
     try:
@@ -341,7 +343,7 @@ def distribution_profile(
         "qq_distribution": "normal",
         "percentile_method": "linear",
     }
-    provenance = build_provenance("distribution_profile", frame, parameters)
+    provenance = build_provenance("distribution_profile", canonical, parameters)
     provenance.method_version = "1.0"
     provenance.warnings.extend(warnings)
     return DistributionProfileResult(
@@ -360,7 +362,7 @@ def distribution_profile(
         },
         values=values,
         keys=valid_keys,
-        source_positions=source_positions,
+        source_positions=positions,
         unit=unit,
         count=len(values),
         total=len(supplied),
@@ -394,7 +396,7 @@ def distribution_profile(
         lower_whisker=lower_whisker,
         upper_whisker=upper_whisker,
         outlier_values=values[outlier_mask],
-        outlier_source_positions=source_positions[outlier_mask],
+        outlier_source_positions=positions[outlier_mask],
         outlier_keys=None if valid_keys is None else valid_keys[outlier_mask],
         shapiro_statistic=shapiro_statistic,
         shapiro_p_value=shapiro_p_value,

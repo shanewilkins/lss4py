@@ -5,6 +5,15 @@ Polars, or provisional PyArrow table and returns an immutable, versioned
 `DataValidationReport`. It never changes source values, removes rows, chooses an
 analysis, or changes an existing calculation's validation policy.
 
+Internally, the operation recognizes supported eager inputs through Narwhals,
+copies only declared columns into canonical Polars and uses a private,
+noncoercing Pandera schema for structural checks. LSS4PY translates those
+findings into its own issue codes and retains ownership of timestamp parsing,
+portable key identity, units and cross-column semantics. Pandera is loaded only
+when a data-quality operation runs; importing LSS4PY does not activate a Pandera
+backend or mutate its global configuration. ADR-0028 governs this private
+validation and canonical execution boundary.
+
 ## Declare the checks
 
 A `DataContract` contains `ColumnRule` objects, explicit key columns, optional

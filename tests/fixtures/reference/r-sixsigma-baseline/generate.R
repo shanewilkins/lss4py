@@ -42,6 +42,16 @@ reference <- function(id, api, arguments) {
        basis = "Executed the exported function in the installed SixSigma 0.11.1 package.")
 }
 
+control_reference <- function(id, arguments) {
+  result <- reference(id, "ss.cc", arguments)
+  result$tolerance <- list(absolute = 2e-11, relative = 2e-11)
+  result$tolerance_reason <- paste(
+    "SixSigma numerically integrates d2/d3; tolerate only the resulting",
+    "float64 difference from the equivalent closed-form n=2 constants."
+  )
+  result
+}
+
 expected <- list(
   reference("cp-two-sided", "ss.ca.cp", list(x = x, LSL = 6, USL = 14)),
   reference("cp-upper-only", "ss.ca.cp", list(x = x, USL = 14)),
@@ -69,7 +79,14 @@ expected <- list(
   )),
   reference("ci-t-unknown-variance", "ss.ci", list(x = x)),
   reference("ci-z-known-variance", "ss.ci", list(x = x, sigma2 = 4)),
-  reference("ci-z-approximation", "ss.ci", list(x = x, approx.z = TRUE))
+  reference("ci-z-approximation", "ss.ci", list(x = x, approx.z = TRUE)),
+  control_reference("cc-mr-phase-i", list(
+    type = "mr", data = data.frame(x = inputs$columns$moving_range_phase1), CTQ = "x"
+  )),
+  control_reference("cc-mr-phase-ii", list(
+    type = "mr", data = data.frame(x = inputs$columns$moving_range_phase2),
+    cdata = data.frame(x = inputs$columns$moving_range_phase1), CTQ = "x"
+  ))
 )
 invalid <- list(
   reference("cp-no-limits", "ss.ca.cp", list(x = x)),
@@ -85,7 +102,10 @@ invalid <- list(
     defects = c(1, 2, 3), rework = c(0, 1), opportunities = 100
   )),
   reference("ci-single-value", "ss.ci", list(x = 10)),
-  reference("ci-nonnumeric", "ss.ci", list(x = c("a", "b", "c")))
+  reference("ci-nonnumeric", "ss.ci", list(x = c("a", "b", "c"))),
+  reference("cc-insufficient", "ss.cc", list(
+    type = "mr", data = data.frame(x = 10), CTQ = "x"
+  ))
 )
 
 save_or_verify <- function(name, value) {

@@ -2,6 +2,8 @@
   "columns": {
     "x": [8, 9, 10, 11, 12],
     "defects": [1, 0, 2, 0, 1],
-    "rework": [0, 1, 0, 0, 0]
+    "rework": [0, 1, 0, 0, 0],
+    "moving_range_phase1": [10, 11, 9, 10, 14],
+    "moving_range_phase2": [10, 20, 19, 18, 17]
   }
 }

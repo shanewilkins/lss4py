@@ -1,8 +1,10 @@
 # LSS4PY v0.2 progress and continuation
 
-Updated 2026-11-04. **The 0.2.1 standalone implementation scope is accepted.**
-Package metadata identifies the unreleased 0.2.1 candidate; official publication
-and verification remain pending. The [0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md),
+Updated 2026-11-05. **Version 0.2.2 is published and verified from official
+PyPI.** The governed 0.2.1 behavior remains frozen as differential evidence.
+[ADR-0028](adr/0028-canonicalize-supported-eager-analytical-inputs-to-polars.md)
+records the accepted execution boundary and measured costs. The
+[0.2.1 sprint acceptance](assessments/v021-sprint-acceptance.md),
 [dated v0.2 acceptance audit](assessments/v02-release-readiness.md), and
 [machine-readable requirement matrix](assessments/v02-release-readiness.json) own
 their verification snapshots. The roadmap continues to own release scope;
@@ -11,7 +13,8 @@ requirement registers own status and criteria.
 ## Implemented and verified
 
 The private kernel boundary, explicit root exports, typed calculation results,
-Polars ingestion and optional eager analytical backends are implemented. Shared
+Polars ingestion, canonical Polars analytical execution and optional eager
+analytical backends are implemented. Shared
 backend contracts cover the original metrics and prepared book calculations;
 PyArrow now passes the supported ISO/native and measurement contracts. [Data quality](data-quality.md),
 [CTQs/specifications](specifications.md), thirteen registered
@@ -48,15 +51,11 @@ requirements Satisfied and only TR-038 Partial for actual publication.
 
 ## Next work, in order
 
-1. Re-run the governed source, distribution and exact-wheel gates for the selected
-   0.2.1 identity. The accepted sprint snapshot remains historical evidence for
-   the pre-version-selection implementation.
-2. Tag/publish 0.2.1 through the governed workflow. It requires source quality/Arrow,
-   metadata/version identity and installed-wheel checks, then verifies the exact
-   official PyPI package in a fresh environment. This has not run for 0.2.1.
-3. Update the sibling book's normal package dependency/lockfile and render Chapter 9
+1. Update the sibling book's normal package dependency/lockfile and render Chapter 9
    after that official package is verified. UR-046/TR-045 retain this book gap;
    no local source override replaces publication integration.
+2. Resume the v0.3 moving-range control-chart slice on the finalized dataframe
+   boundary.
 
 ## Deferred scope
 

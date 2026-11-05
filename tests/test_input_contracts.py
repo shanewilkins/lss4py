@@ -43,7 +43,9 @@ def unsupported_input(request):
         "describe",
         "mean_confidence_interval",
         "distribution_profile",
+        "control_chart",
         "capability_indices",
+        "capability_study",
         "process_yield",
         "validate_data",
         "normalize_data",
@@ -53,7 +55,8 @@ def test_tabular_methods_require_eager_frames(method, unsupported_input):
     """Reject unsupported/lazy inputs before attempting field resolution or analysis."""
     parameters = (
         {"column": "x"}
-        if method in ("describe", "mean_confidence_interval", "distribution_profile")
+        if method
+        in ("describe", "mean_confidence_interval", "distribution_profile", "control_chart")
         else {}
     )
     if method in ("validate_data", "normalize_data"):
@@ -61,6 +64,11 @@ def test_tabular_methods_require_eager_frames(method, unsupported_input):
     if method == "process_yield":
         parameters = {"opportunities": 10}
     if method == "capability_indices":
+        parameters = {
+            "column": "x",
+            "specification": lss4py.Specification("CTQ", "mm", "lower", usl=2),
+        }
+    if method == "capability_study":
         parameters = {
             "column": "x",
             "specification": lss4py.Specification("CTQ", "mm", "lower", usl=2),

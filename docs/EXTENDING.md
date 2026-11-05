@@ -3,7 +3,11 @@
 LSS4PY separates source-specific I/O from analytical functions. Core event-log
 adapters materialize validated Polars `DataFrame` objects inside an
 `IntervalEventLog`. Analytical functions accept that contract directly and may also
-accept other governed eager dataframe inputs through Narwhals.
+accept other governed eager dataframe inputs through the private Narwhals
+recognition boundary. Implementations select required columns into canonical
+Polars and execute no Narwhals expressions. New analytical paths must preserve
+the source-versus-execution provenance, allocation and validation rules in
+[ADR-0028](adr/0028-canonicalize-supported-eager-analytical-inputs-to-polars.md).
 
 ## Canonical interval-event shape
 

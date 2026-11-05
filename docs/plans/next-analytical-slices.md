@@ -1,7 +1,7 @@
 # Next analytical slices
 
-- Updated: 2026-10-24
-- Status: Z-distance, defect/rework yield and prepared-data preview implemented; activity-to-order reconstruction implemented; book publication integration remains
+- Updated: 2026-11-05
+- Status: Z-distance, defect/rework yield, mean inference, distribution evidence, and MR(2) Phase I/II implemented; book publication integration remains
 - Architecture: [ADR-0020](../adr/0020-delegate-numerical-algorithms-and-own-analytical-contracts.md)
   and [ADR-0021](../adr/0021-reuse-flo-and-established-presentation-libraries.md)
 - Release ownership: [roadmap](../roadmap.md); UR-022/UR-023/TR-023 primarily target v0.3
@@ -68,11 +68,40 @@ normal Q-Q, IQR anomaly, shape, Shapiro-Wilk and optional Gaussian KDE evidence.
 Matplotlib renderers consume those arrays without hidden analysis and return
 native caller-owned axes. See the [distribution guide](../distribution-profile.md).
 
-The next Yellow Belt slice is basic stability/control-chart infrastructure
-against the roadmap and reference coverage. Defer
-full capability-study orchestration until distribution and stability inputs have
-governed contracts. Calculating capability indices alone is not a complete study.
-No automatic method selection is needed to close the current contract gaps.
+## 4. Moving-range control chart — implemented
+
+`control_chart(..., chart="moving_range")` now returns pair-level MR(2) evidence
+with explicit source positions/keys, closed-form limits, signals, and strict
+serialization. Phase I estimates limits from the supplied sequence. Phase II
+requires an intact Phase I result, copies its frozen limits, and records the
+baseline fingerprint without recalibration. Missing values are rejected rather
+than bridged. Two genuine R `ss.cc` cases and an invalid case are retained in the
+31-case R snapshot and pass across eager backends. `plot_control_chart` consumes
+the completed result and returns a caller-owned Matplotlib axes without hidden
+recalculation.
+
+This slice does not implement individuals, subgroup or attribute charts;
+run/trend/zone rules; constants lookup APIs; or the persistent control
+plan required by TR-036. See the [moving-range guide](../control-charts.md).
+Full capability-study orchestration can now build on governed distribution and
+basic stability inputs, but capability indices alone are not a complete study.
+No automatic method selection is needed to close the remaining contract gaps.
+
+## 5. Explicit capability-study evidence — implemented calculation slice
+
+`capability_study` composes complete capability and distribution results for an
+explicit short-term sample and optional separately supplied long-term sample.
+Observed below-LSL, above-USL and combined nonconformance evidence is derived
+from each retained sample. Nested results are strictly validated and restored
+through audited bundles without recalculation. Sample roles are caller
+declarations; the current estimator remains sample standard deviation within
+each supplied sample and is not relabeled as pooled within-subgroup variation.
+
+This promotes `ss.study.ca` from Gap to Partial. The R function renders and
+returns `NULL`, so numerical parity is not claimed. A composed study figure,
+within-subgroup estimators, transformations, non-normal capability and an
+independent stability decision remain open. See the
+[capability-study guide](../capability-study.md).
 
 ## Completion gate for each slice
 

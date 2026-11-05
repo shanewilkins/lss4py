@@ -8,7 +8,7 @@ Reference baseline:
 
 - R package: `SixSigma` 0.11.1
 - R reference: [CRAN help index](https://search.r-project.org/CRAN/refmans/SixSigma/html/00Index.html)
-- LSS4PY snapshot: 0.1.0 on 2026-08-08
+- LSS4PY snapshot: published 0.2.2 plus unreleased v0.3 work on 2026-11-05
 
 Bundled R example datasets are not treated as API features. Selected datasets may
 instead become test fixtures for cross-language numerical parity.
@@ -53,13 +53,13 @@ functions share one requirement when they are steps in the same user journey.
 | `ss.ca.cpk` | Centered process capability index Cpk, optionally with a confidence interval | `capability_indices(...).cpk` | Partial | Cpk/component selection and approximate intervals pass the checked-in R cases on all eager backend variants. Ordered negative and finite zero-Cpk intervals intentionally differ; see docs/capability-indices.md. |
 | `ss.ca.z` | Sigma score from process data and specification limits | `capability_indices(...).z_score` | Partial | Signed governing-limit distance reuses Cpk; explicit sigma_shift=1.5 matches LT=True. Eight genuine R cases pass across eager backend variants. Degenerate domains return unavailable values; a shift does not establish measured long-term performance. |
 | `ss.ca.yield` | Yield, first-time yield, rolled-throughput yield, and DPMO from defect/rework counts | `process_yield(data, *, defects_column="defects", rework_column=None, opportunities=..., units=None)` returning `DefectYieldResult` | Partial | Four genuine R count cases pass across eager backends. DPU maps to defect_count; actual defects_per_unit requires units. Zero opportunities, invalid counts, recycling and excess losses are rejected; see docs/defect-yield.md. Binary funnel APIs remain separate. |
-| `ss.study.ca` | Capability-study plots, normality checks, specification limits, target, and short-/long-term views | `capability_study(...)` returning `CapabilityStudyResult`; plotting kept in a visualization layer | Gap | No governed capability study exists. Calculation results must be usable without rendering; plots should consume the typed result. |
+| `ss.study.ca` | Capability-study plots, normality checks, specification limits, target, and short-/long-term views | `capability_study(short_term_data, ..., long_term_data=None)` returning `CapabilityStudyResult`; plotting kept in a visualization layer | Partial | Explicit short-term and optional long-term samples now produce nested capability/distribution evidence plus observed nonconformance and strict bundle restoration. SixSigma 0.11.1 renders and returns `NULL`, so there is no structured numerical result to match. A composed study figure, within-subgroup estimators, transformations, and non-normal capability remain gaps; see docs/capability-study.md. |
 
 ## Statistical process control
 
 | R `SixSigma` API | R behavior | Proposed LSS4PY API | Status | Current evidence / parity requirement |
 |---|---|---|---|---|
-| `ss.cc` | Moving-range control chart with Phase I/II limits and out-of-control points | `control_chart(..., chart="moving_range")` returning `ControlChartResult` | Gap | No governed SPC calculation exists. Match LCL, center line, UCL, phase, and flagged observations before adding more chart families. |
+| `ss.cc` | Moving-range control chart with Phase I/II limits and out-of-control points | `control_chart(..., chart="moving_range")` returning `ControlChartResult`; `plot_control_chart(result)` | Partial | MR(2) Phase I limits, frozen Phase II reuse, adjacent-pair identity, and signals pass two genuine R cases across eager backends. A result-only Matplotlib renderer preserves limits, phase, units, identities, and signals without reproducing the exact ggplot layout. LSS4PY rejects missing values and requires an intact Phase I result instead of raw `cdata` or caller-supplied `climits`, preventing implicit or unaudited recalibration. SixSigma 0.11.1 `ss.cc` supports MR only; broader chart families are product-roadmap gaps rather than parity gaps. |
 | `ss.cc.getd2` | Relative-range constant d2 for a sample size | `control_chart_constants(n).d2` | Gap | Match supported sample sizes and error behavior. |
 | `ss.cc.getd3` | Relative-range constant d3 for a sample size | `control_chart_constants(n).d3` | Gap | Match supported sample sizes and error behavior. |
 | `ss.cc.getc4` | Bias-correction constant c4 for a sample size | `control_chart_constants(n).c4` | Gap | Match supported sample sizes and error behavior. |
@@ -134,10 +134,11 @@ do not promote any compatibility row.
 The [roadmap](roadmap.md) owns delivery order; this matrix owns compatibility
 coverage and status. The [offline reference catalog](reference-fixtures.md) now includes NIST-certified
 and independently derived cases for current supported methods. It also includes
-actually generated SixSigma 0.11.1 Cp/Cpk/Z/yield baselines with runtime provenance,
-checksums and a reproducible generator. Those entries are reference-only until
-corresponding Python methods pass numerical comparisons; no R compatibility
-status is promoted by fixture generation alone.
+actually generated SixSigma 0.11.1 Cp/Cpk/Z/yield, mean-interval, and MR baselines
+with runtime provenance, checksums and a reproducible generator. All 31 retained
+R cases reproduce; entries remain reference-only until corresponding Python
+methods pass numerical comparisons, and fixture generation alone promotes no
+compatibility status.
 
 Numerical parity acceptance is governed by
 [TR-007](requirements/technical-requirements.csv).

@@ -1,6 +1,6 @@
 [project]
 name = "lss4py"
-version = "0.2.1"
+version = "0.2.2"
 description = "Python-first Lean Six Sigma analytics for telemetry-rich process improvement"
 readme = "README.md"
 license = "MIT"
@@ -15,6 +15,7 @@ dependencies = [
     "opentelemetry-api>=1.31.0",
     "opentelemetry-exporter-otlp>=1.31.0",
     "opentelemetry-sdk>=1.31.0",
+    "pandera[polars]>=0.35,<0.36",  # Private structural validation on canonical Polars only
     "pint>=0.25,<1",  # Explicit duration conversion; registry stays private
     "polars>=1.0.0",
     "pydantic>=2.12,<3",  # Portable exchange validation; FLO remains optional
@@ -58,6 +59,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.0",
     "import-linter>=2.1",
     "matplotlib>=3.10.0",  # Optional plotting contract development and typing
     "pandas>=2.2.0",  # Backend parity tests

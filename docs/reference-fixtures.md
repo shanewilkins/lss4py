@@ -10,7 +10,7 @@ Reference-only R snapshots do not claim Python parity.
 | `nist-numacc1` | 1.0.0 | NIST-certified sample mean and sample standard deviation | `describe` |
 | `synthetic-summary` | 1.0.0 | Independently derived five-point moments, spread and quantiles, with one omitted null | `describe` |
 | `synthetic-process` | 1.0.0 | Direct timestamp subtraction, duration ratios, funnel counts and planning pace | Timing, yield, `takt_time` |
-| `r-sixsigma-baseline` | 1.2.0 | Executed SixSigma 0.11.1 on R 4.6.1; reference-only | R Cp, Cpk, Z and defect/rework yield |
+| `r-sixsigma-baseline` | 1.4.0 | Executed SixSigma 0.11.1 on R 4.6.2; reference-only | R Cp, Cpk, Z, defect/rework yield, mean intervals, and MR(2) Phase I/II |
 | `washnfold-friday91` | 1.0.0 | Pinned October 22 split-activity book CSVs and independent Decimal baseline; adopted October 23 | Existing `describe`; separate baseline pins future preview/reconstruction expectations |
 
 All five are **test fixtures**. They are not production evidence, teaching datasets,
@@ -149,7 +149,7 @@ The genuine installed package namespace is called by the original MIT-licensed
 `generate.R` script; no upstream R implementation or bundled dataset is copied.
 The package source URL/checksum, generator checksum, captured runtime provenance,
 and fixture artifacts are recorded in the manifest. Optional R development tools
-are isolated in [tools/r-reference](../tools/r-reference/README.md), with R 4.6.1,
+are isolated in [tools/r-reference](../tools/r-reference/README.md), with R 4.6.2,
 SixSigma 0.11.1, jsonlite 2.0.0, and a separate recursive `renv.lock`. Install the
 R runtime separately, then restore and verify from the repository root:
 
@@ -170,7 +170,8 @@ fixture version when the reference changes substantively. The first generation
 and a second byte-for-byte verification run succeeded locally.
 
 TR-007 remains partial because additional retained R method families need reference
-coverage. Cp/Cpk estimates and intervals, specification Z distances, and four
-defect/rework yield cases now pass with documented semantic differences. The R
-compatibility statuses remain Partial. NIST certification, Python backend
+coverage. All 31 retained R cases reproduce; current Python parity includes
+Cp/Cpk estimates and intervals, specification Z distances, four defect/rework
+yield cases, mean intervals, and MR(2) Phase I/II behavior with documented
+semantic differences. The R compatibility statuses remain Partial. NIST certification, Python backend
 equivalence, and hand-derived examples must never be relabeled as R parity.

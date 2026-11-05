@@ -7,14 +7,63 @@ from __future__ import annotations
 
 from typing import Any
 
-from lss4py._frames import eager_frame
+import numpy as np
+import polars as pl
+
+from lss4py._frames import CanonicalFrame, canonical_frame, eager_frame
 from lss4py._kernels._contracts import boolean_option
-from lss4py._kernels._helpers import (
-    build_provenance,
-    stage_yield_components,
-)
+from lss4py._kernels._helpers import build_provenance, resolve_stage_column
+from lss4py._polars_extract import binary_stage_values
 from lss4py.domain import ProcessModelIR, YieldResult
+from lss4py.errors import ValidationError
 from lss4py.guidance import AnalysisSuitability, register_analysis
+
+
+def _stage_columns(
+    process_model: ProcessModelIR | None,
+    *roles: tuple[str | None, str],
+) -> tuple[str, ...]:
+    """Resolve explicit or process-model stage roles before canonicalization."""
+    return tuple(
+        resolve_stage_column(
+            process_model=process_model,
+            explicit_column=column,
+            stage_name=stage,
+        )
+        for column, stage in roles
+    )
+
+
+def _stage_components(
+    frame: pl.DataFrame,
+    from_column: str,
+    to_column: str,
+) -> tuple[float, int, int]:
+    """Calculate one nested binary stage transition."""
+    from_stage = binary_stage_values(frame, from_column)
+    to_stage = binary_stage_values(frame, to_column)
+    if np.any(to_stage > from_stage):
+        raise ValidationError(
+            f"Column '{to_column}' cannot exceed column '{from_column}' "
+            "for stage yield calculations."
+        )
+    opportunities = int(np.sum(from_stage))
+    if opportunities <= 0:
+        raise ValidationError(
+            f"Column '{from_column}' must contain at least one stage opportunity."
+        )
+    conversions = int(np.sum(to_stage))
+    return conversions / opportunities, conversions, opportunities
+
+
+def _canonical_stages(
+    data: Any,
+    process_model: ProcessModelIR | None,
+    *roles: tuple[str | None, str],
+) -> tuple[CanonicalFrame, tuple[str, ...]]:
+    """Materialize only resolved stage columns."""
+    columns = _stage_columns(process_model, *roles)
+    return canonical_frame(data, columns), columns
 
 
 @register_analysis(
@@ -61,15 +110,17 @@ def created_to_booked_yield(
     Returns:
         YieldResult with yield fraction/percentage, numerator, denominator, and provenance.
     """
-    frame = eager_frame(data)
+    eager_frame(data)
     boolean_option(as_percentage, "as_percentage")
-    yield_value, numerator, denominator = stage_yield_components(
-        frame,
-        from_column=created_column,
-        to_column=booked_column,
-        from_stage_name="created",
-        to_stage_name="booked",
-        process_model=process_model,
+    canonical, (resolved_created, resolved_booked) = _canonical_stages(
+        data,
+        process_model,
+        (created_column, "created"),
+        (booked_column, "booked"),
+    )
+    frame = canonical.to_polars(copy=False)
+    yield_value, numerator, denominator = _stage_components(
+        frame, resolved_created, resolved_booked
     )
 
     result_value = yield_value
@@ -79,7 +130,7 @@ def created_to_booked_yield(
 
     provenance = build_provenance(
         method_name="created_to_booked_yield",
-        frame=frame,
+        frame=canonical,
         parameters={
             "created_column": created_column,
             "booked_column": booked_column,
@@ -158,15 +209,17 @@ def booked_to_completed_yield(
     Returns:
         YieldResult with yield fraction/percentage, numerator, denominator, and provenance.
     """
-    frame = eager_frame(data)
+    eager_frame(data)
     boolean_option(as_percentage, "as_percentage")
-    yield_value, numerator, denominator = stage_yield_components(
-        frame,
-        from_column=booked_column,
-        to_column=completed_column,
-        from_stage_name="booked",
-        to_stage_name="completed",
-        process_model=process_model,
+    canonical, (resolved_booked, resolved_completed) = _canonical_stages(
+        data,
+        process_model,
+        (booked_column, "booked"),
+        (completed_column, "completed"),
+    )
+    frame = canonical.to_polars(copy=False)
+    yield_value, numerator, denominator = _stage_components(
+        frame, resolved_booked, resolved_completed
     )
 
     result_value = yield_value
@@ -176,7 +229,7 @@ def booked_to_completed_yield(
 
     provenance = build_provenance(
         method_name="booked_to_completed_yield",
-        frame=frame,
+        frame=canonical,
         parameters={
             "booked_column": booked_column,
             "completed_column": completed_column,
@@ -255,34 +308,30 @@ def rolled_yield(
     Returns:
         YieldResult with rolled-throughput yield (fraction/percentage) and provenance.
     """
-    frame = eager_frame(data)
+    eager_frame(data)
     boolean_option(as_percentage, "as_percentage")
-
-    # Get component yields
-    created_to_booked_result = created_to_booked_yield(
+    canonical, (resolved_created, resolved_booked, resolved_completed) = _canonical_stages(
         data,
-        created_column=created_column,
-        booked_column=booked_column,
-        process_model=process_model,
-        as_percentage=False,
+        process_model,
+        (created_column, "created"),
+        (booked_column, "booked"),
+        (completed_column, "completed"),
     )
-    booked_to_completed_result = booked_to_completed_yield(
-        data,
-        booked_column=booked_column,
-        completed_column=completed_column,
-        process_model=process_model,
-        as_percentage=False,
+    frame = canonical.to_polars(copy=False)
+    created_to_booked, numerator, denominator = _stage_components(
+        frame, resolved_created, resolved_booked
     )
+    booked_to_completed, _, _ = _stage_components(frame, resolved_booked, resolved_completed)
 
     # Compute rolled yield (product of yields as fractions)
-    result = created_to_booked_result.value * booked_to_completed_result.value
+    result = created_to_booked * booked_to_completed
     unit = "percentage" if as_percentage else "fraction"
     if as_percentage:
         result *= 100.0
 
     provenance = build_provenance(
         method_name="rolled_yield",
-        frame=frame,
+        frame=canonical,
         parameters={
             "created_column": created_column,
             "booked_column": booked_column,
@@ -306,8 +355,8 @@ def rolled_yield(
         provenance=provenance,
         value=result,
         unit=unit,
-        numerator=created_to_booked_result.numerator,
-        denominator=created_to_booked_result.denominator,
+        numerator=numerator,
+        denominator=denominator,
         method="serial_yield",
         interpretation_context=(
             "Rolled-throughput yield is the probability that an item "

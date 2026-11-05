@@ -8,11 +8,11 @@ It is not yet a full SPC, capability, simulation, or deliverables platform.
 
 ## Release status
 
-The working tree prepares the unreleased **0.2.1 candidate**. The
-[v0.2.1 sprint acceptance](docs/assessments/v021-sprint-acceptance.md)
-records the accepted standalone implementation scope. Version 0.2.1 is published
-and verified from PyPI. Post-release work is building the v0.3 Yellow Belt MVP. See the
-[release notes](docs/releases/v0.2.1.md) and [migration guide](docs/migration-v0.2.md).
+Version **0.2.2** is published and verified from PyPI. It adds the accepted
+canonical Polars analytical boundary without changing governed results. See the
+[0.2.2 release notes](docs/releases/v0.2.2.md), [canonicalization
+evidence](docs/assessments/v022-canonicalization-evidence.md), and
+[migration guide](docs/migration-v0.2.md).
 
 ## Stable Today
 
@@ -32,6 +32,8 @@ It includes these public functions:
 - `mean_confidence_interval` (mean estimate, t/z interval, and Shapiro-Wilk diagnostic)
 - `distribution_profile` (histogram, ECDF, Q-Q, IQR, shape and optional KDE evidence)
 - `capability_indices` (Cp/Cpk/components/intervals and explicit specification Z)
+- `capability_study` (explicit short-/long-term capability, diagnostics, and observed risk)
+- `control_chart` (MR(2) Phase I limits and frozen Phase II monitoring)
 - `reconstruct_orders` (declared numeric activity-to-order accounting policy)
 - `validate_order_summary` (prepared numeric order contract and consistency checks)
 - `deadline_performance` (fixed-deadline misses with explicit eligible/ineligible cases)
@@ -42,7 +44,9 @@ supports explicit nearest-rank percentiles and measurement sums;
 `process_cycle_efficiency(aggregation="cohort")` returns a ratio of sums with
 cohort identities and denominator evidence.
 
-See the [descriptive statistics guide](docs/descriptive-statistics.md) and
+See the [descriptive statistics guide](docs/descriptive-statistics.md), the
+[capability-study guide](docs/capability-study.md), the
+[moving-range control-chart guide](docs/control-charts.md), and
 [mean confidence interval guide](docs/mean-confidence-interval.md) for examples
 and statistical conventions. The [distribution profile guide](docs/distribution-profile.md)
 documents prepared diagnostic evidence and optional Matplotlib renderers.
@@ -108,7 +112,10 @@ LSS4PY works from two inputs.
 
 The FLO side supplies a normalized process model IR.
 
-The observed-data side accepts supported eager dataframe inputs through Narwhals.
+The observed-data side recognizes supported eager dataframe inputs through a
+private Narwhals boundary and executes selected analytical columns on detached
+canonical Polars frames under
+[ADR-0028](docs/adr/0028-canonicalize-supported-eager-analytical-inputs-to-polars.md).
 Core file ingestion materializes validated Polars frames by default, as recorded in
 [ADR-0018](docs/adr/0018-use-polars-as-the-canonical-ingestion-backend.md). pandas
 remains an optional analytical-input backend rather than the package's canonical
@@ -312,7 +319,7 @@ See the [defect/rework yield guide](docs/defect-yield.md) for the separate
 These areas are not part of the stable book-facing API today:
 
 - full capability studies and within-subgroup variation
-- SPC reporting
+- SPC rendering, broader chart families, and run/trend/zone rules
 - simulation workflows
 - bottleneck workflows
 - before/after comparison workflows
@@ -336,8 +343,10 @@ Other modules and ideas in the repository should be treated as experimental, int
 
 The [numerical-reference catalog](docs/reference-fixtures.md) checks current methods
 against NIST-certified and independently derived expected values. R SixSigma
-Cp/Cpk estimates, intervals, and specification Z distances now pass R baselines; broader
-R parity remains future work. See [capability indices](docs/capability-indices.md).
+Cp/Cpk estimates, intervals, specification Z distances, and retained MR(2)
+Phase I/II cases now pass R baselines; broader R parity remains future work. See
+[capability indices](docs/capability-indices.md) and
+[moving-range control charts](docs/control-charts.md).
 
 Optional [R reference tooling](tools/r-reference/README.md) has its own dependency
 lock and CI workflow. Install R 4.6.1 separately, then run
@@ -385,7 +394,7 @@ CI and the release build also require the
 and the candidate LSS4PY wheel. Run it with
 `uv run --locked python tools/check_wheel.py --ecosystem`.
 To verify an already built release artifact without rebuilding it, pass
-`--wheel dist/lss4py-0.2.1-py3-none-any.whl`. Add `--artifacts-dir artifacts/ecosystem`
+`--wheel dist/lss4py-0.2.2-py3-none-any.whl`. Add `--artifacts-dir artifacts/ecosystem`
 to retain per-installation JUnit reports, the tested wheel's SHA-256 and ecosystem
 evidence. CI retains source JUnit/coverage XML and installed-wheel reports for 14 days.
 

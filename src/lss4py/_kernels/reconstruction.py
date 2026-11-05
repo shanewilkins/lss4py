@@ -4,7 +4,7 @@ import json
 from collections import defaultdict
 from math import fsum, isclose
 
-from lss4py._frames import eager_frame
+from lss4py._frames import canonical_frame
 from lss4py._kernels._helpers import build_provenance
 from lss4py.domain.numeric_log import NumericEventLog
 from lss4py.domain.reconstruction import OrderReconstructionPolicy
@@ -45,21 +45,23 @@ def reconstruct_orders(
     Output retains full floating precision; round only for presentation.
     """
     _check_input(log, policy)
-    contract = log.contract
+    canonical = canonical_frame(log.frame, log.frame.columns)
+    working_log = NumericEventLog(canonical.to_polars(copy=False), log.contract, log.metadata)
+    contract = working_log.contract
     case_columns = (*contract.scope_columns, contract.case_id_column)
     cases: dict[tuple, list] = defaultdict(list)
-    for position, row in enumerate(log.frame.to_dicts()):
+    for position, row in enumerate(working_log.frame.to_dicts()):
         cases[tuple(row[c] for c in case_columns)].append((position, row))
     orders, activities = [], []
     for key, records in cases.items():
         identity = dict(zip(case_columns, key, strict=True))
-        collapsed = _collapse_case(records, log, policy, identity)
-        orders.append(_summarize(collapsed, records, identity, log, policy))
+        collapsed = _collapse_case(records, working_log, policy, identity)
+        orders.append(_summarize(collapsed, records, identity, working_log, policy))
         activities.extend(collapsed)
     parameters = {"contract": contract.to_dict(), "policy": policy.to_dict()}
-    provenance = build_provenance("reconstruct_orders", eager_frame(log.frame), parameters)
+    provenance = build_provenance("reconstruct_orders", canonical, parameters)
     provenance.cohort_definition = policy.cohort
-    activity_records = _source_timings(log, policy)
+    activity_records = _source_timings(working_log, policy)
     return OrderReconstructionResult(
         name="Reconstructed complete orders",
         provenance=provenance,
@@ -68,13 +70,13 @@ def reconstruct_orders(
             "orders": orders,
             "activities": activities,
             "activity_records": activity_records,
-            "source_records": log.frame.to_dicts(),
+            "source_records": working_log.frame.to_dicts(),
             "source": json.loads(json.dumps(log.metadata)),
             "table_columns": {
                 "orders": list(orders[0]),
                 "activities": list(activities[0]),
                 "activity_records": list(activity_records[0]),
-                "source_records": log.frame.columns,
+                "source_records": working_log.frame.columns,
             },
             "exclusions": [],
             "unit": contract.unit,

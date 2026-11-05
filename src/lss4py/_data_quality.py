@@ -5,14 +5,13 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Mapping
 from datetime import UTC, datetime
-from math import isfinite, isnan
+from math import isnan
 from numbers import Integral, Real
 from typing import Any
 
-import narwhals as nw
 import polars as pl
 
-from lss4py._frames import detect_backend, eager_frame
+from lss4py._frames import CanonicalFrame, canonical_frame, eager_frame
 from lss4py.domain.data_quality import (
     ColumnProfile,
     ColumnRule,
@@ -24,9 +23,25 @@ from lss4py.domain.data_quality import (
 from lss4py.errors import ValidationError
 
 
-def _eager(data: Any) -> nw.DataFrame:
-    """Reject ambiguous column identity while retaining protocol errors for unsupported inputs."""
-    return eager_frame(data)
+def _canonical(data: Any, contract: DataContract) -> CanonicalFrame:
+    """Select declared source columns while retaining missing-column evidence."""
+    if not isinstance(contract, DataContract):
+        raise ValidationError("contract must be a DataContract.")
+    source = eager_frame(data)
+    selected = tuple(rule.name for rule in contract.columns if rule.name in source.columns)
+    return canonical_frame(data, selected, retain_source_positions=True)
+
+
+def _validate_structural(
+    frame: pl.DataFrame,
+    contract: DataContract,
+    *,
+    source_positions: tuple[int, ...] | None,
+) -> tuple[DataIssue, ...]:
+    """Load Pandera only when a public data-quality operation executes."""
+    from lss4py._pandera_validation import validate_frame
+
+    return validate_frame(frame, contract, source_positions=source_positions)
 
 
 def _missing(value: Any) -> bool:
@@ -73,51 +88,6 @@ def _timestamp(value: Any) -> datetime:
     )
 
 
-def _number_type(value: Any, integer: bool) -> str | None:
-    """Check numerical types and exact integral floats without implicit coercion."""
-    if isinstance(value, bool) or not isinstance(value, Real):
-        return "INVALID_TYPE"
-    if isinstance(value, Integral):
-        return None
-    if not isfinite(value):
-        return "NONFINITE"
-    if integer and not _exact_integer(value):
-        return "INVALID_INTEGER"
-    return None
-
-
-def _exact_integer(value: Any) -> bool:
-    """Whether a finite real preserves an integer in the float64 exact range."""
-    return value == int(value) and -(2**53) <= value <= 2**53
-
-
-def _numeric(value: Any, rule: ColumnRule) -> str | None:
-    """Check numeric bounds only after establishing a valid numerical domain."""
-    code = _number_type(value, rule.kind == "integer")
-    if code is not None:
-        return code
-    if rule.minimum is not None and value < rule.minimum:
-        return "OUT_OF_RANGE"
-    if rule.maximum is not None and value > rule.maximum:
-        return "OUT_OF_RANGE"
-    return None
-
-
-def _value(value: Any, rule: ColumnRule) -> tuple[Any, str | None]:
-    """Return a canonical valid scalar or a blocking domain code."""
-    if rule.kind in ("numeric", "integer"):
-        code = _numeric(value, rule)
-        normalized = int(value) if code is None and rule.kind == "integer" else value
-        return normalized, code
-    if rule.kind == "timestamp":
-        return _time_value(value)
-    if _kind(value) != rule.kind:
-        return None, "INVALID_TYPE"
-    if rule.kind == "string" and not value.strip():
-        return None, "BLANK_VALUE"
-    return value, None
-
-
 def _time_value(value: Any) -> tuple[Any, str | None]:
     """Translate parser failures into a portable timestamp diagnostic."""
     try:
@@ -126,22 +96,40 @@ def _time_value(value: Any) -> tuple[Any, str | None]:
         return None, "INVALID_TIMESTAMP"
 
 
-def _collect(values: list[Any], nulls: list[bool], rule: ColumnRule) -> tuple:
-    """Inspect individual values while preserving their original positions."""
+def _collect(
+    values: list[Any],
+    nulls: list[bool],
+    rule: ColumnRule,
+    structural_issues: tuple[DataIssue, ...],
+) -> tuple:
+    """Normalize structurally valid values and retain LSS4PY-owned findings."""
     findings: dict[str, list[int]] = defaultdict(list)
     clean: list[Any] = []
     kinds: set[str] = set()
+    missing_rows = []
+    structurally_invalid = {
+        row for issue in structural_issues if issue.code != "MISSING_VALUES" for row in issue.rows
+    }
     for row, (value, null) in enumerate(zip(values, nulls, strict=True)):
         if null or _missing(value):
-            findings["MISSING_VALUES"].append(row)
+            missing_rows.append(row)
             clean.append(None)
             continue
         kinds.add(_kind(value))
-        normalized, code = _value(value, rule)
+        if row in structurally_invalid:
+            clean.append(None)
+            continue
+        if rule.kind == "timestamp":
+            normalized, code = _time_value(value)
+        elif rule.kind == "string" and not value.strip():
+            normalized, code = None, "BLANK_VALUE"
+        else:
+            normalized = int(value) if rule.kind == "integer" else value
+            code = None
         if code is not None:
             findings[code].append(row)
         clean.append(None if code else normalized)
-    return findings, clean, kinds
+    return findings, clean, kinds, tuple(missing_rows)
 
 
 def _column(
@@ -149,14 +137,28 @@ def _column(
     nulls: list[bool],
     rule: ColumnRule,
     unit: str | None,
-    key: bool,
+    structural_issues: tuple[DataIssue, ...],
 ) -> tuple[ColumnProfile, list[DataIssue], list[Any]]:
     """Inspect one column and retain canonical scalars for cross-column checks."""
-    findings, clean, kinds = _collect(values, nulls, rule)
-    issues = _column_issues(findings, rule, key)
+    findings, clean, kinds, missing_rows = _collect(
+        values,
+        nulls,
+        rule,
+        structural_issues,
+    )
+    issues = [*structural_issues, *_semantic_issues(findings, rule)]
+    issues.sort(key=lambda issue: min(issue.rows))
     issues.extend(_units(rule, unit))
     issues.extend(_timezone_issues(clean, rule.name))
-    profile = _profile(rule, unit, kinds, findings, clean)
+    profile = _profile(
+        rule,
+        unit,
+        kinds,
+        structural_issues,
+        findings,
+        clean,
+        missing_rows,
+    )
     return profile, issues, clean
 
 
@@ -172,14 +174,22 @@ def _timezone_issues(clean: list[Any], name: str) -> list[DataIssue]:
 
 
 def _profile(
-    rule: ColumnRule, unit: str | None, kinds: set[str], findings: dict, clean: list
+    rule: ColumnRule,
+    unit: str | None,
+    kinds: set[str],
+    structural_issues: tuple[DataIssue, ...],
+    findings: dict,
+    clean: list,
+    missing_rows: tuple[int, ...],
 ) -> ColumnProfile:
     """Count portable missingness, distinct valid values and invalid scalar observations."""
-    invalid_count = sum(len(rows) for code, rows in findings.items() if code != "MISSING_VALUES")
+    invalid_count = sum(
+        len(issue.rows) for issue in structural_issues if issue.code != "MISSING_VALUES"
+    ) + sum(len(rows) for rows in findings.values())
     profile = ColumnProfile(
         rule.name,
         "|".join(sorted(kinds)) or "missing",
-        len(findings["MISSING_VALUES"]),
+        len(missing_rows),
         len({v for v in clean if v is not None}),
         invalid_count,
         rule.unit,
@@ -188,21 +198,19 @@ def _profile(
     return profile
 
 
-def _column_issues(
+def _semantic_issues(
     findings: dict[str, list[int]],
     rule: ColumnRule,
-    key: bool,
 ) -> list[DataIssue]:
-    """Apply nullable policy while keeping identifier missingness blocking."""
+    """Return findings deliberately retained outside Pandera."""
     issues = []
     for code, rows in findings.items():
         if not rows:
             continue
-        severity = "warning" if code == "MISSING_VALUES" and rule.nullable and not key else "error"
         issues.append(
             DataIssue(
                 code,
-                severity,
+                "error",
                 f"{rule.name}: {code.lower().replace('_', ' ')}.",
                 (rule.name,),
                 tuple(rows),
@@ -273,20 +281,6 @@ def _invalid_rows(issues: list[DataIssue]) -> frozenset[int]:
     return frozenset(row for issue in issues if issue.severity == "error" for row in issue.rows)
 
 
-def _cross_checks(
-    values: dict[str, list[Any]],
-    contract: DataContract,
-    excluded: frozenset[int],
-) -> list[DataIssue]:
-    """Report explicit key/row duplicates and impossible ordered time pairs."""
-    issues = []
-    issues.extend(_duplicate_issues(values, contract, excluded))
-    for start, end in contract.timestamp_order:
-        if start in values and end in values:
-            issues.extend(_time_order(values[start], values[end], (start, end)))
-    return issues
-
-
 def _time_order(starts: list[Any], ends: list[Any], columns: tuple[str, str]) -> list[DataIssue]:
     """Distinguish reversed intervals from incompatible timezone awareness."""
     findings: dict[str, list[int]] = defaultdict(list)
@@ -328,29 +322,40 @@ def validate_data(
     category; nullable columns warn, while missing keys always block. Extra columns
     are reported by name but are outside the declared checks.
     """
-    frame = _eager(data)
+    frame = _canonical(data, contract)
     report, _ = _inspect(frame, contract, _source_units(source_units))
     return report
 
 
 def _inspect(
-    frame: nw.DataFrame,
+    canonical: CanonicalFrame,
     contract: DataContract,
     units: dict[str, str],
 ) -> tuple[DataValidationReport, dict[str, list[Any]]]:
     """Share inspection between reporting and explicit preparation."""
-    if not isinstance(contract, DataContract):
-        raise ValidationError("contract must be a DataContract.")
-    if set(units) - set(frame.columns):
+    frame = canonical.to_polars(copy=False)
+    source_columns = tuple(name for name, _ in canonical.source_schema)
+    if set(units) - set(source_columns):
         raise ValidationError("source_units references absent columns.")
+    source_positions = (
+        canonical.source_positions if frame.height == canonical.source_row_count else None
+    )
+    structural = _validate_structural(
+        frame,
+        contract,
+        source_positions=source_positions,
+    )
     profiles, issues, clean = [], [], {}
-    if len(frame) == 0:
+    if canonical.source_row_count == 0:
         issues.append(DataIssue("EMPTY_DATA", "error", "No rows were supplied."))
     for rule in contract.columns:
+        column_issues = tuple(
+            issue
+            for issue in structural
+            if issue.columns == (rule.name,) and issue.code != "DUPLICATE_ROWS"
+        )
         if rule.name not in frame.columns:
-            issues.append(
-                DataIssue("MISSING_COLUMN", "error", "Required column is absent.", (rule.name,))
-            )
+            issues.extend(column_issues)
             continue
         series = frame[rule.name]
         profile, notes, values = _column(
@@ -358,19 +363,22 @@ def _inspect(
             series.is_null().to_list(),
             rule,
             units.get(rule.name),
-            rule.name in contract.key_columns,
+            column_issues,
         )
         profiles.append(profile)
         issues.extend(notes)
         clean[rule.name] = values
-    issues.extend(_cross_checks(clean, contract, _invalid_rows(issues)))
+    issues.extend(_duplicate_issues(clean, contract, _invalid_rows(issues)))
+    for start, end in contract.timestamp_order:
+        if start in clean and end in clean:
+            issues.extend(_time_order(clean[start], clean[end], (start, end)))
     return DataValidationReport(
         contract,
-        len(frame),
-        tuple(frame.columns),
+        canonical.source_row_count,
+        source_columns,
         tuple(profiles),
         tuple(issues),
-        detect_backend(frame),
+        canonical.source_backend,
     ), clean
 
 
@@ -389,7 +397,7 @@ def normalize_data(
     boolean or unit coercion occurs. Other blocking defects cause ValidationError.
     Both reports, transformations and original row positions remain inspectable.
     """
-    frame = _eager(data)
+    frame = _canonical(data, contract)
     if not isinstance(drop_missing, bool) or not isinstance(drop_duplicates, bool):
         raise ValidationError("Row exclusion options must be boolean.")
     units = _source_units(source_units)

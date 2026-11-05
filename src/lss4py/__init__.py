@@ -1,4 +1,6 @@
 from lss4py._kernels.capability import capability_indices
+from lss4py._kernels.capability_study import capability_study
+from lss4py._kernels.control_chart import control_chart
 from lss4py._kernels.data_quality import normalize_data, validate_data
 from lss4py._kernels.defect_yield import process_yield
 from lss4py._kernels.descriptive import describe
@@ -26,8 +28,10 @@ from lss4py.domain import (
     AnalysisBundle,
     AnalysisWindow,
     CapabilityResult,
+    CapabilityStudyResult,
     ColumnProfile,
     ColumnRule,
+    ControlChartResult,
     DataContract,
     DataIssue,
     DataValidationReport,
@@ -116,7 +120,11 @@ __all__ = [
     "get_analysis",
     "get_candidates",
     "CapabilityResult",
+    "CapabilityStudyResult",
     "capability_indices",
+    "capability_study",
+    "ControlChartResult",
+    "control_chart",
     "DescriptiveResult",
     "DistributionProfileResult",
     "MeanCIResult",

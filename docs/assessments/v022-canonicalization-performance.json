@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "method": "canonicalization_performance",
+  "environment": {
+    "python": "3.14.2",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "numpy": "2.5.4",
+    "pandas": "3.1.1",
+    "polars": "2.1.0",
+    "pyarrow": "26.0.1",
+    "pandera": "0.35.0",
+    "narwhals": "2.28.0"
+  },
+  "configuration": {
+    "rows": 20000,
+    "wide_columns": 128,
+    "repeats": 5,
+    "timing": "median perf_counter after one warmup",
+    "python_memory": "maximum tracemalloc peak across repeats",
+    "process_memory": "scenario peak RSS minus post-source baseline"
+  },
+  "scenarios": [
+    {
+      "backend": "polars",
+      "shape": "narrow",
+      "rows": 20000,
+      "source_columns": 1,
+      "selected_columns": 1,
+      "conversion": {
+        "median_seconds": 0.019008707953616977,
+        "python_peak_mib": 0.9238567352294922
+      },
+      "validation": {
+        "median_seconds": 0.0053218749817460775,
+        "python_peak_mib": 2.500335693359375
+      },
+      "total_analysis": {
+        "median_seconds": 0.007509707997087389,
+        "python_peak_mib": 0.8041114807128906
+      },
+      "process_peak_rss_delta_mib": 18.390625
+    },
+    {
+      "backend": "polars",
+      "shape": "wide",
+      "rows": 20000,
+      "source_columns": 128,
+      "selected_columns": 1,
+      "conversion": {
+        "median_seconds": 0.020768375019542873,
+        "python_peak_mib": 0.938746452331543
+      },
+      "validation": {
+        "median_seconds": 0.005953332991339266,
+        "python_peak_mib": 2.500335693359375
+      },
+      "total_analysis": {
+        "median_seconds": 0.008829292026348412,
+        "python_peak_mib": 0.8190622329711914
+      },
+      "process_peak_rss_delta_mib": 16.40625
+    },
+    {
+      "backend": "pandas",
+      "shape": "narrow",
+      "rows": 20000,
+      "source_columns": 1,
+      "selected_columns": 1,
+      "conversion": {
+        "median_seconds": 0.04427608399419114,
+        "python_peak_mib": 1.090383529663086
+      },
+      "validation": {
+        "median_seconds": 0.006299624976236373,
+        "python_peak_mib": 2.500335693359375
+      },
+      "total_analysis": {
+        "median_seconds": 0.016044542018789798,
+        "python_peak_mib": 1.0892467498779297
+      },
+      "process_peak_rss_delta_mib": 10.9375
+    },
+    {
+      "backend": "pandas",
+      "shape": "wide",
+      "rows": 20000,
+      "source_columns": 128,
+      "selected_columns": 1,
+      "conversion": {
+        "median_seconds": 0.036109708016738296,
+        "python_peak_mib": 1.09326171875
+      },
+      "validation": {
+        "median_seconds": 0.0055564590147696435,
+        "python_peak_mib": 2.500335693359375
+      },
+      "total_analysis": {
+        "median_seconds": 0.02084812498651445,
+        "python_peak_mib": 1.0919418334960938
+      },
+      "process_peak_rss_delta_mib": 15.390625
+    },
+    {
+      "backend": "pyarrow",
+      "shape": "narrow",
+      "rows": 20000,
+      "source_columns": 1,
+      "selected_columns": 1,
+      "conversion": {
+        "median_seconds": 0.035718291997909546,
+        "python_peak_mib": 0.9236822128295898
+      },
+      "validation": {
+        "median_seconds": 0.00587058300152421,
+        "python_peak_mib": 2.500335693359375
+      },
+      "total_analysis": {
+        "median_seconds": 0.005917208036407828,
+        "python_peak_mib": 0.7953042984008789
+      },
+      "process_peak_rss_delta_mib": 9.171875
+    },
+    {
+      "backend": "pyarrow",
+      "shape": "wide",
+      "rows": 20000,
+      "source_columns": 128,
+      "selected_columns": 1,
+      "conversion": {
+        "median_seconds": 0.021128458029124886,
+        "python_peak_mib": 0.9385719299316406
+      },
+      "validation": {
+        "median_seconds": 0.004717208968941122,
+        "python_peak_mib": 2.500335693359375
+      },
+      "total_analysis": {
+        "median_seconds": 0.00919350003823638,
+        "python_peak_mib": 0.8156843185424805
+      },
+      "process_peak_rss_delta_mib": 17.875
+    }
+  ],
+  "budgets": {
+    "time_per_operation_seconds": 2.0,
+    "process_peak_rss_delta_mib": 256.0,
+    "status": "pass",
+    "failures": []
+  }
+}

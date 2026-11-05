@@ -11,6 +11,8 @@ Not Suitable When: You need raw NumPy arrays (convert results with .to_numpy() i
 See ADR-0003, ADR-0004, TR-009, TR-015, TR-016, TR-020, TR-033.
 """
 
+from __future__ import annotations
+
 import json
 from abc import ABC
 from dataclasses import asdict, dataclass, field
@@ -605,6 +607,53 @@ class DistributionProfileResult(AnalyticalResult):
 
 
 @dataclass(slots=True)
+class CapabilityStudyResult(AnalyticalResult):
+    """Explicit short-/long-term capability, distribution, and observed-risk evidence."""
+
+    schema_version: str = "1.0"
+    specification: dict[str, Any] = field(default_factory=dict)
+    short_term_capability: CapabilityResult | None = None
+    short_term_distribution: DistributionProfileResult | None = None
+    short_term_nonconformance: dict[str, int | float] = field(default_factory=dict)
+    long_term_capability: CapabilityResult | None = None
+    long_term_distribution: DistributionProfileResult | None = None
+    long_term_nonconformance: dict[str, int | float] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize nested typed evidence without recalculating the study."""
+        base = AnalyticalResult.to_dict(self)
+        base.update(
+            {
+                "schema_version": self.schema_version,
+                "specification": self.specification,
+                "short_term_capability": (
+                    None
+                    if self.short_term_capability is None
+                    else self.short_term_capability.to_dict()
+                ),
+                "short_term_distribution": (
+                    None
+                    if self.short_term_distribution is None
+                    else self.short_term_distribution.to_dict()
+                ),
+                "short_term_nonconformance": self.short_term_nonconformance,
+                "long_term_capability": (
+                    None
+                    if self.long_term_capability is None
+                    else self.long_term_capability.to_dict()
+                ),
+                "long_term_distribution": (
+                    None
+                    if self.long_term_distribution is None
+                    else self.long_term_distribution.to_dict()
+                ),
+                "long_term_nonconformance": self.long_term_nonconformance,
+            }
+        )
+        return base
+
+
+@dataclass(slots=True)
 class MeanCIResult(AnalyticalResult):
     """Confidence interval for a population mean with an optional normality diagnostic."""
 
@@ -648,6 +697,87 @@ class MeanCIResult(AnalyticalResult):
                 "shapiro_p_value": self.shapiro_p_value,
                 "normality_alpha": self.normality_alpha,
                 "unit": self.unit,
+            }
+        )
+        return base
+
+
+@dataclass(slots=True)
+class ControlChartResult(AnalyticalResult):
+    """Moving-range evidence with explicit adjacent identities and frozen limits."""
+
+    schema_version: str = "1.0"
+    chart: Literal["moving_range"] = "moving_range"
+    phase: Literal["I", "II"] = "I"
+    moving_ranges: np.ndarray = field(default_factory=lambda: np.array([], dtype=float))
+    pair_start_positions: np.ndarray = field(default_factory=lambda: np.array([], dtype=np.int64))
+    pair_end_positions: np.ndarray = field(default_factory=lambda: np.array([], dtype=np.int64))
+    pair_start_keys: np.ndarray | None = None
+    pair_end_keys: np.ndarray | None = None
+    lcl: float = 0.0
+    center_line: float = 0.0
+    ucl: float = 0.0
+    signal_indices: np.ndarray = field(default_factory=lambda: np.array([], dtype=np.int64))
+    signal_source_positions: np.ndarray = field(
+        default_factory=lambda: np.array([], dtype=np.int64)
+    )
+    observation_count: int = 0
+    baseline_observation_count: int = 0
+    nsigmas: float = 3.0
+    unit: str | None = None
+    baseline_result_fingerprint: str | None = None
+
+    def to_frame(self, backend: str = "polars"):
+        """Return detached pair-level chart evidence in the requested backend."""
+        start_keys = (
+            self.pair_start_positions.tolist()
+            if self.pair_start_keys is None
+            else self.pair_start_keys.tolist()
+        )
+        end_keys = (
+            self.pair_end_positions.tolist()
+            if self.pair_end_keys is None
+            else self.pair_end_keys.tolist()
+        )
+        signals = set(self.signal_indices.tolist())
+        rows = {
+            "pair_index": list(range(len(self.moving_ranges))),
+            "start_source_position": self.pair_start_positions.tolist(),
+            "end_source_position": self.pair_end_positions.tolist(),
+            "start_key": start_keys,
+            "end_key": end_keys,
+            "moving_range": self.moving_ranges.tolist(),
+            "signal": [index in signals for index in range(len(self.moving_ranges))],
+        }
+        return _native_result_frame(rows, backend)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize complete pair identity, limits, signals, and baseline evidence."""
+        base = AnalyticalResult.to_dict(self)
+        base.update(
+            {
+                "schema_version": self.schema_version,
+                "chart": self.chart,
+                "phase": self.phase,
+                "moving_ranges": self.moving_ranges.tolist(),
+                "pair_start_positions": self.pair_start_positions.tolist(),
+                "pair_end_positions": self.pair_end_positions.tolist(),
+                "pair_start_keys": (
+                    None if self.pair_start_keys is None else self.pair_start_keys.tolist()
+                ),
+                "pair_end_keys": (
+                    None if self.pair_end_keys is None else self.pair_end_keys.tolist()
+                ),
+                "lcl": self.lcl,
+                "center_line": self.center_line,
+                "ucl": self.ucl,
+                "signal_indices": self.signal_indices.tolist(),
+                "signal_source_positions": self.signal_source_positions.tolist(),
+                "observation_count": self.observation_count,
+                "baseline_observation_count": self.baseline_observation_count,
+                "nsigmas": self.nsigmas,
+                "unit": self.unit,
+                "baseline_result_fingerprint": self.baseline_result_fingerprint,
             }
         )
         return base

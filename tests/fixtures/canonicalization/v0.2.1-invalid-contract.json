@@ -1,0 +1,67 @@
+{
+  "capability_missing_limits": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "Capability requires at least one specification limit.",
+    "status": "error"
+  },
+  "deadline_empty_eligible_population": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "No eligible orders; deadline miss rate is undefined.",
+    "status": "error"
+  },
+  "descriptive_infinite_measurement": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "Column 'value' contains infinity; correct it before analysis.",
+    "status": "error"
+  },
+  "descriptive_missing_column": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "Missing required columns: absent",
+    "status": "error"
+  },
+  "distribution_duplicate_key": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "Explicit row keys must be unique; duplicate keys were supplied.",
+    "status": "error"
+  },
+  "lazy_input": {
+    "exception": "lss4py.errors.UnsupportedInputError",
+    "message": "Supply an eager pandas/Polars frame or PyArrow Table; lazy plans are not collected.",
+    "status": "error"
+  },
+  "lead_time_negative": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "Lead time cannot be negative.",
+    "status": "error"
+  },
+  "mean_interval_missing_raise": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "Column 'value' contains missing measurements.",
+    "status": "error"
+  },
+  "process_cycle_efficiency_zero_lead": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "Lead time must be greater than zero for process cycle efficiency.",
+    "status": "error"
+  },
+  "process_yield_fractional_count": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "defects must contain finite, exact integer counts.",
+    "status": "error"
+  },
+  "stage_yield_nonbinary": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "Column 'completed' contains non-binary values; expected 0 or 1.",
+    "status": "error"
+  },
+  "unsupported_mapping_input": {
+    "exception": "lss4py.errors.UnsupportedInputError",
+    "message": "Supply an eager pandas/Polars frame or PyArrow Table; lazy plans are not collected.",
+    "status": "error"
+  },
+  "wait_time_cycle_exceeds_lead": {
+    "exception": "lss4py.errors.ValidationError",
+    "message": "Wait time cannot be negative. Check lead and cycle time inputs.",
+    "status": "error"
+  }
+}

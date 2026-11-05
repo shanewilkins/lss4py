@@ -10,10 +10,11 @@ from math import isfinite, prod
 from numbers import Integral, Real
 from typing import Any
 
-import narwhals as nw
+import polars as pl
 
-from lss4py._frames import eager_frame
-from lss4py._kernels._helpers import build_provenance, require_columns
+from lss4py._frames import CanonicalFrame, canonical_frame, eager_frame
+from lss4py._kernels._helpers import build_provenance
+from lss4py._polars_extract import require_columns
 from lss4py.domain import DefectYieldResult
 from lss4py.errors import ValidationError
 from lss4py.guidance import AnalysisSuitability, register_analysis
@@ -32,7 +33,7 @@ def _count(value: Any, label: str) -> int:
     return count
 
 
-def _counts(frame: nw.DataFrame, column: str) -> tuple[int, ...]:
+def _counts(frame: pl.DataFrame, column: str) -> tuple[int, ...]:
     """Preserve positional alignment and integer precision across eager backends."""
     require_columns(frame, column)
     return tuple(_count(value, column) for value in frame[column].to_list())
@@ -103,21 +104,32 @@ def process_yield(
     Returns:
         Versioned DefectYieldResult with fractions, counts, denominators and provenance.
     """
-    frame = eager_frame(data)
+    eager_frame(data)
     _columns(defects_column, rework_column)
     denominator = _positive_count(opportunities, "opportunities")
     unit_count = None if units is None else _positive_count(units, "units")
+    selected = (defects_column,) if rework_column is None else (defects_column, rework_column)
+    canonical = canonical_frame(data, selected)
+    frame = canonical.to_polars(copy=False)
     defects = _counts(frame, defects_column)
     rework = (0,) * len(defects) if rework_column is None else _counts(frame, rework_column)
     if not defects:
         raise ValidationError("At least one count bucket is required.")
     if sum(defects) + sum(rework) > denominator:
         raise ValidationError("Combined defect and rework counts cannot exceed opportunities.")
-    return _result(frame, defects, rework, denominator, unit_count, defects_column, rework_column)
+    return _result(
+        canonical,
+        defects,
+        rework,
+        denominator,
+        unit_count,
+        defects_column,
+        rework_column,
+    )
 
 
 def _result(
-    frame: nw.DataFrame,
+    frame: CanonicalFrame,
     defects: tuple[int, ...],
     rework: tuple[int, ...],
     denominator: int,

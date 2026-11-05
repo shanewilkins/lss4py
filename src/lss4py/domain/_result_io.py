@@ -41,13 +41,15 @@ def _restore_arrays(payload: dict, kind: str) -> None:
         for name in ("bucket_defects", "bucket_rework", "bucket_first_time_yields"):
             payload[name] = tuple(payload[name])
     if kind == "CapabilityResult":
-        for name in ("confidence_interval", "cp_confidence_interval", "cpk_confidence_interval"):
-            if payload[name] is not None:
-                payload[name] = tuple(payload[name])
+        _restore_capability_intervals(payload)
+    if kind == "CapabilityStudyResult":
+        _restore_capability_study(payload)
     if kind == "MeanCIResult":
         payload["confidence_interval"] = tuple(payload["confidence_interval"])
     if kind == "DistributionProfileResult":
         _restore_distribution_arrays(payload)
+    if kind == "ControlChartResult":
+        _restore_control_chart_arrays(payload)
 
 
 def _restore_distribution_arrays(payload: dict) -> None:
@@ -79,6 +81,35 @@ def _restore_distribution_arrays(payload: dict) -> None:
             dtype=int if name in integer_arrays else float,
         )
     for name in ("keys", "outlier_keys"):
+        payload[name] = None if payload[name] is None else np.array(payload[name], dtype=object)
+
+
+def _restore_capability_intervals(payload: dict) -> None:
+    """Restore optional capability intervals as immutable endpoint pairs."""
+    for name in ("confidence_interval", "cp_confidence_interval", "cpk_confidence_interval"):
+        if payload[name] is not None:
+            payload[name] = tuple(payload[name])
+
+
+def _restore_capability_study(payload: dict) -> None:
+    """Restore required and optional nested analytical evidence."""
+    for name in ("short_term_capability", "short_term_distribution"):
+        payload[name] = restore_result(payload[name])
+    for name in ("long_term_capability", "long_term_distribution"):
+        payload[name] = None if payload[name] is None else restore_result(payload[name])
+
+
+def _restore_control_chart_arrays(payload: dict) -> None:
+    """Restore moving-range values, pair identities, and signal positions."""
+    payload["moving_ranges"] = np.array(payload["moving_ranges"], dtype=float)
+    for name in (
+        "pair_start_positions",
+        "pair_end_positions",
+        "signal_indices",
+        "signal_source_positions",
+    ):
+        payload[name] = np.array(payload[name], dtype=np.int64)
+    for name in ("pair_start_keys", "pair_end_keys"):
         payload[name] = None if payload[name] is None else np.array(payload[name], dtype=object)
 
 

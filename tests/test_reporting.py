@@ -6,10 +6,17 @@ import numpy as np
 import polars as pl
 import pytest
 
-from lss4py import ValidationError, distribution_profile, lead_time, mean_confidence_interval
+from lss4py import (
+    ValidationError,
+    control_chart,
+    distribution_profile,
+    lead_time,
+    mean_confidence_interval,
+)
 from lss4py.domain import AssumptionNote
 from lss4py.reporting.visualization import (
     plot_box,
+    plot_control_chart,
     plot_ecdf,
     plot_histogram,
     plot_mean_interval,
@@ -120,6 +127,55 @@ def test_mean_interval_plot_uses_stored_estimate_and_bounds():
         plt.close("all")
 
 
+def test_control_chart_plot_uses_stored_pair_identity_limits_and_signals():
+    result = control_chart(
+        pl.DataFrame(
+            {
+                "sample": ["a", "b", "c", "d", "e"],
+                "value": [10.0, 11.0, 12.0, 13.0, 30.0],
+            }
+        ),
+        column="value",
+        key_column="sample",
+        unit="minutes",
+    )
+    before = result.to_dict()
+    ax = plot_control_chart(result)
+    try:
+        lines = {line.get_label(): line for line in ax.lines}
+        assert np.asarray(lines["Moving range"].get_xdata()).tolist() == [1, 2, 3, 4]
+        assert np.asarray(lines["Moving range"].get_ydata()).tolist() == [1, 1, 1, 17]
+        assert np.asarray(lines["LCL"].get_ydata()).tolist() == [result.lcl, result.lcl]
+        assert np.asarray(lines["Center line"].get_ydata()).tolist() == [
+            result.center_line,
+            result.center_line,
+        ]
+        assert np.asarray(lines["UCL"].get_ydata()).tolist() == [result.ucl, result.ucl]
+        assert np.asarray(ax.collections[0].get_offsets()).tolist() == [[4.0, 17.0]]
+        assert [label.get_text() for label in ax.get_xticklabels()] == ["b", "c", "d", "e"]
+        assert ax.get_xlabel() == "Ending key"
+        assert ax.get_ylabel() == "Moving range (minutes)"
+        assert ax.get_title().endswith("Phase I")
+        assert result.to_dict() == before
+    finally:
+        import matplotlib.pyplot as plt
+
+        plt.close("all")
+
+
+def test_control_chart_plot_accepts_caller_axes_and_positional_identity():
+    import matplotlib.pyplot as plt
+
+    result = control_chart(pl.DataFrame({"value": [1.0, 2.0, 1.0]}), column="value")
+    _, supplied = plt.subplots()
+    try:
+        assert plot_control_chart(result, ax=supplied) is supplied
+        assert [label.get_text() for label in supplied.get_xticklabels()] == ["1", "2"]
+        assert supplied.get_xlabel() == "Ending observation"
+    finally:
+        plt.close("all")
+
+
 def test_distribution_plots_use_stored_evidence(distribution):
     import matplotlib.pyplot as plt
 
@@ -201,6 +257,7 @@ def test_histogram_requires_prepared_density_evidence():
     ("plotter", "match"),
     [
         (plot_mean_interval, "MeanCIResult"),
+        (plot_control_chart, "ControlChartResult"),
         (plot_histogram, "DistributionProfileResult"),
         (plot_ecdf, "DistributionProfileResult"),
         (plot_qq, "DistributionProfileResult"),

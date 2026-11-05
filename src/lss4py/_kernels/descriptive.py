@@ -8,13 +8,13 @@ from decimal import Decimal
 from math import ceil
 from typing import Any, Literal, cast, overload
 
-import narwhals as nw
 import numpy as np
 import scipy
 from scipy import stats
 
-from lss4py._frames import eager_frame
-from lss4py._kernels._helpers import build_provenance, measurement_values, require_columns
+from lss4py._frames import CanonicalFrame, canonical_frame, eager_frame
+from lss4py._kernels._helpers import build_provenance
+from lss4py._polars_extract import first_observed_groups, measurement_values
 from lss4py.domain import AssumptionNote, DescriptiveResult
 from lss4py.errors import ValidationError
 from lss4py.guidance import AnalysisSuitability, register_analysis
@@ -49,22 +49,6 @@ def _group_value(value: Any) -> Any:
     if isinstance(value, float) and np.isfinite(value):
         return value
     raise ValidationError("Group identifiers must be finite scalars, dates, or missing values.")
-
-
-def _groups(frame: nw.DataFrame, columns: list[str]) -> list[tuple[dict, list[int]]]:
-    """Partition observations in first-seen order, retaining missing group identifiers."""
-    groups: dict[tuple, list[int]] = {}
-    selected = frame.select(columns)
-    nulls = selected.select(nw.all().is_null())
-    for index, (row, missing) in enumerate(
-        zip(selected.iter_rows(), nulls.iter_rows(), strict=True)
-    ):
-        key = tuple(
-            _group_value(None if is_null else value)
-            for value, is_null in zip(row, missing, strict=True)
-        )
-        groups.setdefault(key, []).append(index)
-    return [(dict(zip(columns, key, strict=True)), indices) for key, indices in groups.items()]
 
 
 def _location(
@@ -136,7 +120,10 @@ def _shape(result: DescriptiveResult, values: np.ndarray, excess: bool) -> None:
 
 
 def _summarize(
-    frame: nw.DataFrame, values: np.ndarray, parameters: dict[str, Any], group_keys: dict
+    frame: CanonicalFrame,
+    values: np.ndarray,
+    parameters: dict[str, Any],
+    group_keys: dict,
 ) -> DescriptiveResult:
     """Build one auditable summary, including exclusions and unavailable values."""
     valid = values[~np.isnan(values)]
@@ -213,14 +200,19 @@ def _policies(missing: str, scale: str, excess: bool, percentile_method: str) ->
         raise ValidationError("excess_kurtosis must be a boolean.")
 
 
-def _group_columns(frame: nw.DataFrame, group_by: str | Sequence[str] | None) -> list[str]:
+def _group_columns(
+    source_columns: Sequence[str],
+    group_by: str | Sequence[str] | None,
+) -> list[str]:
     """Resolve and validate grouping columns without silently dropping keys."""
     columns = [group_by] if isinstance(group_by, str) else list(group_by or [])
     if group_by is not None and not columns:
         raise ValidationError("group_by must contain at least one column.")
     if len(set(columns)) != len(columns):
         raise ValidationError("group_by columns must be unique.")
-    require_columns(frame, *columns)
+    missing = [column for column in columns if column not in source_columns]
+    if missing:
+        raise ValidationError(f"Missing required columns: {', '.join(missing)}")
     return columns
 
 
@@ -327,11 +319,15 @@ def describe(
     declared = _summary_context(cohort, clock, boundary)
     levels = _options(ddof, percentiles)
     _policies(missing, measurement_scale, excess_kurtosis, percentile_method)
-    frame = eager_frame(data)
+    source = eager_frame(data)
+    if column not in source.columns:
+        raise ValidationError(f"Missing required columns: {column}")
+    columns = _group_columns(source.columns, group_by)
+    canonical = canonical_frame(data, (column, *columns))
+    frame = canonical.to_polars(copy=False)
     values = measurement_values(frame, column)
     if missing == "raise" and np.isnan(values).any():
         raise ValidationError(f"Column '{column}' contains missing measurements.")
-    columns = _group_columns(frame, group_by)
     parameters = {
         "column": column,
         "group_by": columns,
@@ -348,10 +344,10 @@ def describe(
     }
     parameters.update(declared)
     if group_by is None:
-        return _summarize(frame, values, parameters, {})
+        return _summarize(canonical, values, parameters, {})
     return [
-        _summarize(frame, values[indices], parameters, keys)
-        for keys, indices in _groups(frame, columns)
+        _summarize(canonical, values[list(indices)], parameters, keys)
+        for keys, indices in first_observed_groups(frame, tuple(columns), _group_value)
     ]
 
 
