@@ -7,6 +7,7 @@ from lss4py._kernels.descriptive import describe
 from lss4py._kernels.distribution import distribution_profile
 from lss4py._kernels.inference import mean_confidence_interval
 from lss4py._kernels.orders import deadline_performance, validate_order_summary
+from lss4py._kernels.quality_loss import quality_loss, quality_loss_analysis
 from lss4py._kernels.reconstruction import reconstruct_orders
 from lss4py._kernels.timing import (
     lead_time,
@@ -54,6 +55,7 @@ from lss4py.domain import (
     ProcessEdgeIR,
     ProcessModelIR,
     ProcessStepIR,
+    QualityLossResult,
     Specification,
     StageBindingsIR,
     TimingResult,
@@ -121,8 +123,11 @@ __all__ = [
     "get_candidates",
     "CapabilityResult",
     "CapabilityStudyResult",
+    "QualityLossResult",
     "capability_indices",
     "capability_study",
+    "quality_loss",
+    "quality_loss_analysis",
     "ControlChartResult",
     "control_chart",
     "DescriptiveResult",

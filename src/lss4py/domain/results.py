@@ -607,6 +607,71 @@ class DistributionProfileResult(AnalyticalResult):
 
 
 @dataclass(slots=True)
+class QualityLossResult(AnalyticalResult):
+    """Calibrated per-observation loss and empirical summaries with original row identity."""
+
+    schema_version: str = "1.0"
+    convention: str = "nominal"
+    target: float | None = None
+    tolerance: float = 1.0
+    loss_at_tolerance: float = 0.0
+    coefficient: float = 0.0
+    values: np.ndarray = field(default_factory=lambda: np.array([], dtype=float))
+    losses: np.ndarray = field(default_factory=lambda: np.array([], dtype=float))
+    source_positions: np.ndarray = field(default_factory=lambda: np.array([], dtype=np.int64))
+    keys: np.ndarray | None = None
+    count: int = 0
+    total: int = 0
+    missing: int = 0
+    mean_squared_deviation: float = 0.0
+    average_loss: float = 0.0
+    sample_loss: float = 0.0
+    production_size: int | None = None
+    total_loss: float | None = None
+    unit: str | None = None
+    loss_unit: str = "currency"
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize calibrated evidence without recomputing losses or summaries."""
+        base = AnalyticalResult.to_dict(self)
+        for name in (
+            "schema_version",
+            "convention",
+            "target",
+            "tolerance",
+            "loss_at_tolerance",
+            "coefficient",
+            "count",
+            "total",
+            "missing",
+            "mean_squared_deviation",
+            "average_loss",
+            "sample_loss",
+            "production_size",
+            "total_loss",
+            "unit",
+            "loss_unit",
+        ):
+            base[name] = getattr(self, name)
+        for name in ("values", "losses", "source_positions"):
+            base[name] = getattr(self, name).tolist()
+        base["keys"] = None if self.keys is None else self.keys.tolist()
+        return base
+
+    def to_frame(self, backend: str = "polars"):
+        """Return detached row-level loss evidence in the requested eager backend."""
+        return _native_result_frame(
+            {
+                "source_position": self.source_positions.tolist(),
+                "key": self.source_positions.tolist() if self.keys is None else self.keys.tolist(),
+                "measurement": self.values.tolist(),
+                "loss": self.losses.tolist(),
+            },
+            backend,
+        )
+
+
+@dataclass(slots=True)
 class CapabilityStudyResult(AnalyticalResult):
     """Explicit short-/long-term capability, distribution, and observed-risk evidence."""
 

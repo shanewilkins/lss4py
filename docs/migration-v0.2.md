@@ -1,11 +1,10 @@
 # Preparing for v0.2
 
-This guide covers the current working tree and v0.2 contract. Version 0.2.2
-advances the accepted 0.2.1 behavior with the canonical dataframe boundary and
-is published and verified from official PyPI. Check the
-[release audit](assessments/v02-release-readiness.md) before upgrading a deployed
-book or application. The [0.2.2 release notes](releases/v0.2.2.md) describe
-the canonical dataframe boundary.
+This guide covers the published v0.2 contract. Version 0.2.2 advances the accepted
+0.2.1 behavior with the canonical dataframe boundary and is published and verified
+from official PyPI. Check the [release notes](releases/v0.2.2.md) before upgrading
+a deployed book or application. [Current status](STATUS.md) separately identifies
+unreleased checkout additions.
 
 ## Public imports and observation models
 
@@ -88,7 +87,7 @@ a documented pre-1.0 result-contract change.
 choice without inspecting data or executing analysis. Call `choice.record(result)`
 to retain it in a matching typed result; scalar choices can be stored as
 `choice.to_dict()` in audit context. Outcome/predictor and sampling declarations
-are exposed for all thirteen registered methods.
+are exposed for registered methods in the selected release.
 
 Per-row PCE remains the default. For cohort efficiency explicitly select
 `aggregation="cohort"` and bind case, lead and VA fields, units, clock, boundary,

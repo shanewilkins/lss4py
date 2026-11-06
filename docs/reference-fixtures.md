@@ -38,10 +38,10 @@ against a moving book checkout.
 records independently derived acceptance targets. `tests/test_book_fixture.py`
 checks source integrity, normalization, arithmetic, correction counts, and the
 WNF-003 VA hand check, plus existing PCE arithmetic on explicit totals. The separate
-`tests/test_prepared_preview.py` verifies the implemented public nearest-rank,
-promise and cohort-PCE slice; full public reconstruction remains future work.
-No sibling checkout, network, or
-simulation engine is required to run them.
+`tests/test_prepared_preview.py` verifies the public nearest-rank, promise and
+cohort-PCE slice. `tests/test_reconstruction.py` and the installed book journey
+verify the separately implemented activity-to-order route. No sibling checkout,
+network or simulation engine is required to run these fixture checks.
 
 ## Evidence and integrity
 
@@ -132,12 +132,16 @@ a checksummed generator artifact, invalid-input evidence, and explicit semantic
 differences. Metadata validation cannot prove that a generator was executed;
 reviewers must inspect the script and actual generation evidence.
 
-The `r-sixsigma-baseline` entry now has this source kind and
-`validation_status="reference_only"`. It was generated using R 4.6.1 and SixSigma
-0.11.1, with complete session information and 17-digit JSON output. Its seventeen valid
-cases include two-sided and upper-only Cp, Cp/Cpk confidence limits, offset Cpk,
-short-/long-term Z, and yield with/without rework. Six invalid-domain cases record
-actual R errors, warnings, or returned values rather than assuming rejection.
+The `r-sixsigma-baseline` entry has this source kind and
+`validation_status="reference_only"`. The current snapshot was generated using
+R 4.6.2 and SixSigma 0.11.1, with complete session information and 17-digit JSON
+output. Its retained cases cover Cp/Cpk and intervals, specification Z,
+defect/rework yield, mean inference, MR Phase I/II and the parked Taguchi WIP.
+The Taguchi cases remain reference evidence outside the Yellow Belt release gate.
+Invalid-domain cases retain
+actual R errors, warnings or returned values rather than assuming rejection.
+The separate locked verifier reproduces all 40 retained cases; the catalog and
+fixture artifacts own the exact case inventory.
 
 Important recorded differences: `ss.ca.yield` returns a data frame; its DPU field
 is the sum of defects. Zero opportunities return infinities, while mismatched
@@ -170,7 +174,7 @@ fixture version when the reference changes substantively. The first generation
 and a second byte-for-byte verification run succeeded locally.
 
 TR-007 remains partial because additional retained R method families need reference
-coverage. All 31 retained R cases reproduce; current Python parity includes
+coverage. All 40 retained R cases reproduce; current Python parity includes
 Cp/Cpk estimates and intervals, specification Z distances, four defect/rework
 yield cases, mean intervals, and MR(2) Phase I/II behavior with documented
 semantic differences. The R compatibility statuses remain Partial. NIST certification, Python backend

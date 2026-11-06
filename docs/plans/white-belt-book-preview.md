@@ -1,5 +1,10 @@
 # White Belt book preview sprint plan
 
+> Historical scope/acceptance plan. The prepared preview and declared
+> reconstruction routes are implemented; the package is published. Only the
+> sibling book dependency/render acceptance remains unverified here. See
+> [current status](../STATUS.md) and the [0.3 checklist](v03-yellow-belt.md).
+
 - Updated: 2026-10-23
 - Status: Prepared preview, numeric ingestion and activity-to-order reconstruction implemented; official release/book integration remains
 - Source: `fromTheBook.md`, supplied and read in this chat; the source file is

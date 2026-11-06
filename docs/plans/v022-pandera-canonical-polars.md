@@ -1,10 +1,15 @@
 # v0.2.2 Pandera and canonical Polars plan
 
-- Status: Approved for implementation
+> Historical implementation plan. Version 0.2.2 is published; see the
+> [release record](../releases/v0.2.2.md) for acceptance and
+> [current status](../STATUS.md) for ongoing work. The plan below preserves its
+> original design and delivery sequence.
+
+- Status: Completed; published and verified 2026-11-05
 - Approved: 2026-11-05
 - Release: 0.2.2
 - Scope: Dataframe execution and validation architecture
-- Follow-up: Resume the v0.3 moving-range control-chart slice after 0.2.2
+- Follow-up at planning time: MR implementation, now delivered in the checkout
 
 ## Objective
 

@@ -5,6 +5,13 @@
 > The practitioner-progression decision remains proposed. ADR-0019 supersedes
 > this record's module-organization examples and implementation roadmap.
 
+> 2026-11-06 scope note: the active [roadmap](../roadmap.md) and
+> [0.3 workflow plan](../plans/v03-yellow-belt.md) replace this proposal's older
+> Yellow Belt feature list for release planning. In particular, Taguchi quality
+> loss is outside Yellow Belt; preserved implementation is parked unreleased WIP.
+> The five analytical teaching workflows govern the current package gate; the
+> separate model authoring/rendering table belongs to FLO.
+
 **Context:**
 
 LSS4PY supports a progression from foundation to mastery aligned to Six Sigma belt certifications.

@@ -10,6 +10,7 @@ from lss4py.domain import (
     ControlChartResult,
     DistributionProfileResult,
     MeanCIResult,
+    QualityLossResult,
     TimingResult,
 )
 from lss4py.errors import ValidationError
@@ -107,6 +108,30 @@ def plot_control_chart(result: ControlChartResult, *, ax: Axes | None = None) ->
         ax.set_xlabel("Ending key" if result.pair_end_keys is not None else "Ending observation")
         ax.set_ylabel(f"Moving range ({result.unit})" if result.unit else "Moving range")
         ax.set_title(f"{result.name} — Phase {result.phase}")
+        ax.legend()
+    return ax
+
+
+def plot_quality_loss(result: QualityLossResult, *, ax: Axes | None = None) -> Axes:
+    """Plot stored observation/loss pairs and calibration without evaluating a new curve."""
+    if not isinstance(result, QualityLossResult):
+        raise ValidationError("plot_quality_loss requires a QualityLossResult.")
+    plt, sns = _plotting()
+    with sns.axes_style("whitegrid"):
+        if ax is None:
+            _, ax = plt.subplots(layout="constrained")
+        ax.scatter(result.values, result.losses, label="Modeled observation loss")
+        ax.axhline(result.average_loss, linestyle="--", label="Average loss")
+        ax.axhline(result.loss_at_tolerance, linestyle=":", label="Calibration loss")
+        if result.target is not None:
+            ax.axvline(result.target, color="black", linestyle=":", label="Target")
+        ax.set_xlabel(f"Measurement ({result.unit})" if result.unit else "Measurement")
+        ax.set_ylabel(f"Modeled loss ({result.loss_unit} per unit)")
+        ax.set_title(
+            f"Quality loss — {result.convention}-the-better"
+            if result.convention != "nominal"
+            else "Quality loss — nominal-the-best"
+        )
         ax.legend()
     return ax
 

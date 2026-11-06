@@ -30,6 +30,8 @@ observe <- function(api, arguments) {
     return(list(status = "error", error_class = class(result),
                 message = conditionMessage(result), warnings = as.list(warnings)))
   }
+  # Preserve expression evidence as text, without evaluating or changing it.
+  if (api == "ss.lfa") result$lfa.lf <- paste(deparse(result$lfa.lf), collapse = " ")
   list(status = "returned", value = result, result_class = class(result),
        warnings = as.list(warnings))
 }
@@ -53,6 +55,27 @@ control_reference <- function(id, arguments) {
 }
 
 expected <- list(
+  reference("lf-unit-tolerance", "ss.lf", list(
+    lfa.Y1 = 11, lfa.Delta = 1, lfa.Y0 = 10, lfa.L0 = 2
+  )),
+  reference("lf-vector-unit-tolerance", "ss.lf", list(
+    lfa.Y1 = x, lfa.Delta = 1, lfa.Y0 = 10, lfa.L0 = 2
+  )),
+  reference("lf-nonunit-tolerance-difference", "ss.lf", list(
+    lfa.Y1 = 10.5, lfa.Delta = 0.5, lfa.Y0 = 10, lfa.L0 = 2
+  )),
+  reference("lfa-nominal", "ss.lfa", list(
+    lfa.data = data.frame(x = x), lfa.ctq = "x", lfa.Delta = 0.5,
+    lfa.Y0 = 10, lfa.L0 = 2, lfa.size = 100, lfa.output = "text"
+  )),
+  reference("lfa-smaller", "ss.lfa", list(
+    lfa.data = data.frame(x = c(0, 1, 2, 3, 4)), lfa.ctq = "x", lfa.Delta = 2,
+    lfa.Y0 = 0, lfa.L0 = 8, lfa.size = 100, lfa.output = "text"
+  )),
+  reference("lfa-larger", "ss.lfa", list(
+    lfa.data = data.frame(x = c(1, 2, 4, 5, 10)), lfa.ctq = "x", lfa.Delta = 2,
+    lfa.Y0 = Inf, lfa.L0 = 8, lfa.output = "text"
+  )),
   reference("cp-two-sided", "ss.ca.cp", list(x = x, LSL = 6, USL = 14)),
   reference("cp-upper-only", "ss.ca.cp", list(x = x, USL = 14)),
   reference("cp-confidence", "ss.ca.cp", list(x = x, LSL = 6, USL = 14, ci = TRUE)),
@@ -89,6 +112,16 @@ expected <- list(
   ))
 )
 invalid <- list(
+  reference("lf-zero-tolerance", "ss.lf", list(
+    lfa.Y1 = 11, lfa.Delta = 0, lfa.Y0 = 10, lfa.L0 = 2
+  )),
+  reference("lf-negative-cost", "ss.lf", list(
+    lfa.Y1 = 11, lfa.Delta = 1, lfa.Y0 = 10, lfa.L0 = -2
+  )),
+  reference("lfa-nonnumeric-tolerance", "ss.lfa", list(
+    lfa.data = data.frame(x = x), lfa.ctq = "x", lfa.Delta = "bad",
+    lfa.Y0 = 10, lfa.L0 = 2, lfa.output = "text"
+  )),
   reference("cp-no-limits", "ss.ca.cp", list(x = x)),
   reference("cpk-nonnumeric", "ss.ca.cpk", list(x = c("a", "b"), LSL = 6, USL = 14)),
   reference("z-no-limits", "ss.ca.z", list(x = x)),

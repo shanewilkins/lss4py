@@ -50,6 +50,16 @@ def _restore_arrays(payload: dict, kind: str) -> None:
         _restore_distribution_arrays(payload)
     if kind == "ControlChartResult":
         _restore_control_chart_arrays(payload)
+    if kind == "QualityLossResult":
+        _restore_quality_loss_arrays(payload)
+
+
+def _restore_quality_loss_arrays(payload: dict) -> None:
+    """Restore loss measurements, modeled costs and original row identity."""
+    for name in ("values", "losses"):
+        payload[name] = np.array(payload[name], dtype=float)
+    payload["source_positions"] = np.array(payload["source_positions"], dtype=np.int64)
+    payload["keys"] = None if payload["keys"] is None else np.array(payload["keys"], dtype=object)
 
 
 def _restore_distribution_arrays(payload: dict) -> None:

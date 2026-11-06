@@ -1,5 +1,10 @@
 # v0.2.1: FLO-backed White Belt measurement workflow
 
+> Historical implementation plan for the completed standalone integration sprint.
+> Version 0.2.1 and its 0.2.2 successor have been published. The dated sprint
+> records below retain their original release handoff; use
+> [current status](../STATUS.md) for remaining book deployment and 0.3 work.
+
 - Accepted scope: 2026-10-24.
 - Status: Accepted locally 2026-10-27; S1–S6 complete. Release/publication steps remain separate.
 - Release target: v0.2.1, following the v0.2.0 candidate.

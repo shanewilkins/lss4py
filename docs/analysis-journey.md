@@ -68,6 +68,17 @@ assets that do not belong in the analytics core remain explicit ecosystem scope.
 
 Relevant requirements: UR-006, UR-007, UR-012, UR-029, UR-033, UR-034, UR-045.
 
+## Yellow Belt delivery boundary
+
+This journey spans the whole product; its method lists are not a checklist for
+0.3. The [Yellow Belt workflow plan](plans/v03-yellow-belt.md) defines five package
+workflows: explicit-cohort process measures, descriptive/stratified visualization,
+null-model enumeration/sampling, introductory intervals/t comparisons, and
+instructor-reviewed chart examples for learner interpretation. Independent chart
+selection remains later work. FLO owns the separate model authoring/validation/
+rendering and current/proposed diagram workflows. Taguchi is parked unreleased
+WIP outside Yellow Belt; broad method portfolios retain later roadmap gates.
+
 ## Product interaction model
 
 For a governed analysis, LSS4PY should:

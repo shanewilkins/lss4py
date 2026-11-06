@@ -31,7 +31,7 @@ Read at least these sources before reaching conclusions:
 - `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, and `LICENSE.md`;
 - `pyproject.toml` and `uv.lock`;
 - `docs/README.md`, `docs/analysis-journey.md`, `docs/roadmap.md`, and the current
-  continuation guide `docs/V02-PROGRESS.md`;
+  continuation guide `docs/STATUS.md`;
 - the guides for the declared surface, including backend contracts, descriptive
   statistics, specifications, capability indices, defect/rework yield, data quality,
   analysis guidance, analysis bundles, ecosystem integration and numerical references;

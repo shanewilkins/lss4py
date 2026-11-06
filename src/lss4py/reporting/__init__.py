@@ -6,6 +6,7 @@ from .visualization import (
     plot_histogram,
     plot_mean_interval,
     plot_qq,
+    plot_quality_loss,
     plot_timing,
 )
 
@@ -17,6 +18,7 @@ __all__ = [
     "plot_histogram",
     "plot_mean_interval",
     "plot_qq",
+    "plot_quality_loss",
     "plot_timing",
     "to_markdown",
 ]

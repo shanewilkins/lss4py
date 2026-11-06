@@ -1,5 +1,94 @@
 [
   {
+    "id": "lf-zero-tolerance",
+    "method": "ss.lf",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "lfa.Y1": 11,
+      "lfa.Delta": 0,
+      "lfa.Y0": 10,
+      "lfa.L0": 2
+    },
+    "expected": {
+      "status": "error",
+      "error_class": ["simpleError", "error", "condition"],
+      "message": "The tolerance of the process must be greater than 0",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "lf-negative-cost",
+    "method": "ss.lf",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "lfa.Y1": 11,
+      "lfa.Delta": 1,
+      "lfa.Y0": 10,
+      "lfa.L0": -2
+    },
+    "expected": {
+      "status": "returned",
+      "value": -2,
+      "result_class": "numeric",
+      "warnings": [
+        "The Cost of poor quality at tolerance limit should be greater than 0"
+      ]
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "lfa-nonnumeric-tolerance",
+    "method": "ss.lfa",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "lfa.data": [
+        {
+          "x": 8
+        },
+        {
+          "x": 9
+        },
+        {
+          "x": 10
+        },
+        {
+          "x": 11
+        },
+        {
+          "x": 12
+        }
+      ],
+      "lfa.ctq": "x",
+      "lfa.Delta": "bad",
+      "lfa.Y0": 10,
+      "lfa.L0": 2,
+      "lfa.output": "text"
+    },
+    "expected": {
+      "status": "error",
+      "error_class": ["simpleError", "error", "condition"],
+      "message": "Please provide a valid tolerance value (lfa.Delta).",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
     "id": "cp-no-limits",
     "method": "ss.ca.cp",
     "input_kind": "r_arguments",

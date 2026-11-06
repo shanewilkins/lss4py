@@ -1,5 +1,8 @@
 # Capability studies
 
+Implemented in the checkout as unreleased 0.3 work; absent from published 0.2.2.
+See [current status](STATUS.md).
+
 `capability_study` composes normal capability indices, distribution diagnostics,
 and observed nonconformance for an explicitly declared short-term sample and an
 optional separately declared long-term sample.

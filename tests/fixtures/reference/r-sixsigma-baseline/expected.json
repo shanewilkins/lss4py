@@ -1,5 +1,217 @@
 [
   {
+    "id": "lf-unit-tolerance",
+    "method": "ss.lf",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "lfa.Y1": 11,
+      "lfa.Delta": 1,
+      "lfa.Y0": 10,
+      "lfa.L0": 2
+    },
+    "expected": {
+      "status": "returned",
+      "value": 2,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "lf-vector-unit-tolerance",
+    "method": "ss.lf",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "lfa.Y1": [8, 9, 10, 11, 12],
+      "lfa.Delta": 1,
+      "lfa.Y0": 10,
+      "lfa.L0": 2
+    },
+    "expected": {
+      "status": "returned",
+      "value": [8, 2, 0, 2, 8],
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "lf-nonunit-tolerance-difference",
+    "method": "ss.lf",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "lfa.Y1": 10.5,
+      "lfa.Delta": 0.5,
+      "lfa.Y0": 10,
+      "lfa.L0": 2
+    },
+    "expected": {
+      "status": "returned",
+      "value": 1,
+      "result_class": "numeric",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "lfa-nominal",
+    "method": "ss.lfa",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "lfa.data": [
+        {
+          "x": 8
+        },
+        {
+          "x": 9
+        },
+        {
+          "x": 10
+        },
+        {
+          "x": 11
+        },
+        {
+          "x": 12
+        }
+      ],
+      "lfa.ctq": "x",
+      "lfa.Delta": 0.5,
+      "lfa.Y0": 10,
+      "lfa.L0": 2,
+      "lfa.size": 100,
+      "lfa.output": "text"
+    },
+    "expected": {
+      "status": "returned",
+      "value": {
+        "lfa.k": 8,
+        "lfa.lf": "expression(bold(L == 8 %.% (Y - 10)^2))",
+        "lfa.MSD": 2,
+        "lfa.avLoss": 16,
+        "lfa.Loss": 1600
+      },
+      "result_class": "list",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "lfa-smaller",
+    "method": "ss.lfa",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "lfa.data": [
+        {
+          "x": 0
+        },
+        {
+          "x": 1
+        },
+        {
+          "x": 2
+        },
+        {
+          "x": 3
+        },
+        {
+          "x": 4
+        }
+      ],
+      "lfa.ctq": "x",
+      "lfa.Delta": 2,
+      "lfa.Y0": 0,
+      "lfa.L0": 8,
+      "lfa.size": 100,
+      "lfa.output": "text"
+    },
+    "expected": {
+      "status": "returned",
+      "value": {
+        "lfa.k": 2,
+        "lfa.lf": "expression(bold(L == 2 %.% Y^2))",
+        "lfa.MSD": 6,
+        "lfa.avLoss": 12,
+        "lfa.Loss": 1200
+      },
+      "result_class": "list",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
+    "id": "lfa-larger",
+    "method": "ss.lfa",
+    "input_kind": "r_arguments",
+    "parameters": {
+      "lfa.data": [
+        {
+          "x": 1
+        },
+        {
+          "x": 2
+        },
+        {
+          "x": 4
+        },
+        {
+          "x": 5
+        },
+        {
+          "x": 10
+        }
+      ],
+      "lfa.ctq": "x",
+      "lfa.Delta": 2,
+      "lfa.Y0": "Inf",
+      "lfa.L0": 8,
+      "lfa.output": "text"
+    },
+    "expected": {
+      "status": "returned",
+      "value": {
+        "lfa.k": 32,
+        "lfa.lf": "expression(bold(L == 32 %.% (1/Y^2)))",
+        "lfa.MSD": 0.27250000000000002,
+        "lfa.avLoss": 8.7200000000000006,
+        "lfa.Loss": "NA"
+      },
+      "result_class": "list",
+      "warnings": []
+    },
+    "tolerance": {
+      "absolute": 9.9999999999999998e-13,
+      "relative": 9.9999999999999998e-13
+    },
+    "tolerance_reason": "Retain 17-digit R output; future Python estimates use float64 tolerances.",
+    "basis": "Executed the exported function in the installed SixSigma 0.11.1 package."
+  },
+  {
     "id": "cp-two-sided",
     "method": "ss.ca.cp",
     "input_kind": "r_arguments",

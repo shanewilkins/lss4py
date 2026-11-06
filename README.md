@@ -14,9 +14,17 @@ canonical Polars analytical boundary without changing governed results. See the
 evidence](docs/assessments/v022-canonicalization-evidence.md), and
 [migration guide](docs/migration-v0.2.md).
 
-## Stable Today
+The checkout also contains **unreleased 0.3 work**: `control_chart`,
+`ControlChartResult`, `plot_control_chart`, `capability_study` and
+`CapabilityStudyResult`. These are absent from the published 0.2.2 release;
+package metadata still identifying as 0.2.2 does not imply otherwise.
+Taguchi quality-loss work also exists in the checkout as **parked, unreleased
+work in progress**, outside the Yellow Belt/0.3 gate. The 0.3 path centers on a
+explicit process measures, descriptive/visual evidence, repeatable null-model
+examples, introductory interval/t comparisons and supplied-chart interpretation; existing analytical additions do not each create a release obligation.
+See [current status](docs/STATUS.md) and the [0.3 checklist](docs/plans/v03-yellow-belt.md).
 
-The current stable surface is intentionally small.
+## Published 0.2.2 analytical surface
 
 It includes these public functions:
 
@@ -32,8 +40,6 @@ It includes these public functions:
 - `mean_confidence_interval` (mean estimate, t/z interval, and Shapiro-Wilk diagnostic)
 - `distribution_profile` (histogram, ECDF, Q-Q, IQR, shape and optional KDE evidence)
 - `capability_indices` (Cp/Cpk/components/intervals and explicit specification Z)
-- `capability_study` (explicit short-/long-term capability, diagnostics, and observed risk)
-- `control_chart` (MR(2) Phase I limits and frozen Phase II monitoring)
 - `reconstruct_orders` (declared numeric activity-to-order accounting policy)
 - `validate_order_summary` (prepared numeric order contract and consistency checks)
 - `deadline_performance` (fixed-deadline misses with explicit eligible/ineligible cases)
@@ -44,11 +50,10 @@ supports explicit nearest-rank percentiles and measurement sums;
 `process_cycle_efficiency(aggregation="cohort")` returns a ratio of sums with
 cohort identities and denominator evidence.
 
-See the [descriptive statistics guide](docs/descriptive-statistics.md), the
-[capability-study guide](docs/capability-study.md), the
-[moving-range control-chart guide](docs/control-charts.md), and
+See the [descriptive statistics guide](docs/descriptive-statistics.md) and
 [mean confidence interval guide](docs/mean-confidence-interval.md) for examples
-and statistical conventions. The [distribution profile guide](docs/distribution-profile.md)
+and statistical conventions. The unreleased [capability-study](docs/capability-study.md)
+and [moving-range](docs/control-charts.md) guides describe the checkout additions. The [distribution profile guide](docs/distribution-profile.md)
 documents prepared diagnostic evidence and optional Matplotlib renderers.
 
 It also includes a process-model IR for integrating FLO-derived process structure with observed tabular data:
@@ -146,14 +151,16 @@ Branch-aware wait time and process-cycle efficiency remain planned work.
 
 ### Install
 
+These commands run the checkout, including its unreleased additions.
+
 ```bash
-uv sync
+uv sync --locked
 ```
 
 ### Verify
 
 ```bash
-uv run python -c "import lss4py; print('lss4py ready')"
+uv run --locked python -c "import lss4py; print('lss4py ready')"
 ```
 
 ## Example

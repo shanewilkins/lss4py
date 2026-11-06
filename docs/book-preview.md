@@ -55,8 +55,8 @@ invalid observations produce blocking findings with source-row positions.
 
 Every time column must already use the declared unit and operating clock. Numeric
 times are never parsed as dates. Calendar `lead_time` now rejects numeric endpoints
-instead of silently interpreting them as tiny calendar offsets. Numeric event-log
-reconstruction remains v0.3 work. The existing `wait_time` residual calculation is
+instead of silently interpreting them as tiny calendar offsets. The separate [numeric reconstruction route](order-reconstruction.md) is
+implemented for the declared book scope. The existing `wait_time` residual calculation is
 not used as the book's activity waiting formula.
 
 ## Summary, promise and efficiency contracts
@@ -97,21 +97,21 @@ when displayed to one decimal, rather than the unweighted mean of row percentage
 
 The standalone preview, chapter excerpt, notebook and rendered output are supplied
 here. The sibling book uses the official lss4py release selected by its lockfile;
-its published Chapter 9 has not been changed to require these unreleased API
-additions. Publication integration requires releasing the package and updating
-that book dependency through its ordinary release process. No local source
-override is introduced into the book environment.
+the required APIs are present in published 0.2.2. Verification of the book
+dependency/lockfile and the actual Chapter 9 render remains open. Complete that
+integration through the book's ordinary dependency and build process. No local
+source override is introduced into the book environment.
 
 The public prepared-data slice has backend, cutoff/deadline equality, nearest-rank
 counterexample, missing/invalid input, ratio-of-sums, serialization and pinned
 fixture tests. Installed-wheel workflows execute both notebook cells with the
 supplied data and compare saved output. The separate [activity-to-order reconstruction](order-reconstruction.md) now
 reproduces every pinned order and retains load/pass/classification and correction
-evidence. Book publication requirements remain Partial until the official release
-and book dependency update.
+evidence. Book publication requirements remain Partial until dependency and
+render acceptance is verified; another package release is not the missing step.
 
-The accepted 0.2.1 sprint verification passes 1,983 tests with five deferred
+The dated 0.2.1 sprint verification recorded 1,983 tests with five deferred
 expected failures and 95.71% coverage, with Arrow required.
 Installed base/pandas/storage/ecosystem journeys verify the standalone notebook
 and full route. See the [source-fingerprinted acceptance snapshot](assessments/v02-release-gates.json)
-for current exact gate results.
+for that historical gate snapshot; see [current status](STATUS.md) for later verification.

@@ -186,21 +186,21 @@
     },
     {
       "id": "r-sixsigma-baseline",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "purpose": "test_fixture",
       "validation_status": "reference_only",
       "source": {
         "kind": "r_sixsigma",
         "author": "LSS4PY maintainers; R SixSigma authors Emilio L. Cano and contributors",
         "citation": "CRAN SixSigma 0.11.1: https://cran.r-project.org/src/contrib/SixSigma_0.11.1.tar.gz",
-        "version": "SixSigma 0.11.1 reference snapshot 1.4.0",
+        "version": "SixSigma 0.11.1 reference snapshot 1.5.0",
         "accessed_on": "2026-11-05",
-        "derivation": "Executed genuine exported SixSigma functions on original synthetic inputs, capturing returns, errors and warnings. Mean-interval cases include unknown variance, known population variance and the explicit z approximation; moving-range cases cover Phase I and a separate Phase II baseline.",
+        "derivation": "Executed genuine exported SixSigma functions on original synthetic inputs, capturing returns, errors and warnings. Includes mean inference, MR Phase I/II and all three quality-loss conventions. R expressions are preserved as deparsed text in JSON.",
         "package_source_sha256": "8e2235b7d278d7cdc7984ae704c0c2334448bc1219553033cffae99c707c66bd",
         "package": "SixSigma",
         "package_version": "0.11.1",
         "r_version": "R version 4.6.2 (2026-10-29)",
-        "generated_at": "2026-11-05T14:57:48Z",
+        "generated_at": "2026-11-05T18:01:54Z",
         "command": "Rscript --vanilla tests/fixtures/reference/r-sixsigma-baseline/generate.R"
       },
       "license": {
@@ -240,7 +240,9 @@
         "ss.ca.z",
         "ss.ca.yield",
         "ss.ci",
-        "ss.cc"
+        "ss.cc",
+        "ss.lf",
+        "ss.lfa"
       ],
       "semantic_differences": [
         "Cp/Cpk and specification-Z cases pass capability_indices tests; defect/rework yield cases pass process_yield tests.",
@@ -250,7 +252,9 @@
         "R data-frame outputs, warning/error classes and nonfinite string encoding are retained; future Python typed-result and error contracts will differ.",
         "Python sigma_shift is explicit, finite and nonnegative; 1.5 matches R LT=True. Neither shift convention demonstrates measured long-term variation.",
         "Python mean inference separates calculation from plotting, retains t as the unknown-variance default, and reports Shapiro-Wilk as a diagnostic rather than an automatic method selector.",
-        "Python moving-range limits use the equivalent closed-form n=2 d2/d3 constants, retain zero-based adjacent source-pair identity, and require an intact Phase I result for Phase II instead of accepting mutable raw baseline data."
+        "Python moving-range limits use the equivalent closed-form n=2 d2/d3 constants, retain zero-based adjacent source-pair identity, and require an intact Phase I result for Phase II instead of accepting mutable raw baseline data.",
+        "SixSigma 0.11.1 ss.lf uses L0/Delta while ss.lfa uses L0/Delta^2 for nominal loss. Python consistently uses calibrated loss L0 at the tolerance boundary; the non-unit-tolerance scalar disagreement is retained explicitly.",
+        "Python declares nominal/smaller/larger conventions instead of overloading zero/infinite targets; larger targets serialize as null. Negative calibration costs and invalid measurement domains are rejected. R loss expressions are deparsed as text without altering returned numerical fields."
       ],
       "invalid_cases_required": true,
       "artifacts": {
@@ -260,19 +264,19 @@
         },
         "expected": {
           "path": "r-sixsigma-baseline/expected.json",
-          "sha256": "e072f4b18555bfa29f8125b06bacc8e9c007b2265136bf3f20f62666aea1fdb2"
+          "sha256": "64642a62eaffa08f899f3ce05bd20d42c82e90b3fd40cb7bc030b564eb48f0fa"
         },
         "invalid": {
           "path": "r-sixsigma-baseline/invalid.json",
-          "sha256": "d38614e98e0e52d32fe4ae46ca2a276da75262fb4a4626a8d12d4ea83ef66f06"
+          "sha256": "e47fb863aba48fc0dd0081ff12a50e429e99b5242e374e4c10f92189dec34cb2"
         },
         "generator": {
           "path": "r-sixsigma-baseline/generate.R",
-          "sha256": "f13afc2fe62c11b3ff028dbac5fea5e730f15f29f58312a3c663b3ac55e256aa"
+          "sha256": "08d5c8b59ac740235d59e911ea8c4c3a6dedfacd034cb32bdcab2b7ad28d7b75"
         },
         "provenance": {
           "path": "r-sixsigma-baseline/provenance.json",
-          "sha256": "81b06deacb984181332adf0cba42f6ca1fa164fa6ffabf3b5ce4d4e2da2f63a8"
+          "sha256": "3d910b3e2e8c702547a23f9d53beb7c70a9e814f7765a54018c6858d29cb5a4e"
         }
       }
     },

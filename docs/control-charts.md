@@ -1,5 +1,8 @@
 # Moving-range control charts
 
+Implemented in the checkout as unreleased 0.3 work; absent from published 0.2.2.
+See [current status](STATUS.md).
+
 `control_chart` provides the first governed statistical-process-control slice:
 an MR(2) chart over adjacent observations. It separates Phase I limit estimation
 from Phase II monitoring, retains the identity of every adjacent source pair,

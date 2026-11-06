@@ -118,6 +118,28 @@ PROVENANCE_FIELDS = {
 }
 BASE_FIELDS = {"result_type", "name", "provenance", "interpretation_context", "metadata"}
 RESULT_FIELDS = {
+    "QualityLossResult": {
+        "schema_version",
+        "convention",
+        "target",
+        "tolerance",
+        "loss_at_tolerance",
+        "coefficient",
+        "values",
+        "losses",
+        "source_positions",
+        "keys",
+        "count",
+        "total",
+        "missing",
+        "mean_squared_deviation",
+        "average_loss",
+        "sample_loss",
+        "production_size",
+        "total_loss",
+        "unit",
+        "loss_unit",
+    },
     "ProcessMapResult": set(),
     "OrderReconstructionResult": set(),
     "TimingResult": {"values", "unit", "keys", "percentiles"},
@@ -280,6 +302,7 @@ RESULT_FIELDS = {
     },
 }
 METHODS = {
+    "QualityLossResult": {"quality_loss", "quality_loss_analysis"},
     "ProcessMapResult": {"map_process"},
     "OrderReconstructionResult": {"reconstruct_orders"},
     "TimingResult": {"lead_time", "wait_time", "process_cycle_efficiency", "takt_time"},
@@ -468,6 +491,147 @@ def _interval(value: Any) -> None:
         _require(isinstance(value, list) and len(value) == 2, "Invalid confidence interval.")
         _require(all(_number(v) for v in value), "Invalid confidence interval endpoints.")
         _require(value[0] <= value[1], "Confidence interval endpoints are reversed.")
+
+
+def _quality_loss_identity(result: dict) -> None:
+    """Check retained sample alignment, original row positions and portable keys."""
+    _count_fields(result, ("count", "total", "missing"))
+    _require(
+        result["count"] > 0 and result["count"] + result["missing"] == result["total"],
+        "Invalid quality-loss sample counts.",
+    )
+    for name in ("values", "losses", "source_positions"):
+        _numeric_array(result[name], name)
+        _require(len(result[name]) == result["count"], "Quality-loss array length mismatch.")
+    positions = result["source_positions"]
+    _require(
+        all(_integer(pos) and pos < result["total"] for pos in positions)
+        and positions == sorted(set(positions)),
+        "Invalid quality-loss source positions.",
+    )
+    keys = result["keys"]
+    if keys is not None:
+        _require(
+            isinstance(keys, list) and len(keys) == result["count"], "Invalid quality-loss keys."
+        )
+        _require(
+            all(_text(key) or isinstance(key, bool) or _number(key) for key in keys),
+            "Invalid quality-loss scalar keys.",
+        )
+        identities = [(type(key).__name__, key) for key in keys]
+        _require(len(set(identities)) == len(keys), "Duplicate quality-loss keys.")
+
+
+def _quality_loss_calibration(result: dict) -> None:
+    """Check explicit convention, measurement domain and cost calibration."""
+    convention, target = result["convention"], result["target"]
+    _require(convention in ("nominal", "smaller", "larger"), "Invalid quality-loss convention.")
+    if convention == "nominal":
+        _require(_number(target), "Nominal quality loss requires a finite target.")
+    elif convention == "smaller":
+        _require(
+            _number(target) and target == 0 and all(x >= 0 for x in result["values"]),
+            "Invalid smaller-the-better domain.",
+        )
+    else:
+        _require(
+            target is None and all(x > 0 for x in result["values"]),
+            "Invalid larger-the-better domain.",
+        )
+    tolerance, cost = result["tolerance"], result["loss_at_tolerance"]
+    _require(
+        _number(tolerance) and tolerance > 0 and _number(cost) and cost >= 0,
+        "Invalid quality-loss calibration.",
+    )
+    expected = (
+        cost * tolerance * tolerance if convention == "larger" else cost / tolerance / tolerance
+    )
+    _require(
+        _number(expected)
+        and (cost == 0 or expected > 0)
+        and math.isclose(result["coefficient"], expected, rel_tol=1e-12, abs_tol=0),
+        "Quality-loss coefficient disagrees with calibration.",
+    )
+
+
+def _quality_loss_observations(result: dict) -> None:
+    """Check stored loss/value pairing and the declared empirical MSD basis."""
+    squares = []
+    for value, loss in zip(result["values"], result["losses"], strict=True):
+        basis = 1 / value if result["convention"] == "larger" else value - result["target"]
+        square = basis * basis
+        squares.append(square)
+        expected = result["coefficient"] * square
+        _require(
+            _number(expected) and math.isclose(loss, expected, rel_tol=1e-12, abs_tol=0),
+            "Quality loss disagrees with its observation and calibration.",
+        )
+    expected_msd = math.fsum(value / result["count"] for value in squares)
+    _require(
+        math.isclose(result["mean_squared_deviation"], expected_msd, rel_tol=1e-12, abs_tol=0),
+        "Quality-loss MSD disagrees with observations.",
+    )
+
+
+def _quality_loss(result: dict) -> None:
+    """Validate loss evidence without invoking analytical kernels or source I/O."""
+    _require(result["schema_version"] == "1.0", "Unsupported quality-loss schema.")
+    _quality_loss_identity(result)
+    for name in ("coefficient", "mean_squared_deviation", "average_loss", "sample_loss"):
+        _require(_number(result[name]) and result[name] >= 0, f"Invalid quality-loss {name}.")
+    _require(all(loss >= 0 for loss in result["losses"]), "Quality losses must be nonnegative.")
+    _quality_loss_calibration(result)
+    parameters = result["provenance"]["parameters"]
+    for name in (
+        "convention",
+        "target",
+        "tolerance",
+        "loss_at_tolerance",
+        "production_size",
+        "unit",
+        "loss_unit",
+    ):
+        _require(
+            name in parameters and parameters[name] == result[name],
+            f"Quality-loss {name} disagrees with parameters.",
+        )
+    _require(result["unit"] is None or _text(result["unit"]), "Invalid measurement unit.")
+    _require(_text(result["loss_unit"]), "Invalid loss unit.")
+    try:
+        _quality_loss_observations(result)
+        sample_loss = math.fsum(result["losses"])
+        _require(
+            math.isclose(result["sample_loss"], sample_loss, rel_tol=1e-12, abs_tol=0),
+            "Sample loss disagrees with observations.",
+        )
+        _require(
+            math.isclose(
+                result["average_loss"], sample_loss / result["count"], rel_tol=1e-12, abs_tol=0
+            ),
+            "Average loss disagrees with observations.",
+        )
+        _require(
+            math.isclose(
+                result["average_loss"],
+                result["coefficient"] * result["mean_squared_deviation"],
+                rel_tol=1e-12,
+                abs_tol=0,
+            ),
+            "Quality-loss MSD disagrees with average loss.",
+        )
+        size, total = result["production_size"], result["total_loss"]
+        if size is None:
+            _require(total is None, "Production loss requires a declared count.")
+        else:
+            _require(
+                _integer(size) and _number(total) and total >= 0, "Invalid production loss/count."
+            )
+            _require(
+                math.isclose(total, result["average_loss"] * size, rel_tol=1e-12, abs_tol=0),
+                "Production loss disagrees with average loss and count.",
+            )
+    except OverflowError as exc:
+        raise BundleValidationError("Quality-loss evidence arithmetic overflowed.") from exc
 
 
 def _capability(result: dict) -> None:
@@ -956,6 +1120,7 @@ def _process_map(result: dict) -> None:
 
 
 RESULT_CHECKS = {
+    "QualityLossResult": _quality_loss,
     "ProcessMapResult": _process_map,
     "OrderReconstructionResult": _reconstruction,
     "TimingResult": _timing,

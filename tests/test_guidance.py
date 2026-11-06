@@ -15,6 +15,8 @@ METHODS = {
     "reconstruct_orders",
     "capability_indices",
     "capability_study",
+    "quality_loss",
+    "quality_loss_analysis",
     "control_chart",
     "mean_confidence_interval",
     "describe",
@@ -97,7 +99,7 @@ def test_guidance_cannot_execute_an_analysis(monkeypatch):
 
     for name in METHODS:
         monkeypatch.setattr(lss4py, name, fail)
-    assert len(get_candidates()) == 17
+    assert len(get_candidates()) == len(METHODS)
     assert get_analysis("describe").name == "describe"
     assert "data" not in inspect.signature(get_candidates).parameters
 

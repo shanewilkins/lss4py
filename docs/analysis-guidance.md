@@ -3,7 +3,7 @@
 `get_candidates` lists analytical methods matching caller-declared intent.
 `get_analysis` explains a named method. Both return immutable
 `AnalysisSuitability` metadata, never calculations or observed-data diagnostics.
-The catalog covers seventeen supported timing, yield, descriptive, inference,
+The catalog covers supported timing, yield, descriptive, inference,
 capability, and SPC functions.
 
 ```python

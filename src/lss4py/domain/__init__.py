@@ -43,6 +43,7 @@ from .results import (
     MeanCIResult,
     ProcessMapResult,
     Provenance,
+    QualityLossResult,
     TimingResult,
     YieldResult,
 )
@@ -73,6 +74,7 @@ __all__ = [
     "AssumptionReport",
     "CapabilityResult",
     "CapabilityStudyResult",
+    "QualityLossResult",
     "ControlChartResult",
     "ComparisonSlice",
     "DescriptiveResult",

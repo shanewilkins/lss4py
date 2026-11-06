@@ -8,7 +8,10 @@ Reference baseline:
 
 - R package: `SixSigma` 0.11.1
 - R reference: [CRAN help index](https://search.r-project.org/CRAN/refmans/SixSigma/html/00Index.html)
-- LSS4PY snapshot: published 0.2.2 plus unreleased v0.3 work on 2026-11-05
+- LSS4PY snapshot: published 0.2.2 plus unreleased 0.3 work on 2026-11-05.
+  `ss.cc`/`ss.study.ca` mappings below describe checkout additions: `control_chart`,
+  `plot_control_chart` and `capability_study` are absent from published 0.2.2.
+  See [current status](STATUS.md) for the release boundary.
 
 Bundled R example datasets are not treated as API features. Selected datasets may
 instead become test fixtures for cross-language numerical parity.
@@ -76,10 +79,15 @@ functions, not a fourth callable API.
 
 ## Quality loss
 
+Outside Yellow Belt/0.3 as of the maintainer's 2026-11-06 scope decision.
+Existing `quality_loss`/`quality_loss_analysis`, typed results, plotting, tests and
+R fixtures are preserved as parked unreleased WIP; this table does not certify
+completed acceptance. Full R compatibility is not the Yellow Belt release gate.
+
 | R `SixSigma` API | R behavior | Proposed LSS4PY API | Status | Current evidence / parity requirement |
 |---|---|---|---|---|
-| `ss.lf` | Taguchi loss for one observed CTQ value | `quality_loss(value, *, tolerance, target, loss_at_tolerance)` | Gap | Scalar and array-like inputs should use the same nominal-the-best formula as R. |
-| `ss.lfa` | Quality-loss analysis with loss coefficient, MSD, average loss, optional total loss, text, and plot output | `quality_loss_analysis(...)` returning `QualityLossResult` | Gap | Return data only from the analysis function; provide formatting and plotting separately. Cover nominal-, smaller-, and larger-the-better conventions used by R. |
+| `ss.lf` | Taguchi loss for one observed CTQ value | `quality_loss(value, *, tolerance, target, loss_at_tolerance)` | Partial | Parked unreleased WIP exists; acceptance remains incomplete. Scalar and array-like inputs should use the same nominal-the-best formula as R. |
+| `ss.lfa` | Quality-loss analysis with loss coefficient, MSD, average loss, optional total loss, text, and plot output | `quality_loss_analysis(...)` returning `QualityLossResult` | Partial | Parked unreleased WIP exists; acceptance remains incomplete. Return data only from the analysis function; provide formatting and plotting separately. Cover nominal-, smaller-, and larger-the-better conventions used by R. |
 
 ## Process-definition visuals
 
@@ -118,7 +126,7 @@ gaps:
 | `created_to_booked_yield` | Stable | Binary stage-conversion yield. |
 | `booked_to_completed_yield` | Stable | Binary stage-conversion yield. |
 | `rolled_yield` | Stable | Product of the two configured stage yields. |
-| `describe` | Stable descriptive slice | Numeric summaries with typed results and pandas/Polars contract parity; R fixture parity is not yet claimed. |
+| `describe` | Stable descriptive slice | Numeric summaries with typed results and governed eager backend parity; R fixture parity is not yet claimed. |
 | `ProcessModelIR` and related IR types | Stable for the current Yellow Belt slice | Explicit process topology and metric bindings, including parallel and rework semantics. |
 | `map_process` | Experimental | Discovers activity nodes and transition counts from an event log. |
 
