@@ -67,6 +67,7 @@ dev = [
     "pyarrow>=19.0.0",  # Type and contract checks for every supported backend
     "pytest>=8.3.0",
     "pytest-cov>=6.0.0",
+    "pytest-xdist>=3.8.0",
     "ruff>=0.17.2",  # Lint, formatting, docstrings and function complexity
     "seaborn>=0.13.0",  # Optional plotting contract development and typing
     "twine>=6.0.0",  # Distribution metadata validation

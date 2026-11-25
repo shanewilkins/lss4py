@@ -1,6 +1,7 @@
 """Characterize dataframe semantics before canonical Polars execution."""
 
 import json
+from importlib.metadata import version
 from pathlib import Path
 
 import pandas as pd
@@ -34,7 +35,17 @@ def test_complete_neutral_result_baseline(frame_factory, assert_equivalent):
     """Freeze every current result family before changing dataframe execution."""
     expected = json.loads(BASELINE.read_text())
     for payload in expected.values():
-        payload["provenance"].pop("package_version")
+        provenance = payload["provenance"]
+        provenance.pop("package_version")
+        # Keep the recorded fields and check their values against the current environment.
+        runtime_versions = provenance["parameters"]["runtime_versions"]
+        for package in runtime_versions:
+            runtime_versions[package] = version(package)
+        metadata = payload["metadata"]
+        for package in ("numpy", "scipy"):
+            field = f"{package}_version"
+            if field in metadata:
+                metadata[field] = runtime_versions[package]
     actual, _ = results(frame_factory)
     assert_equivalent(
         {name: _neutral(result) for name, result in actual.items()},
